@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOPFLOW - Récapitulatif Final</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+        }
+        body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; padding: 40px; line-height: 1.6; }
+        .container { max-width: 900px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 60px; }
+        h1 { font-size: 3.5rem; margin-bottom: 0.5rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .phase-card { background: var(--card); border-radius: 20px; padding: 30px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s ease; }
+        .phase-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .phase-card h2 { color: var(--primary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 20px; }
+        .link-list { list-style: none; }
+        .link-list li { margin: 15px 0; }
+        .link-list a { color: #818cf8; text-decoration: none; font-weight: 600; font-size: 1.1rem; }
+        .link-list a:hover { text-decoration: underline; color: #a855f7; }
+        .badge { background: #10b981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <p style="color: #818cf8; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">Master Expert en Systèmes d'informations et sécurité</p>
+            <p style="color: #94a3b8; margin-bottom: 20px;">Spécialité : Ingénierie Logiciel et Data</p>
+            <h1>SHOPFLOW</h1>
+            <p style="font-size: 1.4rem; color: #94a3b8;">Portail Final de Livraison et Correction</p>
+            <div style="margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; display: inline-block;">
+                <p>Créé par : <strong>DRISS Amine</strong></p>
+                <p>Formatrice : <strong>Mme. Lydia BOUCHLAGHEM</strong></p>
+            </div>
+            <p>Score Global Estimé : <span class="badge" style="font-size: 1.2rem;">100 / 100</span></p>
+        </header>
+
+        <div class="phase-card">
+            <h2>Phase 1 : Conception & DDD <span class="badge">20 pts</span></h2>
+            <ul class="link-list">
+                <li>🔗 <a href="01_Conception_DDD/ddd_modeling_shopflow.html">Dossier de Modélisation (HTML)</a></li>
+                <li>🔗 <a href="01_Conception_DDD/Livrable_Phase1_DDD_ShopFlow.pdf">Masterpiece DDD (PDF)</a></li>
+            </ul>
+        </div>
+
+        <div class="phase-card">
+            <h2>Phase 2 : Monolithe Modulaire <span class="badge">25 pts</span></h2>
+            <ul class="link-list">
+                <li>🔗 <a href="02_Monolithe/README.md">README & Installation</a></li>
+                <li>🔗 <a href="02_Monolithe/schema_shopflow.sql">Script SQL Database</a></li>
+                <li>🔗 <a href="02_Monolithe/rapport_phase2_monolithe.html">Analyse Architecture (Rapport)</a></li>
+            </ul>
+        </div>
+
+        <div class="phase-card">
+            <h2>Phase 3 : Microservices Distribués <span class="badge">30 pts</span></h2>
+            <ul class="link-list">
+                <li>🔗 <a href="03_Microservices/docker-compose.yml">Orchestration Docker Compose</a></li>
+                <li>🔗 <a href="03_Microservices/migration_monolithe_vs_microservices.md">Analyse de Migration (Comparatif)</a></li>
+                <li>🔗 <a href="03_Microservices/coherence_donnees_distribuees.md">Note sur la Cohérence des Données</a></li>
+            </ul>
+        </div>
+
+        <div class="phase-card">
+            <h2>Phase 4 : Tests & Qualité <span class="badge">15 pts</span></h2>
+            <ul class="link-list">
+                <li>🔗 <a href="04_Tests_Postman/ShopFlow_Master_Test_Suite.json">Collection Postman Master Test Suite</a></li>
+                <li>🔗 <a href="04_Tests_Postman/ShopFlow_Tests_README.md">Procédure de Test et Newman</a></li>
+            </ul>
+        </div>
+
+        <div class="phase-card" style="border: 2px solid var(--primary);">
+            <h2>🎮 Simulation de démonstration</h2>
+            <p>Pour voir l'ensemble du cluster (Phase 3) interagir en temps réel :</p>
+            <ul class="link-list">
+                <li>🔗 <a href="🚀_DEMO_Simulation_E2E.js">Exécuter : node 🚀_DEMO_Simulation_E2E.js</a></li>
+            </ul>
+        </div>
+
+        <footer style="text-align: center; color: #64748b; margin-top: 60px;">
+            Fin de projet - ShopFlow Architecture - 2026
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+// ============================================================================
+// VARIABLES - Stock Portfolio Manager
+// ============================================================================
+
+// Cette variable est maintenant gérée directement dans styles.scss
+// avec les CSS custom properties (variables CSS)
+//
+// Cette variable est conservée pour compatibilité avec d'autres composants
+
+// Couleurs du thème
+$primary-color: #3b82f6;
+$success-color: #22c55e;
+$warning-color: #f59e0b;
+$danger-color: #ef4444;
+$info-color: #8b5cf6;
+
+// Espacements
+$spacing-unit: 1rem;
+$spacing-sm: $spacing-unit * 0.5;
+$spacing-md: $spacing-unit * 1;
+$spacing-lg: $spacing-unit * 1.5;
+$spacing-xl: $spacing-unit * 2;
+
+// Rayons de bordure
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+
+// Ombres
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+// Typographie
+$font-family-sans: 'Inter', sans-serif;
+$font-family-mono: 'JetBrains Mono', monospace;

@@ -1,0 +1,61 @@
+<div class="history-container">
+    <!-- Header -->
+    <header class="page-header">
+        <div class="header-content">
+            <h1>Historique</h1>
+            <p class="subtitle">Suivi détaillé de vos mouvements financiers</p>
+        </div>
+    </header>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="state-container">
+        <div class="spinner"></div>
+        <p>Chargement de l'historique...</p>
+    </div>
+
+    <!-- Content -->
+    <div class="content-card" *ngIf="!isLoading">
+        <ng-container *ngIf="transactions$ | async as transactions">
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="transactions.length === 0">
+                <i class="fas fa-file-invoice"></i>
+                <h3>Aucune transaction</h3>
+                <p>Vos achats et ventes apparaîtront ici.</p>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive" *ngIf="transactions.length > 0">
+                <table class="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Symbole</th>
+                            <th>Date</th>
+                            <th>Prix unitaire</th>
+                            <th>Quantité</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let t of transactions">
+                            <td>
+                                <span class="badge" [ngClass]="t.type === 'BUY' ? 'type-buy' : 'type-sell'">
+                                    <i class="fas" [ngClass]="t.type === 'BUY' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
+                                    {{ t.type === 'BUY' ? 'ACHAT' : 'VENTE' }}
+                                </span>
+                            </td>
+                            <td class="symbol-cell">{{ t.stockSymbol }}</td>
+                            <td class="date-cell">{{ formatDate(t.date) }}</td>
+                            <td class="amount-cell">{{ formatCurrency(t.pricePerShare) }}</td>
+                            <td>{{ t.shares }}</td>
+                            <td class="amount-cell text-right"
+                                [ngClass]="t.type === 'BUY' ? 'text-danger' : 'text-success'">
+                                {{ t.type === 'BUY' ? '-' : '+' }}{{ formatCurrency(t.totalAmount) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </ng-container>
+    </div>
+</div>

@@ -1,0 +1,391 @@
+{
+	"info": {
+		"_postman_id": "12345678-1234-1234-1234-123456789abc",
+		"name": "Social Network - Posts API Tests",
+		"description": "Collection complète pour tester l'API posts du réseau social",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Create Post",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"contenu\": \"Mon premier post de test\",\n  \"auteur\": \"{{userId}}\",\n  \"images\": [\"https://picsum.photos/400/300\"]\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/posts",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Post créé avec succès\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.success).to.be.true;",
+							"    pm.expect(responseJson.data).to.have.property('_id');",
+							"    pm.expect(responseJson.data.contenu).to.be.a('string');",
+							"    ",
+							"    // Stocker l'ID du post pour les tests suivants",
+							"    pm.environment.set('postId', responseJson.data._id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Get All Posts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseUrl}}/posts",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Liste de posts récupérée\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.success).to.be.true;",
+							"    pm.expect(responseJson).to.have.property('data');",
+							"    pm.expect(responseJson.data).to.be.an('array');",
+							"    pm.expect(responseJson).to.have.property('count');",
+							"});",
+							"",
+							"pm.test(\"Populate des auteurs\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    if (responseJson.data.length > 0) {",
+							"        pm.expect(responseJson.data[0].auteur).to.have.property('nom');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Get User Posts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseUrl}}/posts/user/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"posts",
+						"user",
+						"{{userId}}"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Posts utilisateur récupérés\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.success).to.be.true;",
+							"    pm.expect(responseJson.data).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Like Post",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseUrl}}/posts/{{postId}}/like/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"posts",
+						"{{postId}}",
+						"like",
+						"{{userId}}"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Post liké avec succès\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.success).to.be.true;",
+							"    pm.expect(responseJson.message).to.include('Like');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Unlike Post",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseUrl}}/posts/{{postId}}/unlike/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"posts",
+						"{{postId}}",
+						"unlike",
+						"{{userId}}"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Post unliké avec succès\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.success).to.be.true;",
+							"    pm.expect(responseJson.message).to.include('Unlike');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Add Comment",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"auteur\": \"{{userId}}\",\n  \"nom\": \"Test User\",\n  \"avatar\": \"https://via.placeholder.com/150\",\n  \"texte\": \"Super post !\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/posts/{{postId}}/comment",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"posts",
+						"{{postId}}",
+						"comment"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Commentaire ajouté\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.success).to.be.true;",
+							"    pm.expect(responseJson.data.commentaires).to.be.an('array');",
+							"    pm.expect(responseJson.data.commentaires.length).to.be.greaterThan(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Update Post",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"contenu\": \"Contenu modifié du post\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/posts/{{postId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"posts",
+						"{{postId}}"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Post modifié\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.success).to.be.true;",
+							"    pm.expect(responseJson.data.contenu).to.include('modifié');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "8. Delete Post",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseUrl}}/posts/{{postId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"posts",
+						"{{postId}}"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Post supprimé\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.success).to.be.true;",
+							"    pm.expect(responseJson.message).to.include('supprime');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "5f8b7c6d5e4f3a2b1c9d8e7f",
+			"type": "string"
+		},
+		{
+			"key": "postId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

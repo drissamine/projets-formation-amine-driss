@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Professionnel Angular</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        angular: {
+                            DEFAULT: '#DD0031',
+                            dark: '#C3002F',
+                            light: '#F44336'
+                        },
+                        typescript: '#3178C6',
+                        tailwind: '#06B6D4',
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b'
+                    }
+                }
+            }
+        }
+
+        function copyToClipboard(btn) {
+            const container = btn.parentElement;
+            const codeBlock = container.querySelector('.code-block');
+            const text = codeBlock.innerText;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-green-400"><path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" /></svg>`;
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy!', err);
+            });
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .code-block {
+            background-color: #0d1117;
+            color: #e6edf3;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 1rem 0;
+            border: 1px solid #30363d;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        .keyword {
+            color: #ff7b72;
+        }
+
+        .string {
+            color: #a5d6ff;
+        }
+
+        .function {
+            color: #d2a8ff;
+        }
+
+        .comment {
+            color: #8b949e;
+            font-style: italic;
+        }
+
+        .highlight-line {
+            background-color: rgba(221, 0, 49, 0.1);
+            border-left: 3px solid #DD0031;
+            display: block;
+            margin: 0 -1rem;
+            padding: 0 1rem;
+        }
+    </style>
+</head>
+
+<body class="bg-darkbg text-slate-300 antialiased selection:bg-angular selection:text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-darkbg/90 backdrop-blur-md border-b border-slate-700 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <svg class="h-8 w-8 text-angular" viewBox="0 0 250 250" fill="currentColor">
+                        <path
+                            d="M125 30L31.9 63.2l14.2 123.1L125 230l78.9-43.7 14.2-123.1L125 30zm0 142.9l-37.1-17.6-6-46.1h86.2l-6 46.1L125 172.9z">
+                        </path>
+                    </svg>
+                    <span class="text-xl font-bold text-white tracking-tight">Angular<span
+                            class="text-angular">Pro</span></span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#setup"
+                            class="hover:text-angular transition-colors px-3 py-2 rounded-md font-medium">Installation</a>
+                        <a href="#typescript"
+                            class="hover:text-typescript transition-colors px-3 py-2 rounded-md font-medium">TypeScript</a>
+                        <a href="#lazy"
+                            class="hover:text-orange-400 transition-colors px-3 py-2 rounded-md font-medium">Lazy
+                            Loading</a>
+                        <a href="#tools"
+                            class="hover:text-pink-400 transition-colors px-3 py-2 rounded-md font-medium">Outils &
+                            Defer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="relative pt-32 pb-20 sm:pt-40 sm:pb-24 overflow-hidden">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+            <h1 class="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-8">
+                Maîtrisez <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-angular to-orange-500">Angular</span>
+                moderne.
+            </h1>
+            <p class="mt-4 max-w-2xl mx-auto text-xl text-slate-400">
+                Le guide ultime pour configurer, développer, et optimiser vos applications.
+            </p>
+            <div class="mt-10 flex justify-center gap-4">
+                <a href="#lazy"
+                    class="px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-angular hover:bg-angular-dark md:text-lg md:px-10 transition-all shadow-lg hover:shadow-angular/50">
+                    Voir Lazy Loading
+                </a>
+            </div>
+        </div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-angular/20 rounded-full blur-[100px] -z-10">
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
+
+        <!-- Section 1: Setup -->
+        <section id="setup" class="scroll-mt-24">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="text-4xl font-bold text-angular">01</div>
+                <h2 class="text-3xl font-bold text-white">Création et Configuration</h2>
+            </div>
+
+            <div class="bg-cardbg rounded-2xl p-8 border border-slate-700 shadow-xl">
+                <h3 class="text-xl font-semibold text-white mb-4">L'outil indispensable : Angular CLI</h3>
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">1. Installation
+                        </p>
+                        <div class="relative group">
+                            <button onclick="copyToClipboard(this)"
+                                class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                                title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                                </svg></button>
+                            <div class="code-block">npm install -g @angular/cli</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: TypeScript -->
+        <section id="typescript" class="scroll-mt-24">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="text-4xl font-bold text-typescript">02</div>
+                <h2 class="text-3xl font-bold text-white">TypeScript</h2>
+            </div>
+            <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                <p class="mb-4">Typage fort pour des applications robustes.</p>
+                <div class="relative group">
+                    <button onclick="copyToClipboard(this)"
+                        class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                        title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                        </svg></button>
+                    <div class="code-block text-sm"><span class="keyword">interface</span> <span
+                            class="function">User</span> {
+                        id: <span class="keyword">number</span>;
+                        name: <span class="keyword">string</span>;
+                        }</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Design -->
+        <section id="design" class="scroll-mt-24">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="text-4xl font-bold text-tailwind">03</div>
+                <h2 class="text-3xl font-bold text-white">Design Moderne</h2>
+            </div>
+            <div class="bg-gradient-to-br from-cardbg to-slate-900 rounded-2xl p-8 border border-slate-700">
+                <div class="mb-4">
+                    <span
+                        class="inline-block bg-tailwind/20 text-tailwind text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-2">Note</span>
+                    <p>Vous avez mentionné "CSS", mais le standard de l'industrie pour le design utilitaire moderne est
+                        <strong>Tailwind CSS</strong>.</p>
+                </div>
+                <div class="relative group">
+                    <button onclick="copyToClipboard(this)"
+                        class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                        title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                        </svg></button>
+                    <div class="code-block text-xs">npm install -D tailwindcss postcss autoprefixer</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Section: Lazy Loading Masterclass -->
+        <section id="lazy" class="scroll-mt-24">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="text-4xl font-bold text-orange-500">04</div>
+                <h2 class="text-3xl font-bold text-white">Le Lazy Loading (Masterclass)</h2>
+            </div>
+
+            <div class="space-y-12">
+                <!-- Concept -->
+                <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                    <h3 class="text-2xl font-bold text-white mb-4">Pourquoi c'est CRITIQUE ?</h3>
+                    <p class="text-slate-300 mb-6">
+                        Imaginez télécharger Netflix entier juste pour regarder un seul épisode. C'est ce que font les
+                        applications sans Lazy Loading.
+                        <br><br>
+                        <strong>Lazy Loading</strong> = Chargement "Paresseux". On ne télécharge le code de la page
+                        'Admin' QUE lorsque l'utilisateur clique sur 'Admin'.
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="p-6 bg-red-900/20 border border-red-500/30 rounded-xl">
+                            <h4 class="font-bold text-red-400 mb-2">⛔ Eager Loading (Classique)</h4>
+                            <p class="text-sm text-slate-400 mb-4">Tout est chargé au démarrage. L'application est lente
+                                à s'ouvrir.</p>
+                            <div class="code-block text-xs border-red-500/30">import { AdminComponent } from
+                                './admin/admin.component';
+
+                                export const routes: Routes = [
+                                // Mauvaise pratique pour les grosses pages
+                                { path: 'admin', component: AdminComponent }
+                                ];</div>
+                        </div>
+
+                        <div class="p-6 bg-green-900/20 border border-green-500/30 rounded-xl">
+                            <h4 class="font-bold text-green-400 mb-2">✅ Lazy Loading (Recommandé)</h4>
+                            <p class="text-sm text-slate-400 mb-4">Le composant est chargé uniquement à la demande.</p>
+                            <div class="relative group h-full">
+                                <button onclick="copyToClipboard(this)"
+                                    class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                                    title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                                    </svg></button>
+                                <div class="code-block text-xs border-green-500/30 h-auto">export const routes: Routes =
+                                    [
+                                    {
+                                    path: 'admin',
+                                    <span class="highlight-line">loadComponent: () =>
+                                        import('./admin/admin.component')</span>
+                                    .then(m => m.AdminComponent)
+                                    }
+                                    ];
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exercise -->
+                <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-8 border border-orange-500/30">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span
+                            class="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded uppercase">Exercice</span>
+                        <h3 class="text-xl font-bold text-white">À vous de jouer !</h3>
+                    </div>
+                    <p class="mb-4 text-slate-300">Transformez cette route "Lourde" (Catalogue) pour qu'elle utilise le
+                        Lazy Loading.</p>
+
+                    <div class="mb-6">
+                        <p class="text-sm text-slate-500 font-mono mb-2">Code actuel (LENT) :</p>
+                        <div class="code-block text-sm opacity-75">{ path: 'catalogue', component:
+                            CatalogueLourdComponent }</div>
+                    </div>
+
+                    <div class="relative group">
+                        <p class="text-sm text-green-400 font-bold mb-2">Votre solution (Copiez ceci) :</p>
+                        <button onclick="copyToClipboard(this)"
+                            class="absolute top-8 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                            title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg></button>
+                        <div class="code-block text-sm border-l-4 border-green-500">{
+                            path: 'catalogue',
+                            loadComponent: () => import('./catalogue/catalogue.component')
+                            .then(m => m.CatalogueLourdComponent)
+                            }</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Section: Tools & Performance -->
+        <section id="tools" class="scroll-mt-24">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="text-4xl font-bold text-pink-500">05</div>
+                <h2 class="text-3xl font-bold text-white">Outils & Performance</h2>
+            </div>
+
+            <div class="space-y-8">
+                <!-- @defer -->
+                <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                    <h3 class="text-2xl font-bold text-white mb-4">Le Lazy Loading du Futur : @defer</h3>
+                    <p class="mb-4 text-slate-300">
+                        C'est probablement ce que vous cherchiez avec "illading". Angular 17+ permet de charger des
+                        <strong>MORCEAUX</strong> de votre page paresseusement, pas juste des routes entières.
+                    </p>
+                    <div class="relative group">
+                        <button onclick="copyToClipboard(this)"
+                            class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                            title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg></button>
+                        <div class="code-block text-sm"><span class="keyword">@defer</span> (on viewport) {
+                            <span class="comment">// Ce composant lourd ne chargera que si l'utilisateur scrolle
+                                jusqu'ici !</span>
+                            &lt;app-gros-graphique /&gt;
+                            } <span class="keyword">@placeholder</span> {
+                            &lt;div&gt;Chargement du graphique...&lt;/div&gt;
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Angular DevTools (Piloting) -->
+                <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                    <h3 class="text-2xl font-bold text-white mb-4">L'outil de Pilotage : Angular DevTools</h3>
+                    <p class="text-slate-300 mb-6">
+                        Pour "piloter" votre application, vous devez installer l'extension Chrome/Edge <strong>Angular
+                            DevTools</strong>.
+                    </p>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div class="bg-darkbg p-4 rounded-lg border border-slate-800">
+                            <h4 class="font-bold text-white mb-2">🔍 Onglet Components</h4>
+                            <p class="text-sm text-slate-400">Permet de voir l'arbre des composants et d'inspecter
+                                l'état (Inputs, Outputs, propriétés) en temps réel.</p>
+                        </div>
+                        <div class="bg-darkbg p-4 rounded-lg border border-slate-800">
+                            <h4 class="font-bold text-white mb-2">⏱️ Onglet Profiler</h4>
+                            <p class="text-sm text-slate-400">Enregistre les cycles de détection de changement. Si votre
+                                app est lente, c'est ici qu'on voit pourquoi (trop de re-rendus).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500">Généré pour votre succès avec Angular.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

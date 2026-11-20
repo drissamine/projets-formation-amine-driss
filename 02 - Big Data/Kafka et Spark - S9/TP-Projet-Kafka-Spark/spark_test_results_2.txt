@@ -1,0 +1,27 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- C:\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: D:\M2\S9\TP-Projet-Kafka-Spark
+collecting ... collected 10 items
+
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_create_streaming_dataframe FAILED [ 10%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_json_parsing PASSED [ 20%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_1_popularity PASSED [ 30%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_2_engagement PASSED [ 40%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_3_genre_analysis PASSED [ 50%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_4_anomaly_detection PASSED [ 60%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_schema_definition PASSED [ 70%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_window_calculations FAILED [ 80%]
+tests/test_spark_streaming.py::TestSparkSession::test_session_configurations PASSED [ 90%]
+tests/test_spark_streaming.py::TestSparkSession::test_session_creation PASSED [100%]
+
+=========================== short test summary info ===========================
+FAILED tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_create_streaming_dataframe
+FAILED tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_window_calculations
+======================== 2 failed, 8 passed in 18.90s =========================
+Opération réussie : le processus de PID 19620 (processus enfant de PID 1676) a été
+arrêté.
+Opération réussie : le processus de PID 1676 (processus enfant de PID 21480) a été
+arrêté.
+Opération réussie : le processus de PID 21480 (processus enfant de PID 22404) a été
+arrêté.

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport TP3 & TP4 - Installation et DAGs Apache Airflow</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #1a1a2e; line-height: 1.7; }
+        .header { background: linear-gradient(135deg, #017cee 0%, #0057b7 100%); color: #fff; padding: 40px 20px; text-align: center; }
+        .header h1 { font-size: 2.2em; margin-bottom: 8px; }
+        .header p { font-size: 1.1em; opacity: 0.9; }
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+        .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 30px; overflow: hidden; }
+        .card h2 { background: #f8f9fa; padding: 18px 24px; border-bottom: 2px solid #017cee; font-size: 1.4em; display: flex; align-items: center; gap: 10px; }
+        .card h2 .badge { font-size: 0.6em; background: #017cee; color: #fff; padding: 3px 10px; border-radius: 20px; margin-left: 10px; }
+        .card-body { padding: 24px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e9ecef; }
+        th { background: #f8f9fa; font-weight: 600; color: #495057; }
+        tr:hover { background: #f1f8ff; }
+        code { background: #eef2f7; padding: 2px 8px; border-radius: 4px; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.9em; }
+        pre { background: #1e1e2e; color: #cdd6f4; padding: 18px; border-radius: 8px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 12px 0; }
+        pre .kw { color: #cba6f7; } pre .str { color: #a6e3a1; } pre .cm { color: #6c7086; } pre .fn { color: #89b4fa; }
+        .steps { counter-reset: step; list-style: none; padding: 0; }
+        .steps li { counter-increment: step; padding: 14px 16px 14px 50px; position: relative; border-left: 3px solid #017cee; margin: 8px 0 8px 20px; }
+        .steps li::before { content: counter(step); position: absolute; left: -18px; top: 12px; width: 32px; height: 32px; background: #017cee; color: #fff; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 700; font-size: 0.85em; }
+        .ok { color: #2ecc71; font-weight: 600; } .err { color: #e74c3c; font-weight: 600; }
+        .info-box { background: #e7f5ff; border-left: 4px solid #017cee; padding: 15px 20px; border-radius: 6px; margin: 15px 0; }
+        .warn-box { background: #fff8e1; border-left: 4px solid #ffc107; padding: 15px 20px; border-radius: 6px; margin: 15px 0; }
+        .tag { display: inline-block; background: #e8f4fd; color: #017cee; padding: 2px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600; }
+        .footer { text-align: center; padding: 25px; color: #6c757d; font-size: 0.9em; }
+        @media (max-width: 768px) { .header h1 { font-size: 1.5em; } table { font-size: 0.85em; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>TP3 &amp; TP4 — Apache Airflow</h1>
+    <p>Installation, configuration et création de DAGs • Airflow 3.2.1 • Python 3.13</p>
+</div>
+
+<div class="container">
+
+    <!-- =============== SECTION 1: INFOS =============== -->
+    <div class="card">
+        <h2>Informations générales</h2>
+        <div class="card-body">
+            <table>
+                <tr><th>Matière</th><td>Déploiement pipeline</td></tr>
+                <tr><th>Auteur</th><td><strong>DRISS Amine</strong></td></tr>
+                <tr><th>Enseignant</th><td>NOVATIEL / Caplogy</td></tr>
+                <tr><th>Date</th><td>Mai 2026</td></tr>
+                <tr><th>Version Airflow installée</th><td><span class="tag">3.2.1</span> (stable, compatible Python 3.13)</td></tr>
+                <tr><th>Python</th><td>3.13.12</td></tr>
+                <tr><th>OS</th><td>Linux (Kali) — natif, sans WSL</td></tr>
+                <tr><th>Base de données</th><td>SQLite (dev/test)</td></tr>
+                <tr><th>Exécuteur</th><td>LocalExecutor</td></tr>
+                <tr><th>URL interface</th><td><code>http://localhost:8080</code></td></tr>
+                <tr><th>Compte admin</th><td><code>admin</code> / <code>Am4N9wd6kvGWBWw8</code></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- =============== SECTION 2: TP3 INSTALLATION =============== -->
+    <div class="card">
+        <h2>TP3 — Installation d'Apache Airflow</h2>
+        <div class="card-body">
+
+            <div class="info-box">
+                <strong>Contexte :</strong> Le TP original utilisait WSL (Windows) avec Ubuntu 24.04 et Python 3.12.
+                L'installation a été adaptée pour <strong>Linux natif</strong> avec <strong>Python 3.13</strong>
+                en installant Airflow <strong>3.2.1</strong> (au lieu de 2.9.3) car c'est la version stable
+                compatible avec Python ≥3.10.
+            </div>
+
+            <h3>Étapes d'installation</h3>
+            <ol class="steps">
+                <li><strong>Vérification de l'environnement :</strong>
+                    <br>Python 3.13.12 détecté. Airflow 2.9.3 nécessite Python &lt;3.13 → version 3.2.1 utilisée.</li>
+                <li><strong>Création du répertoire de travail :</strong>
+                    <br><code>mkdir -p ~/airflow</code></li>
+                <li><strong>Environnement virtuel :</strong>
+                    <br><code>python3 -m venv ~/airflow_env</code></li>
+                <li><strong>Installation d'Airflow :</strong>
+                    <br><code>pip install 'apache-airflow==3.2.1' --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.2.1/constraints-3.13.txt"</code>
+                    <br><span class="ok">✓ Succès — 106 paquets installés</span></li>
+                <li><strong>Initialisation de la base :</strong>
+                    <br><code>airflow db migrate</code> (remplace <code>db init</code> d'Airflow 2.x)</li>
+                <li><strong>Lancement (mode standalone) :</strong>
+                    <br><code>airflow standalone</code> — lance webserver + scheduler + triggerer + API server</li>
+                <li><strong>Vérification :</strong>
+                    <br><code>curl http://localhost:8080</code> → <span class="ok">HTTP 200 OK</span></li>
+            </ol>
+
+            <h3>Différences avec le TP original (WSL + Airflow 2.9.3)</h3>
+            <table>
+                <tr><th>Élément</th><th>TP original (Windows/WSL)</th><th>Notre installation</th></tr>
+                <tr><td>Système</td><td>WSL2 + Ubuntu 24.04</td><td>Linux natif (Kali)</td></tr>
+                <tr><td>Python</td><td>3.12.3</td><td>3.13.12</td></tr>
+                <tr><td>Airflow</td><td>2.9.3</td><td>3.2.1</td></tr>
+                <tr><td>Init DB</td><td><code>airflow db init</code></td><td><code>airflow db migrate</code></td></tr>
+                <tr><td>Utilisateur</td><td><code>airflow users create</code></td><td>Auto-généré par <code>standalone</code></td></tr>
+                <tr><td>Gestionnaire d'authentification</td><td>FAB (Flask-AppBuilder)</td><td>Simple Auth Manager (intégré)</td></tr>
+                <tr><td>Commandes user</td><td><code>airflow users</code></td><td>API v2 / config JSON</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- =============== SECTION 3: TP4 DAGS =============== -->
+    <div class="card">
+        <h2>TP4 — Création de DAGs</h2>
+        <div class="card-body">
+
+            <div class="info-box">
+                <strong>Rappel :</strong> Les DAGs sont placés dans <code>~/airflow/dags/</code>.
+                Airflow 3.x utilise les imports sous <code>airflow.providers.standard.operators.*</code>
+                et le paramètre <code>schedule</code> (et non plus <code>schedule_interval</code>).
+            </div>
+
+            <!-- DAG 1 -->
+            <h3>Exercice 1 — Premier DAG (EmptyOperator + PythonOperator)</h3>
+            <table>
+                <tr><th>Fichier</th><td><code>premier_dag_test.py</code></td></tr>
+                <tr><th>DAG ID</th><td><code>premier_dag_test</code></td></tr>
+                <tr><th>Schedule</th><td><code>timedelta(days=1)</code></td></tr>
+                <tr><th>Opérateurs</th><td><code>EmptyOperator</code> (start, end), <code>PythonOperator</code> (hello_world)</td></tr>
+                <tr><th>Dépendances</th><td><code>start &gt;&gt; hello_world &gt;&gt; end</code></td></tr>
+            </table>
+            <pre><span class="kw">from</span> datetime <span class="kw">import</span> datetime, timedelta
+<span class="kw">from</span> airflow <span class="kw">import</span> DAG
+<span class="kw">from</span> airflow.providers.standard.operators.empty <span class="kw">import</span> EmptyOperator
+<span class="kw">from</span> airflow.providers.standard.operators.python <span class="kw">import</span> PythonOperator
+
+default_args = {
+    <span class="str">"owner"</span>: <span class="str">"Tesnim"</span>,
+    <span class="str">"depends_on_past"</span>: <span class="kw">False</span>,
+    <span class="str">"start_date"</span>: datetime(<span class="num">2025</span>, <span class="num">4</span>, <span class="num">14</span>),
+    <span class="str">"email_on_failure"</span>: <span class="kw">False</span>,
+    <span class="str">"email_on_retry"</span>: <span class="kw">False</span>,
+    <span class="str">"retries"</span>: <span class="num">1</span>,
+    <span class="str">"retry_delay"</span>: timedelta(minutes=<span class="num">2</span>),
+}
+
+dag = DAG(<span class="str">"premier_dag_test"</span>, default_args=default_args,
+          description=<span class="str">"mon premier dag"</span>, schedule=timedelta(days=<span class="num">1</span>))
+
+<span class="kw">def</span> <span class="fn">print_hello</span>():
+    <span class="kw">return</span> <span class="str">"hello workd, c'est mon premier dag"</span>
+
+start = EmptyOperator(task_id=<span class="str">"start"</span>, dag=dag)
+hello_world = PythonOperator(task_id=<span class="str">"hello_world"</span>, python_callable=print_hello, dag=dag)
+end = EmptyOperator(task_id=<span class="str">"end"</span>, dag=dag)
+
+start &gt;&gt; hello_world &gt;&gt; end</pre>
+
+            <!-- DAG 2 -->
+            <h3>Exercice 2 — DAG avec BashOperator (parallélisme)</h3>
+            <table>
+                <tr><th>Fichier</th><td><code>our_first_dag.py</code></td></tr>
+                <tr><th>DAG ID</th><td><code>our_first_dag_</code></td></tr>
+                <tr><th>Schedule</th><td><code>@daily</code></td></tr>
+                <tr><th>Opérateurs</th><td><code>BashOperator</code> (×3)</td></tr>
+                <tr><th>Dépendances</th><td><code>task1 &gt;&gt; [task2, task3]</code> — task2 et task3 en parallèle</td></tr>
+            </table>
+            <pre><span class="kw">with</span> DAG(
+    dag_id=<span class="str">"our_first_dag_"</span>,
+    default_args=default_args,
+    start_date=datetime(<span class="num">2025</span>, <span class="num">4</span>, <span class="num">14</span>, <span class="num">2</span>),
+    schedule=<span class="str">"@daily"</span>
+) <span class="kw">as</span> dag:
+    task1 = BashOperator(task_id=<span class="str">"first_task"</span>, bash_command=<span class="str">"echo bonjour, ceci est le premier task!"</span>)
+    task2 = BashOperator(task_id=<span class="str">"second_task"</span>, bash_command=<span class="str">"echo bonjour, je suis task2 et je mexécute aprés task1"</span>)
+    task3 = BashOperator(task_id=<span class="str">"thrid_task"</span>, bash_command=<span class="str">"echo bonjour, je suis task3 et je mexécute après task1 au même instant que task2!"</span>)
+
+    task1 &gt;&gt; [task2, task3]</pre>
+
+            <!-- DAG 3 -->
+            <h3>Exercice 3 — DAG avec expression cron</h3>
+            <table>
+                <tr><th>Fichier</th><td><code>dag_with_cron_expression.py</code></td></tr>
+                <tr><th>DAG ID</th><td><code>dag_with_cron_expression</code></td></tr>
+                <tr><th>Schedule</th><td><code>0 3 * * Tue-Fri</code> (3h00 du matin, mardi à vendredi)</td></tr>
+                <tr><th>Opérateurs</th><td><code>BashOperator</code></td></tr>
+            </table>
+            <pre>schedule=<span class="str">"0 3 * * Tue-Fri"</span></pre>
+
+            <!-- DAG 4 -->
+            <h3>Exercice 4 — DAG avec PythonOperator et XCom</h3>
+            <table>
+                <tr><th>Fichier</th><td><code>our_dag_with_python_operator.py</code></td></tr>
+                <tr><th>DAG ID</th><td><code>our_dag_with_python_operator_v07</code></td></tr>
+                <tr><th>Schedule</th><td><code>@daily</code></td></tr>
+                <tr><th>Opérateurs</th><td><code>PythonOperator</code> avec XCom push/pull</td></tr>
+                <tr><th>Dépendances</th><td><code>[get_name, get_age] &gt;&gt; greet</code></td></tr>
+                <tr><th>Fonctionnement</th><td><code>get_name</code> et <code>get_age</code> poussent des valeurs XCom,
+                    <code>greet</code> les récupère et affiche "Hello Jerry Fridman, you are 19 years old!"</td></tr>
+            </table>
+            <pre><span class="kw">def</span> <span class="fn">greet</span>(some_dict, ti):
+    first_name = ti.xcom_pull(task_ids=<span class="str">"get_name"</span>, key=<span class="str">"first_name"</span>)
+    last_name  = ti.xcom_pull(task_ids=<span class="str">"get_name"</span>, key=<span class="str">"last_name"</span>)
+    age        = ti.xcom_pull(task_ids=<span class="str">"get_age"</span>, key=<span class="str">"age"</span>)
+    print(<span class="str">f"Hello {first_name} {last_name}, you are {age} years old!"</span>)
+
+<span class="kw">def</span> <span class="fn">get_name</span>(ti):
+    ti.xcom_push(key=<span class="str">"first_name"</span>, value=<span class="str">"Jerry"</span>)
+    ti.xcom_push(key=<span class="str">"last_name"</span>, value=<span class="str">"Fridman"</span>)
+
+<span class="kw">def</span> <span class="fn">get_age</span>(ti):
+    ti.xcom_push(key=<span class="str">"age"</span>, value=<span class="num">19</span>)
+
+[task2, task3] &gt;&gt; task1</pre>
+
+            <h3>Résultat final — Tous les DAGs chargés</h3>
+            <table>
+                <tr><th>Fichier</th><th>DAG ID</th><th>Tâches</th><th>Statut</th></tr>
+                <tr><td><code>premier_dag_test.py</code></td><td><code>premier_dag_test</code></td><td>3 (start, hello_world, end)</td><td><span class="ok">✓ 0 erreur</span></td></tr>
+                <tr><td><code>our_first_dag.py</code></td><td><code>our_first_dag_</code></td><td>3 (first_task, second_task, thrid_task)</td><td><span class="ok">✓ 0 erreur</span></td></tr>
+                <tr><td><code>dag_with_cron_expression.py</code></td><td><code>dag_with_cron_expression</code></td><td>1 (task1)</td><td><span class="ok">✓ 0 erreur</span></td></tr>
+                <tr><td><code>our_dag_with_python_operator.py</code></td><td><code>our_dag_with_python_operator_v07</code></td><td>3 (greet, get_name, get_age)</td><td><span class="ok">✓ 0 erreur</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- =============== SECTION 4: AIRFLOW 3 vs 2 =============== -->
+    <div class="card">
+        <h2>Changements majeurs Airflow 2.x → 3.x</h2>
+        <div class="card-body">
+            <table>
+                <tr><th>Domaine</th><th>Airflow 2.x</th><th>Airflow 3.x</th></tr>
+                <tr><td>CLI utilisateurs</td><td><code>airflow users create</code></td><td>Simple Auth Manager (config JSON, standalone auto)</td></tr>
+                <tr><td>Initialisation DB</td><td><code>airflow db init</code></td><td><code>airflow db migrate</code></td></tr>
+                <tr><td>Paramètre schedule</td><td><code>schedule_interval</code></td><td><code>schedule</code></td></tr>
+                <tr><td>Import opérateurs</td><td><code>airflow.operators.bash</code></td><td><code>airflow.providers.standard.operators.bash</code></td></tr>
+                <tr><td>API REST</td><td><code>/api/v1</code></td><td><code>/api/v2</code></td></tr>
+                <tr><td>Interface web</td><td>Flask + FAB</td><td>React + API v2</td></tr>
+                <tr><td>Exécuteur par défaut</td><td>SequentialExecutor</td><td>LocalExecutor</td></tr>
+                <tr><td>DAGs example</td><td>Inclus par défaut</td><td>Inclus (bundle <code>example_dags</code>)</td></tr>
+                <tr><td>Déploiement</td><td>Dossier <code>dags/</code></td><td>Bundles (dossier ou paquets)</td></tr>
+            </table>
+
+            <div class="warn-box">
+                <strong>Note importante :</strong> Airflow 3.2.1 nécessite Python ≥3.10 et &lt;3.15.
+                Les versions 2.9.x et antérieures ne supportent pas Python 3.13.
+            </div>
+        </div>
+    </div>
+
+    <!-- =============== SECTION 5: COMMANDES =============== -->
+    <div class="card">
+        <h2>Commandes essentielles</h2>
+        <div class="card-body">
+            <table>
+                <tr><th>Action</th><th>Commande</th></tr>
+                <tr><td>Activer l'environnement</td><td><code>source ~/airflow_env/bin/activate</code></td></tr>
+                <tr><td>Démarrer Airflow (tout-en-un)</td><td><code>airflow standalone</code></td></tr>
+                <tr><td>Démarrer le webserver seul</td><td><code>airflow webserver --port 8080</code></td></tr>
+                <tr><td>Démarrer le scheduler</td><td><code>airflow scheduler</code></td></tr>
+                <tr><td>Vérifier les DAGs</td><td><code>airflow dags list</code></td></tr>
+                <tr><td>Déclencher un DAG</td><td><code>airflow dags trigger &lt;dag_id&gt;</code></td></tr>
+                <tr><td>Arrêter Airflow</td><td><code>pkill -f "airflow"</code></td></tr>
+                <tr><td>Voir les logs</td><td><code>tail -f ~/airflow/logs/scheduler/*/*.log</code></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        Rapport généré le mai 2026 • Apache Airflow 3.2.1 • Python 3.13<br>
+            DRISS Amine — Atelier Déploiement pipeline
+    </div>
+
+</div>
+</body>
+</html>

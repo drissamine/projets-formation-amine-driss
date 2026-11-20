@@ -1,0 +1,13 @@
+{
+  "name": "app-backend",
+  "version": "1.0.0",
+  "description": "Backend API for DevOps project",
+  "main": "app-backend.js",
+  "scripts": {
+    "start": "node app-backend.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "prom-client": "^15.1.3"
+  }
+}

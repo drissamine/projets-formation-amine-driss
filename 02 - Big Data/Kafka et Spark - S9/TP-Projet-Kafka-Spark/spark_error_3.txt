@@ -1,0 +1,379 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- C:\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: D:\M2\S9\TP-Projet-Kafka-Spark
+collecting ... collected 1 item
+
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_1_popularity FAILED [100%]
+
+================================== FAILURES ===================================
+_____________ TestSparkStreamingProcessor.test_query_1_popularity _____________
+
+self = <test_spark_streaming.TestSparkStreamingProcessor testMethod=test_query_1_popularity>
+mock_collect = <MagicMock name='collect' id='2583256037568'>
+
+    @patch('pyspark.sql.DataFrame.collect')
+    def test_query_1_popularity(self, mock_collect):
+        """Test Query 1: Video popularity calculation"""
+        # Create test data
+        test_data = [
+            {"window_start": "2024-01-01 10:00:00", "window_end": "2024-01-01 10:10:00",
+             "video_id": "video_0001", "play_count": 150, "unique_users": 89},
+            {"window_start": "2024-01-01 10:00:00", "window_end": "2024-01-01 10:10:00",
+             "video_id": "video_0002", "play_count": 120, "unique_users": 75},
+        ]
+    
+        # Mocking collect to return our test data
+        mock_collect.return_value = test_data
+    
+        # Test structure (this doesn't trigger collect)
+        columns = ["window_start", "window_end", "video_id", "play_count", "unique_users"]
+        df = self.spark.createDataFrame([], StructType([])) # Empty DF for structure
+    
+        # In a real test we would call the processor method, but here we just check we can collect
+>       result = df.collect()
+                 ^^^^^^^^^^^^
+
+tests\test_spark_streaming.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = DataFrame[]
+
+    def collect(self) -> List[Row]:
+        with SCCallSiteSync(self._sc):
+>           sock_info = self._jdf.collectToPython()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:\Users\Razer\AppData\Roaming\Python\Python314\site-packages\pyspark\sql\classic\dataframe.py:443: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <py4j.java_gateway.JavaMember object at 0x00000259763FCCB0>, args = ()
+args_command = '', temp_args = [], command = 'c\no52\ncollectToPython\ne\n'
+
+    def __call__(self, *args):
+        args_command, temp_args = self._build_args(*args)
+    
+        command = proto.CALL_COMMAND_NAME +\
+            self.command_header +\
+            args_command +\
+            proto.END_COMMAND_PART
+    
+        answer = self.gateway_client.send_command(command)
+>       return_value = get_return_value(
+            answer, self.gateway_client, self.target_id, self.name)
+
+C:\Users\Razer\AppData\Roaming\Python\Python314\site-packages\py4j\java_gateway.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+a = ('xro53', <py4j.clientserver.JavaClient object at 0x00000259760EDFD0>, 'o52', 'collectToPython')
+kw = {}, Py4JJavaError = <class 'py4j.protocol.Py4JJavaError'>
+converted = UnknownException()
+
+    def deco(*a: Any, **kw: Any) -> Any:
+        from py4j.protocol import Py4JJavaError
+    
+        try:
+>           return f(*a, **kw)
+                   ^^^^^^^^^^^
+
+C:\Users\Razer\AppData\Roaming\Python\Python314\site-packages\pyspark\errors\exceptions\captured.py:263: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+answer = 'xro53'
+gateway_client = <py4j.clientserver.JavaClient object at 0x00000259760EDFD0>
+target_id = 'o52', name = 'collectToPython'
+
+    def get_return_value(answer, gateway_client, target_id=None, name=None):
+        """Converts an answer received from the Java gateway into a Python object.
+    
+        For example, string representation of integers are converted to Python
+        integer, string representation of objects are converted to JavaObject
+        instances, etc.
+    
+        :param answer: the string returned by the Java gateway
+        :param gateway_client: the gateway client used to communicate with the Java
+            Gateway. Only necessary if the answer is a reference (e.g., object,
+            list, map)
+        :param target_id: the name of the object from which the answer comes from
+            (e.g., *object1* in `object1.hello()`). Optional.
+        :param name: the name of the member from which the answer comes from
+            (e.g., *hello* in `object1.hello()`). Optional.
+        """
+        if is_error(answer)[0]:
+            if len(answer) > 1:
+                type = answer[1]
+                value = OUTPUT_CONVERTER[type](answer[2:], gateway_client)
+                if answer[1] == REFERENCE_TYPE:
+>                   raise Py4JJavaError(
+                        "An error occurred while calling {0}{1}{2}.\n".
+                        format(target_id, ".", name), value)
+E                   py4j.protocol.Py4JJavaError: An error occurred while calling o52.collectToPython.
+E                   : org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 0.0 failed 1 times, most recent failure: Lost task 0.0 in stage 0.0 (TID 0) (kubernetes.docker.internal executor driver): org.apache.spark.SparkException: Python worker exited unexpectedly (crashed). Consider setting 'spark.sql.execution.pyspark.udf.faulthandler.enabled' or'spark.python.worker.faulthandler.enabled' configuration to 'true' for the better Python traceback.
+
+E                   	at org.apache.spark.api.python.BasePythonRunner$ReaderIterator$$anonfun$1.applyOrElse(PythonRunner.scala:678)
+
+E                   	at org.apache.spark.api.python.BasePythonRunner$ReaderIterator$$anonfun$1.applyOrElse(PythonRunner.scala:663)
+
+E                   	at scala.runtime.AbstractPartialFunction.apply(AbstractPartialFunction.scala:35)
+
+E                   	at org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1034)
+
+E                   	at org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1014)
+
+E                   	at org.apache.spark.api.python.BasePythonRunner$ReaderIterator.hasNext(PythonRunner.scala:596)
+
+E                   	at org.apache.spark.InterruptibleIterator.hasNext(InterruptibleIterator.scala:37)
+
+E                   	at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:611)
+
+E                   	at scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)
+
+E                   	at scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)
+
+E                   	at scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)
+
+E                   	at org.apache.spark.sql.execution.SparkPlan.$anonfun$getByteArrayRdd$1(SparkPlan.scala:402)
+
+E                   	at org.apache.spark.rdd.RDD.$anonfun$mapPartitionsInternal$2(RDD.scala:901)
+
+E                   	at org.apache.spark.rdd.RDD.$anonfun$mapPartitionsInternal$2$adapted(RDD.scala:901)
+
+E                   	at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:52)
+
+E                   	at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:374)
+
+E                   	at org.apache.spark.rdd.RDD.iterator(RDD.scala:338)
+
+E                   	at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:93)
+
+E                   	at org.apache.spark.TaskContext.runTaskWithListeners(TaskContext.scala:180)
+
+E                   	at org.apache.spark.scheduler.Task.run(Task.scala:147)
+
+E                   	at org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$5(Executor.scala:716)
+
+E                   	at org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally(SparkErrorUtils.scala:86)
+
+E                   	at org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally$(SparkErrorUtils.scala:83)
+
+E                   	at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:97)
+
+E                   	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:719)
+
+E                   	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+
+E                   	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+
+E                   	at java.base/java.lang.Thread.run(Thread.java:840)
+
+E                   Caused by: java.io.EOFException
+
+E                   	at java.base/java.io.DataInputStream.readInt(DataInputStream.java:386)
+
+E                   	at org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1022)
+
+E                   	... 24 more
+
+E                   
+E                   Driver stacktrace:
+
+E                   	at org.apache.spark.scheduler.DAGScheduler.$anonfun$abortStage$3(DAGScheduler.scala:3122)
+
+E                   	at scala.Option.getOrElse(Option.scala:201)
+
+E                   	at org.apache.spark.scheduler.DAGScheduler.$anonfun$abortStage$2(DAGScheduler.scala:3122)
+
+E                   	at org.apache.spark.scheduler.DAGScheduler.$anonfun$abortStage$2$adapted(DAGScheduler.scala:3114)
+
+E                   	at scala.collection.immutable.List.foreach(List.scala:323)
+
+E                   	at org.apache.spark.scheduler.DAGScheduler.abortStage(DAGScheduler.scala:3114)
+
+E                   	at org.apache.spark.scheduler.DAGScheduler.$anonfun$handleTaskSetFailed$1(DAGScheduler.scala:1303)
+
+E                   	at org.apache.spark.scheduler.DAGScheduler.$anonfun$handleTaskSetFailed$1$adapted(DAGScheduler.scala:1303)
+
+E                   	at scala.Option.foreach(Option.scala:437)
+
+E                   	at org.apache.spark.scheduler.DAGScheduler.handleTaskSetFailed(DAGScheduler.scala:1303)
+
+E                   	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:3397)
+
+E                   	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:3328)
+
+E                   	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:3317)
+
+E                   	at org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:50)
+
+E                   	at org.apache.spark.scheduler.DAGScheduler.runJob(DAGScheduler.scala:1017)
+
+E                   	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2496)
+
+E                   	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2517)
+
+E                   	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2536)
+
+E                   	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2561)
+
+E                   	at org.apache.spark.rdd.RDD.$anonfun$collect$1(RDD.scala:1057)
+
+E                   	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+
+E                   	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:112)
+
+E                   	at org.apache.spark.rdd.RDD.withScope(RDD.scala:417)
+
+E                   	at org.apache.spark.rdd.RDD.collect(RDD.scala:1056)
+
+E                   	at org.apache.spark.sql.execution.SparkPlan.executeCollect(SparkPlan.scala:462)
+
+E                   	at org.apache.spark.sql.classic.Dataset.$anonfun$collectToPython$1(Dataset.scala:2085)
+
+E                   	at org.apache.spark.sql.classic.Dataset.$anonfun$withAction$2(Dataset.scala:2265)
+
+E                   	at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:717)
+
+E                   	at org.apache.spark.sql.classic.Dataset.$anonfun$withAction$1(Dataset.scala:2263)
+
+E                   	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$8(SQLExecution.scala:177)
+
+E                   	at org.apache.spark.sql.execution.SQLExecution$.withSessionTagsApplied(SQLExecution.scala:285)
+
+E                   	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$7(SQLExecution.scala:139)
+
+E                   	at org.apache.spark.JobArtifactSet$.withActiveJobArtifactState(JobArtifactSet.scala:94)
+
+E                   	at org.apache.spark.sql.artifact.ArtifactManager.$anonfun$withResources$1(ArtifactManager.scala:112)
+
+E                   	at org.apache.spark.sql.artifact.ArtifactManager.withClassLoaderIfNeeded(ArtifactManager.scala:106)
+
+E                   	at org.apache.spark.sql.artifact.ArtifactManager.withResources(ArtifactManager.scala:111)
+
+E                   	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$6(SQLExecution.scala:139)
+
+E                   	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:308)
+
+E                   	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$1(SQLExecution.scala:138)
+
+E                   	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:804)
+
+E                   	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId0(SQLExecution.scala:92)
+
+E                   	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:250)
+
+E                   	at org.apache.spark.sql.classic.Dataset.withAction(Dataset.scala:2263)
+
+E                   	at org.apache.spark.sql.classic.Dataset.collectToPython(Dataset.scala:2081)
+
+E                   	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+
+E                   	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+
+E                   	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+
+E                   	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+
+E                   	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+
+E                   	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:374)
+
+E                   	at py4j.Gateway.invoke(Gateway.java:282)
+
+E                   	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+
+E                   	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+
+E                   	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:184)
+
+E                   	at py4j.ClientServerConnection.run(ClientServerConnection.java:108)
+
+E                   	at java.base/java.lang.Thread.run(Thread.java:840)
+
+E                   Caused by: org.apache.spark.SparkException: Python worker exited unexpectedly (crashed). Consider setting 'spark.sql.execution.pyspark.udf.faulthandler.enabled' or'spark.python.worker.faulthandler.enabled' configuration to 'true' for the better Python traceback.
+
+E                   	at org.apache.spark.api.python.BasePythonRunner$ReaderIterator$$anonfun$1.applyOrElse(PythonRunner.scala:678)
+
+E                   	at org.apache.spark.api.python.BasePythonRunner$ReaderIterator$$anonfun$1.applyOrElse(PythonRunner.scala:663)
+
+E                   	at scala.runtime.AbstractPartialFunction.apply(AbstractPartialFunction.scala:35)
+
+E                   	at org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1034)
+
+E                   	at org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1014)
+
+E                   	at org.apache.spark.api.python.BasePythonRunner$ReaderIterator.hasNext(PythonRunner.scala:596)
+
+E                   	at org.apache.spark.InterruptibleIterator.hasNext(InterruptibleIterator.scala:37)
+
+E                   	at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:611)
+
+E                   	at scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)
+
+E                   	at scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)
+
+E                   	at scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)
+
+E                   	at org.apache.spark.sql.execution.SparkPlan.$anonfun$getByteArrayRdd$1(SparkPlan.scala:402)
+
+E                   	at org.apache.spark.rdd.RDD.$anonfun$mapPartitionsInternal$2(RDD.scala:901)
+
+E                   	at org.apache.spark.rdd.RDD.$anonfun$mapPartitionsInternal$2$adapted(RDD.scala:901)
+
+E                   	at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:52)
+
+E                   	at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:374)
+
+E                   	at org.apache.spark.rdd.RDD.iterator(RDD.scala:338)
+
+E                   	at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:93)
+
+E                   	at org.apache.spark.TaskContext.runTaskWithListeners(TaskContext.scala:180)
+
+E                   	at org.apache.spark.scheduler.Task.run(Task.scala:147)
+
+E                   	at org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$5(Executor.scala:716)
+
+E                   	at org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally(SparkErrorUtils.scala:86)
+
+E                   	at org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally$(SparkErrorUtils.scala:83)
+
+E                   	at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:97)
+
+E                   	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:719)
+
+E                   	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+
+E                   	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+
+E                   	... 1 more
+
+E                   Caused by: java.io.EOFException
+
+E                   	at java.base/java.io.DataInputStream.readInt(DataInputStream.java:386)
+
+E                   	at org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1022)
+
+E                   	... 24 more
+
+C:\Users\Razer\AppData\Roaming\Python\Python314\site-packages\py4j\protocol.py:327: Py4JJavaError
+---------------------------- Captured stderr setup ----------------------------
+WARNING: Using incubator modules: jdk.incubator.vector
+
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+
+26/02/02 15:11:46 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+
+---------------------------- Captured stderr call -----------------------------
+\r[Stage 0:>                                                          (0 + 1) / 1]\rException ignored while finalizing file <_io.BufferedRWPair object at 0x000001BEFAFF29C0>:\r\nTraceback (most recent call last):\r\n  File "C:\\Python314\\Lib\\socket.py", line 743, in write\r\nOSError: [WinError 10038] Une op\ufffdration a \ufffdt\ufffd tent\ufffde sur autre chose qu\ufffdun socket\r\n26/02/02 15:11:58 ERROR Executor: Exception in task 0.0 in stage 0.0 (TID 0)\r\norg.apache.spark.SparkException: Python worker exited unexpectedly (crashed). Consider setting 'spark.sql.execution.pyspark.udf.faulthandler.enabled' or'spark.python.worker.faulthandler.enabled' configuration to 'true' for the better Python traceback.\r\n\tat org.apache.spark.api.python.BasePythonRunner$ReaderIterator$$anonfun$1.applyOrElse(PythonRunner.scala:678)\r\n\tat org.apache.spark.api.python.BasePythonRunner$ReaderIterator$$anonfun$1.applyOrElse(PythonRunner.scala:663)\r\n\tat scala.runtime.AbstractPartialFunction.apply(AbstractPartialFunction.scala:35)\r\n\tat org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1034)\r\n\tat org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1014)\r\n\tat org.apache.spark.api.python.BasePythonRunner$ReaderIterator.hasNext(PythonRunner.scala:596)\r\n\tat org.apache.spark.InterruptibleIterator.hasNext(InterruptibleIterator.scala:37)\r\n\tat scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:611)\r\n\tat scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)\r\n\tat scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)\r\n\tat scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)\r\n\tat org.apache.spark.sql.execution.SparkPlan.$anonfun$getByteArrayRdd$1(SparkPlan.scala:402)\r\n\tat org.apache.spark.rdd.RDD.$anonfun$mapPartitionsInternal$2(RDD.scala:901)\r\n\tat org.apache.spark.rdd.RDD.$anonfun$mapPartitionsInternal$2$adapted(RDD.scala:901)\r\n\tat org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:52)\r\n\tat org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:374)\r\n\tat org.apache.spark.rdd.RDD.iterator(RDD.scala:338)\r\n\tat org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:93)\r\n\tat org.apache.spark.TaskContext.runTaskWithListeners(TaskContext.scala:180)\r\n\tat org.apache.spark.scheduler.Task.run(Task.scala:147)\r\n\tat org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$5(Executor.scala:716)\r\n\tat org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally(SparkErrorUtils.scala:86)\r\n\tat org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally$(SparkErrorUtils.scala:83)\r\n\tat org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:97)\r\n\tat org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:719)\r\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)\r\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)\r\n\tat java.base/java.lang.Thread.run(Thread.java:840)\r\nCaused by: java.io.EOFException\r\n\tat java.base/java.io.DataInputStream.readInt(DataInputStream.java:386)\r\n\tat org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1022)\r\n\t... 24 more\r\n26/02/02 15:11:58 WARN TaskSetManager: Lost task 0.0 in stage 0.0 (TID 0) (kubernetes.docker.internal executor driver): org.apache.spark.SparkException: Python worker exited unexpectedly (crashed). Consider setting 'spark.sql.execution.pyspark.udf.faulthandler.enabled' or'spark.python.worker.faulthandler.enabled' configuration to 'true' for the better Python traceback.\r\n\tat org.apache.spark.api.python.BasePythonRunner$ReaderIterator$$anonfun$1.applyOrElse(PythonRunner.scala:678)\r\n\tat org.apache.spark.api.python.BasePythonRunner$ReaderIterator$$anonfun$1.applyOrElse(PythonRunner.scala:663)\r\n\tat scala.runtime.AbstractPartialFunction.apply(AbstractPartialFunction.scala:35)\r\n\tat org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1034)\r\n\tat org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1014)\r\n\tat org.apache.spark.api.python.BasePythonRunner$ReaderIterator.hasNext(PythonRunner.scala:596)\r\n\tat org.apache.spark.InterruptibleIterator.hasNext(InterruptibleIterator.scala:37)\r\n\tat scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:611)\r\n\tat scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)\r\n\tat scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)\r\n\tat scala.collection.Iterator$$anon$9.hasNext(Iterator.scala:593)\r\n\tat org.apache.spark.sql.execution.SparkPlan.$anonfun$getByteArrayRdd$1(SparkPlan.scala:402)\r\n\tat org.apache.spark.rdd.RDD.$anonfun$mapPartitionsInternal$2(RDD.scala:901)\r\n\tat org.apache.spark.rdd.RDD.$anonfun$mapPartitionsInternal$2$adapted(RDD.scala:901)\r\n\tat org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:52)\r\n\tat org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:374)\r\n\tat org.apache.spark.rdd.RDD.iterator(RDD.scala:338)\r\n\tat org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:93)\r\n\tat org.apache.spark.TaskContext.runTaskWithListeners(TaskContext.scala:180)\r\n\tat org.apache.spark.scheduler.Task.run(Task.scala:147)\r\n\tat org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$5(Executor.scala:716)\r\n\tat org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally(SparkErrorUtils.scala:86)\r\n\tat org.apache.spark.util.SparkErrorUtils.tryWithSafeFinally$(SparkErrorUtils.scala:83)\r\n\tat org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:97)\r\n\tat org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:719)\r\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)\r\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)\r\n\tat java.base/java.lang.Thread.run(Thread.java:840)\r\nCaused by: java.io.EOFException\r\n\tat java.base/java.io.DataInputStream.readInt(DataInputStream.java:386)\r\n\tat org.apache.spark.api.python.PythonRunner$$anon$3.read(PythonRunner.scala:1022)\r\n\t... 24 more\r\n\r\n26/02/02 15:11:58 ERROR TaskSetManager: Task 0 in stage 0.0 failed 1 times; aborting job\r
+=========================== short test summary info ===========================
+FAILED tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_1_popularity
+============================= 1 failed in 17.15s ==============================
+Opération réussie : le processus de PID 20248 (processus enfant de PID 8628) a été
+arrêté.
+Opération réussie : le processus de PID 8628 (processus enfant de PID 18820) a été
+arrêté.
+Opération réussie : le processus de PID 18820 (processus enfant de PID 14304) a été
+arrêté.

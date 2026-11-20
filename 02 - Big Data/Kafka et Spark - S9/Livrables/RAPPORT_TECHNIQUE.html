@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapport Technique — Pipeline Kafka + Spark — DRISS Amine</title>
+<meta name="author" content="DRISS Amine">
+
+<!-- ============ CSS ============ -->
+<style>
+/* ---------- Reset + variables ---------- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b1020; --bg-soft:#0f1730; --bg-card:#13203f; --bg-card-hover:#172748;
+  --text:#e6edf7; --text-soft:#a8b5cc; --text-dim:#6b7a94;
+  --accent:#7c5cff; --accent2:#19d3da; --accent3:#ff7ab5;
+  --ok:#3ddc84; --warn:#ffb454; --err:#ff5c7c; --info:#5cc8ff;
+  --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.18);
+  --shadow:0 10px 40px rgba(0,0,0,.4);
+  --radius:16px; --mono:'JetBrains Mono','Fira Code',ui-monospace,Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,sans-serif;
+}
+[data-theme="light"]{
+  --bg:#f4f7fd; --bg-soft:#fff; --bg-card:#fff; --bg-card-hover:#fafcff;
+  --text:#0f1c2e; --text-soft:#44546a; --text-dim:#8895a8;
+  --border:rgba(15,28,46,.1); --border-strong:rgba(15,28,46,.2);
+  --shadow:0 10px 40px rgba(15,28,46,.08);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans); background:var(--bg); color:var(--text);
+  line-height:1.65; -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%,rgba(124,92,255,.15),transparent 60%),
+    radial-gradient(1000px 500px at 0% 100%,rgba(25,211,218,.1),transparent 60%);
+  background-attachment:fixed;
+}
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+code,pre{font-family:var(--mono)}
+
+/* ---------- Progress bar ---------- */
+#progress{position:fixed;top:0;left:0;height:3px;width:0;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));
+  z-index:200;transition:width .15s ease}
+
+/* ---------- Theme toggle ---------- */
+#theme-toggle{position:fixed;top:18px;right:24px;z-index:200;
+  width:44px;height:44px;border-radius:50%;border:1px solid var(--border-strong);
+  background:var(--bg-card);color:var(--text);cursor:pointer;
+  font-size:18px;display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow);transition:.25s}
+#theme-toggle:hover{transform:scale(1.1) rotate(15deg);border-color:var(--accent)}
+
+/* ---------- Layout ---------- */
+.shell{display:grid;grid-template-columns:280px 1fr;max-width:1400px;margin:0 auto;gap:0}
+@media(max-width:980px){.shell{grid-template-columns:1fr}}
+
+/* Sidebar */
+aside{
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  border-right:1px solid var(--border);background:rgba(0,0,0,.18);
+  padding:28px 18px; backdrop-filter:blur(10px);
+}
+@media(max-width:980px){aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--border)}}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+.brand .logo{width:42px;height:42px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  box-shadow:0 6px 20px rgba(124,92,255,.4)}
+.brand .b-title{font-weight:800;font-size:15px;letter-spacing:.3px;line-height:1.1}
+.brand .b-sub{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
+nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;
+  color:var(--text-soft);font-size:14px;transition:.18s;border:1px solid transparent;margin-bottom:2px}
+nav a i{width:18px;text-align:center;font-size:14px}
+nav a:hover{background:var(--bg-card-hover);color:var(--text);text-decoration:none}
+nav a.active{background:linear-gradient(90deg,rgba(124,92,255,.18),rgba(25,211,218,.08));
+  color:var(--text);border-color:var(--border)}
+nav a.divider{padding-top:14px;margin-top:10px;border-top:1px solid var(--border);
+  font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-dim);font-weight:700}
+nav a.divider:hover{background:transparent}
+
+main{padding:0 36px 80px;min-width:0}
+@media(max-width:980px){main{padding:0 18px 60px}}
+
+/* ---------- Hero ---------- */
+.hero{
+  position:relative; padding:80px 0 50px; border-bottom:1px solid var(--border);margin-bottom:40px;
+  background:
+    radial-gradient(800px 400px at 90% 10%,rgba(124,92,255,.18),transparent 60%),
+    radial-gradient(600px 300px at 10% 90%,rgba(25,211,218,.12),transparent 60%);
+}
+.hero .kicker{font-size:12px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--accent2);font-weight:700;margin-bottom:16px}
+.hero h1{font-size:46px;line-height:1.05;font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(120deg,var(--text),var(--accent2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero .lead{font-size:18px;color:var(--text-soft);max-width:680px;margin:18px 0 26px}
+.hero .badges{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
+  border:1px solid var(--border-strong);background:var(--bg-card);font-size:13px;font-weight:600}
+.badge i{font-size:12px}
+.badge.accent{background:linear-gradient(90deg,rgba(124,92,255,.15),rgba(25,211,218,.08))}
+.author-card{
+  display:flex;align-items:center;gap:16px;padding:16px 22px;border-radius:var(--radius);
+  background:linear-gradient(120deg,rgba(124,92,255,.12),rgba(25,211,218,.06));
+  border:1px solid var(--border-strong);max-width:520px;box-shadow:var(--shadow)
+}
+.author-avatar{width:54px;height:54px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff}
+.author-info .name{font-size:18px;font-weight:800}
+.author-info .role{font-size:13px;color:var(--text-soft)}
+
+/* ---------- Sections ---------- */
+section{margin-bottom:60px;scroll-margin-top:24px}
+.section-head{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+.section-num{width:42px;height:42px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;
+  box-shadow:0 8px 22px rgba(124,92,255,.35)}
+.section-head h2{font-size:28px;font-weight:800;letter-spacing:-.4px}
+.section-sub{font-size:14px;color:var(--text-dim);margin-left:56px;margin-top:-22px;margin-bottom:20px}
+
+/* ---------- Card grid ---------- */
+.grid{display:grid;gap:18px}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:880px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px;transition:.2s;box-shadow:var(--shadow)}
+.card:hover{transform:translateY(-3px);border-color:var(--border-strong);background:var(--bg-card-hover)}
+.card .ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.card h3{font-size:18px;margin-bottom:8px;font-weight:700}
+.card p{color:var(--text-soft);font-size:14.5px}
+.card.tags{display:flex;flex-direction:column;gap:8px}
+
+/* ---------- Stat ---------- */
+.stat{text-align:center;padding:20px}
+.stat .num{font-size:34px;font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(120deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stat .lbl{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-dim);margin-top:4px}
+
+/* ---------- Table ---------- */
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px;overflow:hidden;border-radius:12px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--border)}
+th{background:var(--bg-soft);font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:1px;color:var(--text-dim)}
+tbody tr:hover{background:var(--bg-card-hover)}
+.tbl-scroll{overflow-x:auto;border-radius:12px;border:1px solid var(--border)}
+
+/* ---------- Code ---------- */
+.code{background:#0a0e1f;border:1px solid var(--border);border-radius:12px;padding:16px 18px;
+  overflow-x:auto;font-size:13px;line-height:1.6;position:relative;margin:14px 0}
+.code .lang{position:absolute;top:8px;right:12px;font-size:10px;color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:1px}
+.code pre{margin:0;color:#c7d7f0}
+.code .k{color:#ff7ab5}.code .s{color:#3ddc84}.code .c{color:#6b7a94;font-style:italic}
+.code .n{color:#ffb454}.code .f{color:#19d3da}
+
+/* ---------- Timeline (steps) ---------- */
+.timeline{position:relative;padding-left:36px}
+.timeline::before{content:"";position:absolute;left:11px;top:6px;bottom:6px;
+  width:3px;background:linear-gradient(180deg,var(--accent),var(--accent2),var(--accent3));
+  border-radius:3px}
+.step{position:relative;margin-bottom:34px}
+.step::before{content:"";position:absolute;left:-31px;top:6px;width:22px;height:22px;border-radius:50%;
+  background:var(--bg);border:3px solid var(--accent);box-shadow:0 0 0 4px rgba(124,92,255,.15)}
+.step.done::before{background:var(--ok);border-color:var(--ok)}
+.step .step-tag{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;
+  color:var(--accent2);margin-bottom:4px}
+.step h3{font-size:18px;margin-bottom:8px;font-weight:700}
+.step p{color:var(--text-soft);font-size:14.5px;margin-bottom:8px}
+.step .step-files{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-family:var(--mono);font-size:11.5px;padding:4px 10px;border-radius:8px;
+  background:rgba(124,92,255,.12);border:1px solid var(--border);color:var(--accent2)}
+
+/* ---------- Screenshot ---------- */
+.shot{margin:18px 0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;
+  background:var(--bg-soft);box-shadow:var(--shadow)}
+.shot-cap{padding:12px 18px;font-size:13px;color:var(--text-dim);
+  display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);
+  background:var(--bg-card)}
+.shot-cap .ic{font-size:14px;color:var(--accent2)}
+.shot img{display:block;width:100%;cursor:zoom-in; transition:.3s}
+.medium-zoom-overlay{backdrop-filter:blur(12px);background:rgba(5,8,18,.92)!important}
+.medium-zoom-image{box-shadow:0 20px 80px rgba(0,0,0,.6);border-radius:8px}
+
+/* ---------- Misc ---------- */
+.callout{border-left:4px solid var(--accent2);padding:12px 18px;border-radius:8px;
+  background:rgba(25,211,218,.06);margin:16px 0;font-size:14px;color:var(--text-soft)}
+.callout.warn{border-color:var(--warn);background:rgba(255,180,84,.06)}
+.callout.ok{border-color:var(--ok);background:rgba(61,220,132,.06)}
+.callout.err{border-color:var(--err);background:rgba(255,92,124,.06)}
+.callout i{margin-right:8px}
+.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;
+  background:rgba(124,92,255,.18);color:var(--accent);text-transform:uppercase;letter-spacing:.5px}
+ul.bullet{list-style:none;padding:0}
+ul.bullet li{position:relative;padding-left:26px;margin:8px 0;color:var(--text-soft)}
+ul.bullet li::before{content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;
+  position:absolute;left:0;top:2px;color:var(--ok);font-size:13px}
+ul.bullet.angle li::before{content:"\f105";color:var(--accent2)}
+.archi{background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;font-family:var(--mono);font-size:13px;overflow-x:auto;line-height:1.5;
+  color:var(--text-soft);white-space:pre}
+.archi .hl{color:var(--accent2);font-weight:700}
+.archi .box{color:var(--accent3)}
+footer{border-top:1px solid var(--border);padding:40px 0 20px;text-align:center;color:var(--text-dim);font-size:13px}
+footer .f-name{font-weight:800;color:var(--text);font-size:18px;margin-bottom:6px}
+footer .f-icons a{margin:0 8px;color:var(--text-dim);font-size:18px}
+footer .f-icons a:hover{color:var(--accent2)}
+.muted{color:var(--text-dim)}
+.kbd{font-family:var(--mono);background:var(--bg-card);border:1px solid var(--border-strong);
+  border-bottom-width:2px;border-radius:6px;padding:2px 8px;font-size:12px}
+.fade-up{opacity:0;transform:translateY(20px);transition:.6s}
+.fade-up.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- Progress bar + theme toggle -->
+<div id="progress"></div>
+<button id="theme-toggle" title="Thème clair / sombre" aria-label="Thème">
+  <span id="theme-ico">&#127769;</span>
+</button>
+
+<div class="shell">
+  <!-- ============ SIDEBAR ============ -->
+  <aside>
+    <div class="brand">
+      <div class="logo">&#9889;</div>
+      <div>
+        <div class="b-title">Kafka × Spark</div>
+        <div class="b-sub">Streaming temps réel</div>
+      </div>
+    </div>
+    <nav id="nav">
+      <a href="#intro"><i class="fas fa-flag"></i> 1. Introduction</a>
+      <a href="#archi"><i class="fas fa-sitemap"></i> 2. Architecture</a>
+      <a href="#etapes"><i class="fas fa-list-ol"></i> 3. Étapes réalisées</a>
+      <a class="divider">Étapes Partie 1</a>
+      <a href="#e1"><i class="fas fa-cog"></i> 1.1 Docker & Kafka</a>
+      <a href="#e2"><i class="fas fa-layer-group"></i> 1.2 Topics & config</a>
+      <a href="#e3"><i class="fas fa-vial"></i> 1.3 Schéma événement</a>
+      <a href="#e4"><i class="fas fa-paper-plane"></i> 1.4 Producteur Kafka</a>
+      <a class="divider">Étapes Partie 2</a>
+      <a href="#e5"><i class="fas fa-stream"></i> 2.1 Consommateur & validation</a>
+      <a href="#e6"><i class="fas fa-chart-bar"></i> 2.2 Agrégations fenêtrées</a>
+      <a href="#e7"><i class="fas fa-database"></i> 2.3 Sorties (CSV/SQLite)</a>
+      <a class="divider">Étapes Partie 3</a>
+      <a href="#e8"><i class="fas fa-tachometer-alt"></i> 3.1 Métriques perf</a>
+      <a href="#e9"><i class="fas fa-exclamation-triangle"></i> 3.2 DLQ & checkpoints</a>
+      <a href="#e10"><i class="fas fa-vial-pass"></i> 3.3 Tests 100K & crash</a>
+      <a class="divider">Rapport</a>
+      <a href="#choix"><i class="fas fa-sliders-h"></i> 4. Choix techniques</a>
+      <a href="#resultats"><i class="fas fa-images"></i> 5. Résultats & screens</a>
+      <a href="#diff"><i class="fas fa-bug"></i> 6. Difficultés</a>
+      <a href="#amelio"><i class="fas fa-rocket"></i> 7. Améliorations</a>
+    </nav>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main>
+
+    <!-- ====== HERO ====== -->
+    <div class="hero">
+      <div class="kicker"><i class="fas fa-graduation-cap"></i> &nbsp;TP Projet · ESIS 2 · 2025-2026</div>
+      <h1>Pipeline temps réel<br>Kafka + Spark Structured Streaming</h1>
+      <p class="lead">Ingestion, traitement et analyse en temps réel d'un flux d'événements
+        de streaming vidéo — producteur Python → Kafka (KRaft) → Spark Structured
+        Streaming → console / CSV / JSON / SQLite, avec monitoring, dead-letter queue et reprise sur incident.</p>
+      <div class="badges">
+        <span class="badge accent"><i class="fab fa-python"></i> Python 3</span>
+        <span class="badge"><i class="fas fa-stream"></i> Kafka 3.7 (KRaft)</span>
+        <span class="badge"><i class="fas fa-fire"></i> Spark 3.5.1</span>
+        <span class="badge"><i class="fas fa-database"></i> SQLite</span>
+        <span class="badge"><i class="fab fa-docker"></i> Docker</span>
+        <span class="badge"><i class="fas fa-vial"></i> pytest 10/10</span>
+      </div>
+      <div class="author-card">
+        <div class="author-avatar">DA</div>
+        <div class="author-info">
+          <div class="name">DRISS Amine</div>
+          <div class="role">Auteur · ESIS 2 (2025-2026) · Apache Kafka &amp; Spark</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== STATS ====== -->
+    <div class="grid grid-4" style="margin-bottom:50px">
+      <div class="card stat"><div class="num" data-count="100000">0</div><div class="lbl">Événements testés</div></div>
+      <div class="card stat"><div class="num"><span data-count="33">0</span>k/s</div><div class="lbl">Débit Spark</div></div>
+      <div class="card stat"><div class="num">~<span data-count="25">0</span>s</div><div class="lbl">Latence end-to-end</div></div>
+      <div class="card stat"><div class="num"><span data-count="10">0</span>/10</div><div class="lbl">Tests unitaires</div></div>
+    </div>
+
+    <!-- ====== 1. INTRODUCTION ====== -->
+    <section id="intro" class="fade-up">
+      <div class="section-head"><div class="section-num">1</div><h2>Introduction et contexte</h2></div>
+      <p>Ce projet met en œuvre un <b>pipeline d'analyse en temps réel</b> des habitudes de visionnage
+        vidéo pour une plateforme de streaming. L'enjeu : ingérer un flux d'événements utilisateurs
+        (PLAY, PAUSE, STOP, SEEK), le traiter à la volée avec <b>Spark Structured Streaming</b>,
+        en tirer des agrégations et des alertes, puis stocker les résultats pour analyse.</p>
+
+      <div class="callout ok"><i class="fas fa-target"></i>
+        <b>Objectif atteint :</b> pipeline complet, fonctionnel sur données réelles, sans warning,
+        couvrant les 3 parties du sujet (simulation, traitement Spark, monitoring/optimisation).</div>
+
+      <div class="grid grid-3" style="margin-top:22px">
+        <div class="card"><div class="ico" style="background:rgba(124,92,255,.15);color:#7c5cff"><i class="fas fa-cloud"></i></div>
+          <h3>Ingestion</h3><p>Producteur Python → Kafka 3.7 (mode KRaft, sans Zookeeper) via Docker. Topic à 3 partitions, rétention 7 jours.</p></div>
+        <div class="card"><div class="ico" style="background:rgba(25,211,218,.15);color:#19d3da"><i class="fas fa-fire"></i></div>
+          <h3>Traitement</h3><p>Spark Structured Streaming : parsing/validation, 4 requêtes en fenêtres glissantes (10 min / 5 min), détection d'anomalies.</p></div>
+        <div class="card"><div class="ico" style="background:rgba(255,122,181,.15);color:#ff7ab5"><i class="fas fa-database"></i></div>
+          <h3>Stockage & visu</h3><p>Console, fichiers CSV/JSON rangés par requête/date, base SQLite interrogeable, Kafka UI pour les topics.</p></div>
+      </div>
+
+      <div class="archi" style="margin-top:22px">
+<span class="hl">┌──────────┐   streaming-events   ┌──────────────────────────────┐   ┌────────────┐</span>
+<span class="box">│ Producteur│ ──────3 partitions───►│ Spark Structured Streaming   │──►│ Console    │</span>
+<span class="hl">│  Python   │                       │  · parsing + validation      │   │ CSV / JSON │</span>
+<span class="box">│           │                       │  · agrégations fenêtrées     │   │ SQLite     │</span>
+<span class="hl">└──────────┘                       │  · anomalies (flood/spam)    │   └────────────┘</span>
+                                     │  └── DLQ ──► streaming-events-dlq</span>
+                                     └──────────────────────────────┘
+          <span class="muted">Monitoring : StreamingQueryListener (throughput, lag) + latence end-to-end</span>
+      </div>
+    </section>
+
+    <!-- ====== 2. ARCHITECTURE ====== -->
+    <section id="archi" class="fade-up">
+      <div class="section-head"><div class="section-num">2</div><h2>Architecture détaillée</h2></div>
+      <div class="section-sub">Composants, arborescence, configuration Kafka, schéma des événements.</div>
+
+      <h3 style="margin:14px 0 10px"><span class="tag">2.1</span> Composants</h3>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Composant</th><th>Fichier(s)</th><th>Rôle</th><th>Tâche</th></tr></thead>
+          <tbody>
+            <tr><td><i class="fas fa-server" style="color:#7c5cff"></i> Infrastructure</td><td><code>docker-compose.yml</code></td><td>Kafka (KRaft) + Kafka UI</td><td>—</td></tr>
+            <tr><td><i class="fas fa-cog" style="color:#19d3da"></i> Configuration</td><td><code>settings.py</code>, <code>.env</code></td><td>Paramètres centralisés</td><td>—</td></tr>
+            <tr><td><i class="fas fa-paper-plane" style="color:#ff7ab5"></i> Producteur</td><td><code>producer.py</code></td><td>Génération + envoi</td><td>1.1</td></tr>
+            <tr><td><i class="fas fa-stream" style="color:#3ddc84"></i> Consommateur</td><td><code>spark_consumer.py</code>, <code>spark_schema.py</code></td><td>Lecture Kafka, parsing, validation</td><td>2.1</td></tr>
+            <tr><td><i class="fas fa-chart-bar" style="color:#ffb454"></i> Agrégations</td><td><code>transformations.py</code></td><td>4 requêtes fenêtrées</td><td>2.2</td></tr>
+            <tr><td><i class="fas fa-database" style="color:#5cc8ff"></i> Sorties</td><td><code>sinks.py</code>, <code>streaming_app.py</code></td><td>Console/CSV/JSON/SQLite</td><td>2.3</td></tr>
+            <tr><td><i class="fas fa-tachometer-alt" style="color:#ff5c7c"></i> Métriques</td><td><code>metrics.py</code>, <code>metrics_app.py</code></td><td>Throughput, latence, lag</td><td>3.1</td></tr>
+            <tr><td><i class="fas fa-exclamation" style="color:#7c5cff"></i> Erreurs</td><td><code>error_handling.py</code>, <code>dlq_app.py</code></td><td>DLQ + checkpoints</td><td>3.2</td></tr>
+            <tr><td><i class="fas fa-vial" style="color:#19d3da"></i> Tests</td><td><code>tests/</code>, <code>load_test.py</code>, <code>crash_recovery_test.py</code></td><td>Unitaires, charge, crash</td><td>3.3</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin:24px 0 10px"><span class="tag">2.2</span> Configuration Kafka (Tâche 1.2)</h3>
+      <ul class="bullet">
+        <li>Topic <code>streaming-events</code> : <b>3 partitions</b>, réplication 1, rétention <b>7 jours</b> (<code>retention.ms=604800000</code>).</li>
+        <li>Topic <code>streaming-events-dlq</code> : dead-letter queue (messages invalides).</li>
+        <li>Mode <b>KRaft</b> (sans Zookeeper) — double listener : <code>kafka:9092</code> (Docker) / <code>localhost:29092</code> (host).</li>
+      </ul>
+
+      <h3 style="margin:24px 0 10px"><span class="tag">2.3</span> Schéma des événements (Tâche 1.1)</h3>
+      <div class="code">
+        <div class="lang">JSON</div>
+<pre><span class="k">{</span>
+  <span class="s">"event_id"</span>: <span class="s">"uuid"</span>,
+  <span class="s">"user_id"</span>: <span class="s">"user_0042"</span>,
+  <span class="s">"video_id"</span>: <span class="s">"video_017"</span>,
+  <span class="s">"event_type"</span>: <span class="s">"PLAY|PAUSE|STOP|SEEK"</span>,
+  <span class="s">"timestamp"</span>: <span class="s">"ISO 8601"</span>,
+  <span class="s">"current_time"</span>: <span class="n">123.45</span>,
+  <span class="s">"duration"</span>: <span class="n">600.0</span>,
+  <span class="s">"genre"</span>: <span class="s">"action|comedy|drama"</span>,
+  <span class="s">"device"</span>: <span class="s">"mobile|desktop|tv"</span>
+<span class="k">}</span></pre>
+      </div>
+      <div class="callout"><i class="fas fa-info-circle"></i>
+        Le générateur maintient un <b>catalogue cohérent</b> : chaque <code>video_id</code> garde un genre
+        et une durée fixes, et <code>current_time ≤ duration</code>.</div>
+    </section>
+
+    <!-- ====== 3. ÉTAPES ====== -->
+    <section id="etapes" class="fade-up">
+      <div class="section-head"><div class="section-num">3</div><h2>Étapes réalisées</h2></div>
+      <div class="section-sub">Déroulé étape par étape, dans l'ordre chronologique du projet. Chaque étape indique la tâche associée, les fichiers produits et le résultat vérifié.</div>
+
+      <!-- ÉTAPE 1 -->
+      <div class="timeline">
+
+        <div class="step done" id="e1">
+          <div class="step-tag"><i class="fas fa-cog"></i> &nbsp;Tâche 1.1 · Infra</div>
+          <h3>Étape 1 — Démarrage de Kafka avec Docker (mode KRaft)</h3>
+          <p>Création du <code>docker-compose.yml</code> qui démarre deux services :
+            <b>Kafka 3.7 en mode KRaft</b> (sans Zookeeper) et <b>Kafka UI</b> (Provectus) sur <code>localhost:8080</code>.
+            Double listener configuré pour séparer le trafic Docker du trafic host (producteur et Spark lancés en local).</p>
+          <div class="callout ok"><i class="fas fa-check-circle"></i>
+            Vérification : <code>docker ps</code> indique le conteneur <b>healthy</b>, et <code>kafka-broker-api-versions</code> répond sur <code>localhost:29092</code>. Kafka UI accessible sur <code>http://localhost:8080</code>.</div>
+          <div class="step-files">
+            <span class="chip">docker-compose.yml</span>
+            <span class="chip">.env</span>
+          </div>
+        </div>
+
+        <!-- ÉTAPE 2 -->
+        <div class="step done" id="e2">
+          <div class="step-tag"><i class="fas fa-layer-group"></i> &nbsp;Tâche 1.2 · Topics</div>
+          <h3>Étape 2 — Création et configuration des topics Kafka</h3>
+          <p>Création du topic principal <code>streaming-events</code> avec :
+            <b>3 partitions</b> (pour paralléliser la consommation), réplication 1 (mono-broker),
+            rétention <b>7 jours</b>. Création du topic DLQ <code>streaming-events-dlq</code> (1 partition) qui recevra
+            les messages invalides en Tâche 3.2. Script <code>create_topic.ps1/.sh</code> idempotent.</p>
+          <div class="callout ok"><i class="fas fa-check-circle"></i>
+            Vérification : <code>kafka-topics --describe</code> confirme les 3 partitions et le
+            <code>retention.ms=604800000</code>.</div>
+          <div class="step-files">
+            <span class="chip">scripts/create_topic.ps1</span>
+            <span class="chip">scripts/create_topic.sh</span>
+          </div>
+        </div>
+
+        <!-- ÉTAPE 3 -->
+        <div class="step done" id="e3">
+          <div class="step-tag"><i class="fas fa-vial"></i> &nbsp;Tâche 1.1 · Schéma</div>
+          <h3>Étape 3 — Générateur d'événements cohérents</h3>
+          <p>Conception d'un <code>EventGenerator</code> qui produit des événements aléatoires mais
+            <b>cohérents</b> : généralisation d'un catalogue de N vidéos (genre et durée fixes par <code>video_id</code>),
+            tirage d'utilisateur parmi M, respect de <code>current_time ≤ duration</code>. 4 types d'événements,
+            3 genres, 3 devices. Injection optionnelle de messages corrompus pour la DLQ.</p>
+          <div class="callout"><i class="fas fa-lightbulb"></i>
+            Le catalogue stable garantit des agrégations utilisables : un même <code>video_id</code> a toujours
+            le même genre, ce qui rend l'analyse par genre (Tâche 2.2 - Requête 3) significative.</div>
+          <div class="step-files"><span class="chip">src/common/event_schema.py</span></div>
+        </div>
+
+        <!-- ÉTAPE 4 -->
+        <div class="step done" id="e4">
+          <div class="step-tag"><i class="fas fa-paper-plane"></i> &nbsp;Tâche 1.1 · Producteur</div>
+          <h3>Étape 4 — Producteur Kafka Python</h3>
+          <p>Écriture de <code>producer.py</code> avec le client <code>kafka-python</code>. La
+            <b>clé de partitionnement est <code>user_id</code></b> : tous les événements d'un même
+            utilisateur tombent dans la même partition (ordre préservé par utilisateur). Configuration
+            robuste : <code>acks=all</code>, <code>retries=5</code>, <code>linger_ms=20</code> (micro-batching),
+            compression gzip. Gestion propre de <kbd>Ctrl+C</kbd> avec flush final.</p>
+          <div class="callout warn"><i class="fas fa-wrench"></i>
+            <b>Correction 1 :</b> <code>kafka-python 2.0.2</code> plante sur Python 3.14 (<code>vendor.six.moves</code> cassé).
+            Montée à <code>kafka-python ≥ 2.2</code>.
+            <b>Correction 2 :</b> <code>kafka-python 3.x</code> attend des sérialiseurs qui héritent de
+            <code>Serializer</code> avec la signature <code>serialize(self, topic, headers, data)</code> —
+            classes <code>KeySerializer</code> / <code>JsonValueSerializer</code> créées → <b>0 warning</b>.</div>
+          <div class="step-files"><span class="chip">src/producer/producer.py</span></div>
+        </div>
+
+        <!-- ÉTAPE 5 -->
+        <div class="step done" id="e5">
+          <div class="step-tag"><i class="fas fa-stream"></i> &nbsp;Tâche 2.1 · Consommateur</div>
+          <h3>Étape 5 — Consommateur Spark : parsing + validation</h3>
+          <p>Mise en place de la <code>SparkSession</code> avec téléchargement automatique du connecteur
+            Kafka <code>spark-sql-kafka-0-10_2.12:3.5.1</code>. <code>EVENT_SCHEMA</code> strict defini en
+            <code>StructType</code>, puis <code>parse_kafka_stream()</code> décode le JSON et
+            <code>split_valid_invalid()</code> sépare flux valide / invalide (JSON illisible, champ
+            obligatoire manquant, <code>event_type</code> inconnu, timestamp invalide).
+            Ajout de <code>event_time</code> (timestamp métier) et <code>processing_time</code> (ingestion Spark).</p>
+          <div class="callout warn"><i class="fas fa-wrench"></i>
+            <b>Problème Windows :</b> Spark exige <code>winutils.exe</code> + <code>hadoop.dll</code> sur le FS local
+            (même en mode console) → download des binaires Hadoop 3.3.6 et <code>HADOOP_HOME</code> forcé dans le projet.</div>
+          <div class="step-files">
+            <span class="chip">src/consumer/spark_consumer.py</span>
+            <span class="chip">src/common/spark_schema.py</span>
+          </div>
+        </div>
+
+        <!-- ÉTAPE 6 -->
+        <div class="step done" id="e6">
+          <div class="step-tag"><i class="fas fa-chart-bar"></i> &nbsp;Tâche 2.2 · Agrégations</div>
+          <h3>Étape 6 — Les 4 requêtes en fenêtres glissantes</h3>
+          <p>Implémentation des 4 requêtes d'agrégation : <b>fenêtre 10 min / slide 5 min</b> +
+            <b>watermark 15 min</b> (tolère le retard, borne l'état Spark).</p>
+          <ul class="bullet angle" style="margin-top:8px">
+            <li><b>Requête 1 — Popularité</b> : vues (PLAY), events, users uniques par vidéo/fenêtre → Top-N par fenêtre via <code>row_number()</code> dans <code>foreachBatch</code>.</li>
+            <li><b>Requête 2 — Engagement</b> : events, vidéos vues, proxy <code>max−min(current_time)</code>, dernier event par user/fenêtre + utilisateurs inactifs (>15 min).</li>
+            <li><b>Requête 3 — Genre</b> : répartition des vues + position moyenne par genre/fenêtre.</li>
+            <li><b>Requête 4 — Anomalies</b> : <code>DEVICE_EVENT_FLOOD</code> (>1000 events / 5min / device) et <code>USER_TOO_MANY_VIDEOS</code> (>10 vidéos distinctes / 1h, fenêtre glissante 1h/10min).</li>
+          </ul>
+          <div class="callout warn"><i class="fas fa-wrench"></i>
+            <b>Optimisation :</b> le mode <code>outputMode("complete")</code> recalculait tout l'état à chaque
+            micro-batch (timeout sur Top-N) → passage en <b><code>update</code></b> (incrémental).
+            <b>Approx :</b> <code>approx_count_distinct</code> car les comptes distincts exactes ne sont pas supportés en streaming.</div>
+          <div class="step-files"><span class="chip">src/consumer/transformations.py</span></div>
+        </div>
+
+        <!-- ÉTAPE 7 -->
+        <div class="step done" id="e7">
+          <div class="step-tag"><i class="fas fa-database"></i> &nbsp;Tâche 2.3 · Sorties</div>
+          <h3>Étape 7 — Sorties console + fichiers CSV/JSON + SQLite</h3>
+          <p>Une seule requête = un seul <code>foreachBatch</code> (un seul consumer Kafka par requête)
+            qui route vers les destinations activées. Fichiers rangés par requête/date :
+            <code>results/&lt;requete&gt;/&lt;AAAA-MM-JJ&gt;/&lt;requete&gt;_&lt;HHMMSS&gt;.csv|.json</code>.
+            SQLite écrit via une table par requête, créée à la volée.</p>
+          <div class="callout warn"><i class="fas fa-wrench"></i>
+            <b>Problème Python 3.14 :</b> <code>toPandas()</code> importe <code>distutils</code>, supprimé en Python 3.12+.
+            → sorties réécrites sans pandas, via <code>collect()</code> + <code>csv</code> / <code>json</code> /
+            <code>sqlite3</code> de la stdlib. <b>pandas</b> retiré de <code>requirements.txt</code>.</div>
+          <div class="step-files">
+            <span class="chip">src/consumer/sinks.py</span>
+            <span class="chip">src/consumer/streaming_app.py</span>
+          </div>
+        </div>
+
+        <!-- ÉTAPE 8 -->
+        <div class="step done" id="e8">
+          <div class="step-tag"><i class="fas fa-tachometer-alt"></i> &nbsp;Tâche 3.1 · Métriques</div>
+          <h3>Étape 8 — Métriques de performance (throughput, latence, lag)</h3>
+          <p>Mise en place d'un <b>StreamingQueryListener</b> qui, à chaque <code>QueryProgress</code>,
+            expose le <code>inputRowsPerSecond</code> / <code>processedRowsPerSecond</code>
+            (throughput) et le <code>maxOffsetsBehindLatest</code> (lag Kafka). Un <code>foreachBatch</code>
+            séparé calcule la <b>latence end-to-end</b> (<code>processing_time − event_time</code>) sur les données réelles.</p>
+          <div class="callout ok"><i class="fas fa-chart-line"></i>
+            Mesures réelles (90 000 événements produits en parallèle, 34 micro-batches) :
+            débit d'entrée ~567 evt/s, capacité Spark 2-4 k/s, latence moyenne ~2,5 s,
+            <b>lag Kafka = 0</b> (Spark absorbe le débit sans retard).</div>
+          <div class="step-files">
+            <span class="chip">src/consumer/metrics.py</span>
+            <span class="chip">src/consumer/metrics_app.py</span>
+          </div>
+        </div>
+
+        <!-- ÉTAPE 9 -->
+        <div class="step done" id="e9">
+          <div class="step-tag"><i class="fas fa-exclamation-triangle"></i> &nbsp;Tâche 3.2 · DLQ</div>
+          <h3>Étape 9 — Dead-Letter Queue + checkpoints (reprise sur incident)</h3>
+          <p>Reprise du flux invalide produit en Tâche 2.1, enrichissement avec une <b>raison d'erreur</b>
+            (<code>INVALID_JSON</code>, <code>MISSING_REQUIRED_FIELD</code>, <code>BAD_EVENT_TYPE</code>,
+            <code>BAD_TIMESTAMP</code>) et le contexte (partition/offset source, horodatages), puis
+            republication dans le topic <code>streaming-events-dlq</code> via un sink Kafka. La requête
+            utilise un <code>checkpointLocation</code> : en cas de crash, elle reprend là où elle s'était arrêtée
+            (exactly-once côté offsets Kafka source).</p>
+          <div class="callout warn"><i class="fas fa-wrench"></i>
+            <b>Windows & espaces :</b> Hadoop gère mal les espaces dans les URI de checkpoint →
+            <code>CHECKPOINT_DIR</code> relocalisé dans <code>C:\Users\driss\.tp-kafka-spark\checkpoints</code>.
+            <b>Test de reprise :</b> relance sans <code>--reset</code> ⇒ DLQ reste à 74 (avant = après), aucun reprocessing.</div>
+          <div class="step-files">
+            <span class="chip">src/consumer/error_handling.py</span>
+            <span class="chip">src/consumer/dlq_app.py</span>
+          </div>
+        </div>
+
+        <!-- ÉTAPE 10 -->
+        <div class="step done" id="e10">
+          <div class="step-tag"><i class="fas fa-vial-pass"></i> &nbsp;Tâche 3.3 · Tests</div>
+          <h3>Étape 10 — Tests (unitaires + 100K + crash + évolutivité)</h3>
+          <p>Trois types de tests livrés :</p>
+          <ul class="bullet angle" style="margin-top:8px">
+            <li><b>Tests unitaires pytest</b> (10 tests) : schéma événement, énumérations, <code>current_time ≤ duration</code>, stabilité genre/durée, parsing/validation, raisons d'erreur, agrégations.</li>
+            <li><b>Test de charge 100K</b> <code>load_test.py</code> : produit 100 000 événements et les traite avec Spark ; ~19k evt/s en production, ~33k evt/s en traitement, 0 erreur.</li>
+            <li><b>Test de crash + reprise</b> <code>crash_recovery_test.py</code> : worker Spark tué brutalement (<code>taskkill /F /T</code>) après 1498/30000 événements, relancé → <b>30000/30000 traités, 0 perte</b>.</li>
+          </ul>
+          <div class="callout warn"><i class="fas fa-wrench"></i>
+            <b>Python 3.14 :</b> <code>createDataFrame()</code> déclenche un cloudpickle qui plante en
+            <code>RecursionError</code> → tests Spark construits via <code>spark.read.json</code> (chemin JVM, sans pickle).</div>
+          <div class="step-files">
+            <span class="chip">tests/conftest.py</span>
+            <span class="chip">tests/test_event_schema.py</span>
+            <span class="chip">tests/test_spark_logic.py</span>
+            <span class="chip">scripts/load_test.py</span>
+            <span class="chip">scripts/crash_recovery_test.py</span>
+          </div>
+        </div>
+
+      </div><!-- /timeline -->
+    </section>
+
+    <!-- ====== 4. CHOIX TECHNIQUES ====== -->
+    <section id="choix" class="fade-up">
+      <div class="section-head"><div class="section-num">4</div><h2>Choix techniques justifiés</h2></div>
+
+      <div class="grid grid-3">
+        <div class="card">
+          <div class="ico" style="background:rgba(124,92,255,.15);color:#7c5cff"><i class="fas fa-file-code"></i></div>
+          <h3>Format des données</h3>
+          <p><b>JSON</b> sur Kafka : lisible, auto-descriptif, simple à déboguer dans Kafka UI.
+            La <b>clé = <code>user_id</code></b> préserve l'ordre par utilisateur.
+            Sorties CSV (tableur), JSON (réutilisable), SQLite (SQL ad hoc) via la stdlib uniquement.</p>
+        </div>
+        <div class="card">
+          <div class="ico" style="background:rgba(25,211,218,.15);color:#19d3da"><i class="far fa-clock"></i></div>
+          <h3>Taille des fenêtres</h3>
+          <p><b>10 min / slide 5 min</b> (énoncé) : le recouvrement lisse les agrégations et évite les
+            effets de bord. <b>Watermark 15 min</b> borne l'état Spark. Fenêtres spécifiques pour les anomalies
+            (1h/10min utilisateur, 5min tumbling pour le flood).</p>
+        </div>
+        <div class="card">
+          <div class="ico" style="background:rgba(255,122,181,.15);color:#ff7ab5"><i class="fas fa-save"></i></div>
+          <h3>Stratégie de checkpoint</h3>
+          <p><code>checkpointLocation</code> activé (DLQ + option <code>--checkpoint</code>). Reprise exactly-once
+            côté offsets Kafka source. Chemin sans espaces (problématique Windows/Hadoop). Effets de bord du
+            <code>foreachBatch</code> = at-least-once (agrégations idempotentes par clé de fenêtre).</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3 style="margin-bottom:10px"><i class="fas fa-cogs" style="color:#ffb454"></i> Mode de sortie & optimisations</h3>
+        <ul class="bullet angle">
+          <li><code>outputMode("update")</code> retenu (incrémental, performant) ; <code>complete</code> écarté (timeout sur Top-N).</li>
+          <li>Top-N par fenêtre via <code>foreachBatch</code> + <code>row_number()</code> (non exprimable directement sur un flux).</li>
+          <li><code>approx_count_distinct</code> pour les comptes distincts (non supportés en exact sur un flux).</li>
+          <li><code>watch_time_proxy = max(current_time) − min(current_time)</code> : approximation documentée pour les événements instantanés.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ====== 5. RÉSULTATS ====== -->
+    <section id="resultats" class="fade-up">
+      <div class="section-head"><div class="section-num">5</div><h2>Résultats et performances</h2></div>
+      <div class="section-sub">Cliquez sur n'importe quelle capture pour la zoomer.</div>
+
+      <!-- Métriques -->
+      <h3 style="margin:20px 0 10px"><span class="tag">5.1</span> Métriques de performance</h3>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Métrique</th><th>Valeur mesurée</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td>Débit en entrée</td><td>~567 evt/s (limité par le producteur)</td><td>QueryProgress</td></tr>
+            <tr><td>Capacité de traitement Spark</td><td>2 000 – 4 000 evt/s</td><td>QueryProgress</td></tr>
+            <tr><td>Latence end-to-end</td><td>moyenne ~2,5 s, min ~10-30 ms, max ~5 s</td><td>processing_time − event_time</td></tr>
+            <tr><td>Lag consommateur Kafka</td><td><b>0</b> (Spark absorbe le débit)</td><td>maxOffsetsBehindLatest</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin:24px 0 10px"><span class="tag">5.2</span> Test de charge et d'évolutivité</h3>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Volume</th><th>Production</th><th>Traitement</th><th>Débit Spark</th></tr></thead>
+          <tbody>
+            <tr><td>10 000</td><td>0,7 s</td><td>6,0 s</td><td>~1 670 evt/s</td></tr>
+            <tr><td>50 000</td><td>2,5 s</td><td>2,4 s</td><td>~20 800 evt/s</td></tr>
+            <tr><td><b>100 000</b></td><td><b>5,2 s</b></td><td><b>3,0 s</b></td><td><b>~33 200 evt/s</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><i class="fas fa-arrow-trend-up"></i>
+        Le débit de traitement <b>croît avec le volume</b> : l'overhead fixe de Spark (démarrage, planification)
+        est amorti sur des lots plus grands.</div>
+
+      <h3 style="margin:24px 0 10px"><span class="tag">5.3</span> Reprise sur incident</h3>
+      <ul class="bullet">
+        <li><b>DLQ</b> : 74 messages invalides routés vers <code>streaming-events-dlq</code> avec raison + contexte.</li>
+        <li><b>Checkpoint</b> : relance sans rejeu → aucun doublon (offsets repris).</li>
+        <li><b>Test de crash</b> : worker tué après 1498/30000 → relancé → <b>30000/30000 traités, 0 perte</b>.</li>
+      </ul>
+
+      <h3 style="margin:24px 0 10px"><span class="tag">5.4</span> Captures d'écran (zoomables)</h3>
+      <p class="muted"><i class="fas fa-mouse-pointer"></i> Cliquez sur une image pour l'agrandir.</p>
+
+      <!-- Screenshots -->
+      <div class="shot"><img src="screenshots/01_producer.png" alt="Producteur Kafka"><div class="shot-cap"><span><i class="fas fa-paper-plane ic"></i> Producteur Kafka — ~567 evt/s</span><span class="muted">01</span></div></div>
+      <div class="shot"><img src="screenshots/02_validation.png" alt="Validation flux valide/invalide"><div class="shot-cap"><span><i class="fas fa-check-circle ic"></i> Consommateur 2.1 — flux valide + DLQ</span><span class="muted">02</span></div></div>
+      <div class="shot"><img src="screenshots/03_popularite.png" alt="Top 10 par fenêtre"><div class="shot-cap"><span><i class="fas fa-chart-bar ic"></i> Requête 1 — Top 10 vidéos par fenêtre</span><span class="muted">03</span></div></div>
+      <div class="shot"><img src="screenshots/04_anomalies.png" alt="Anomalies"><div class="shot-cap"><span><i class="fas fa-exclamation-triangle ic"></i> Requête 4 — DEVICE_FLOOD + TOO_MANY_VIDEOS</span><span class="muted">04</span></div></div>
+      <div class="shot"><img src="screenshots/05_genre.png" alt="Genre"><div class="shot-cap"><span><i class="fas fa-film ic"></i> Requête 3 — analyse par genre</span><span class="muted">05</span></div></div>
+      <div class="shot"><img src="screenshots/06_sqlite.png" alt="SQLite"><div class="shot-cap"><span><i class="fas fa-database ic"></i> Tables SQLite peuplées (5 requêtes)</span><span class="muted">06</span></div></div>
+      <div class="shot"><img src="screenshots/07_dlq.png" alt="DLQ"><div class="shot-cap"><span><i class="fas fa-inbox ic"></i> Topic streaming-events-dlq (74 messages)</span><span class="muted">07</span></div></div>
+      <div class="shot"><img src="screenshots/08_charge.png" alt="Charge 100K"><div class="shot-cap"><span><i class="fas fa-bolt ic"></i> Test de charge 100K (19k prod / 33k traités)</span><span class="muted">08</span></div></div>
+      <div class="shot"><img src="screenshots/09_crash.png" alt="Crash + reprise"><div class="shot-cap"><span><i class="fas fa-redo ic"></i> Crash + reprise (30000/30000, 0 perte)</span><span class="muted">09</span></div></div>
+      <div class="shot"><img src="screenshots/10_tests.png" alt="pytest"><div class="shot-cap"><span><i class="fas fa-vial ic"></i> pytest 10/10</span><span class="muted">10</span></div></div>
+      <div class="shot"><img src="screenshots/11_kafkaui_topics.png" alt="Kafka UI topics"><div class="shot-cap"><span><i class="fas fa-server ic"></i> Kafka UI — cluster + topics</span><span class="muted">11</span></div></div>
+      <div class="shot"><img src="screenshots/12_kafkaui_messages.png" alt="Kafka UI messages"><div class="shot-cap"><span><i class="fas fa-stream ic"></i> Kafka UI — messages de streaming-events</span><span class="muted">12</span></div></div>
+      <div class="shot"><img src="screenshots/13_kafkaui_dlq.png" alt="Kafka UI DLQ"><div class="shot-cap"><span><i class="fas fa-inbox ic"></i> Kafka UI — messages de la DLQ</span><span class="muted">13</span></div></div>
+    </section>
+
+    <!-- ====== 6. DIFFICULTÉS ====== -->
+    <section id="diff" class="fade-up">
+      <div class="section-head"><div class="section-num">6</div><h2>Difficultés rencontrées et solutions</h2></div>
+      <div class="section-sub">9 incompatibilités Windows / Python 3.14 résolues.</div>
+
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th style="width:24%"><i class="fas fa-bug"></i> Difficulté</th><th style="width:36%">Cause</th><th>Solution</th></tr></thead>
+          <tbody>
+            <tr><td><code>kafka-python</code> plante à l'import</td><td>2.0.2 importe <code>vendor.six.moves</code>, cassé en Python 3.12+</td><td>Montée à <code>kafka-python ≥ 2.2</code></td></tr>
+            <tr><td>Java introuvable / cassé</td><td>JDK temporaire incomplet (DLL CRT manquante)</td><td>Temurin JDK 17 portable, <code>JAVA_HOME</code> forcé par le projet</td></tr>
+            <tr><td><code>ExitCodeException</code> Spark Windows</td><td><code>winutils.exe</code> + <code>hadoop.dll</code> absents</td><td>Binaires Hadoop 3.3.6 + <code>HADOOP_HOME</code> forcé</td></tr>
+            <tr><td><code>toPandas()</code> échoue</td><td><code>distutils</code> supprimé en Python 3.12+</td><td>Sorties sans pandas (<code>csv</code>/<code>json</code>/<code>sqlite3</code>)</td></tr>
+            <tr><td><code>createDataFrame</code> dans les tests</td><td><code>RecursionError</code> cloudpickle (Python 3.14)</td><td>Tests via <code>spark.read.json</code> (chemin JVM)</td></tr>
+            <tr><td>Top-N en timeout</td><td><code>outputMode("complete")</code> recalcule tout l'état</td><td>Passage en <code>update</code> + ranking dans <code>foreachBatch</code></td></tr>
+            <tr><td>Console polluée par les WARN</td><td>Bannière pyspark + erreurs cosmétiques de shutdown</td><td>Log level <code>ERROR</code> + Configurator + filtre stderr ciblé</td></tr>
+            <tr><td>Print invisibles en arrière-plan</td><td>Bufferisation stdout quand sortie redirigée</td><td><code>sys.stdout.reconfigure(line_buffering=True)</code></td></tr>
+            <tr><td>Checkpoint en échec</td><td>Espaces dans le chemin du projet</td><td>Checkpoints dans <code>~/.tp-kafka-spark/checkpoints</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout ok"><i class="fas fa-check-double"></i>
+        <b>Résultat :</b> pipeline 100 % fonctionnel et <b>sans warning</b> (code vérifié avec
+        <code>python -W error</code>, logs Spark filtrés).</div>
+    </section>
+
+    <!-- ====== 7. AMÉLIORATIONS ====== -->
+    <section id="amelio" class="fade-up">
+      <div class="section-head"><div class="section-num">7</div><h2>Améliorations potentielles</h2></div>
+      <div class="grid grid-2">
+        <div class="card"><div class="ico" style="background:rgba(124,92,255,.15);color:#7c5cff"><i class="fas fa-box"></i></div>
+          <h3>Avro + Schema Registry</h3><p>Validation de schéma centralisée, messages plus compacts, évolution de schéma maîtrisée vers Avro/Protobuf.</p></div>
+        <div class="card"><div class="ico" style="background:rgba(25,211,218,.15);color:#19d3da"><i class="fas fa-warehouse"></i></div>
+          <h3>Stockage analytique</h3><p>Remplacer SQLite par PostgreSQL/ClickHouse ou un data lake (Parquet/Delta) pour la montée en charge et les requêtes analytiques.</p></div>
+        <div class="card"><div class="ico" style="background:rgba(255,122,181,.15);color:#ff7ab5"><i class="fas fa-sync"></i></div>
+          <h3>Exactly-once bout en bout</h3><p>Sink transactionnel (Kafka→Kafka transactionnel) ou idempotence applicative pour les effets de bord du <code>foreachBatch</code>.</p></div>
+        <div class="card"><div class="ico" style="background:rgba(61,220,132,.15);color:#3ddc84"><i class="fas fa-chart-line"></i></div>
+          <h3>Visualisation temps réel</h3><p>Tableau de bord Grafana/Superset branché sur la base de résultats ou sur Prometheus pour les métriques.</p></div>
+        <div class="card"><div class="ico" style="background:rgba(255,180,84,.15);color:#ffb454"><i class="fas fa-server"></i></div>
+          <h3>Scalabilité horizontale</h3><p>Cluster Spark multi-exécuteurs et Kafka multi-brokers (réplication &gt; 1) pour la tolérance aux pannes.</p></div>
+        <div class="card"><div class="ico" style="background:rgba(92,200,255,.15);color:#5cc8ff"><i class="fas fa-bell"></i></div>
+          <h3>Alerting</h3><p>Publier les anomalies vers un canal (webhook, e-mail, Slack) au lieu de la seule console/base.</p></div>
+        <div class="card"><div class="ico" style="background:rgba(255,92,124,.15);color:#ff5c7c"><i class="fas fa-code-branch"></i></div>
+          <h3>Modèle de temps de visionnage</h3><p>Remplacer le proxy <code>max−min(current_time)</code> par une vraie reconstruction de session (<code>flatMapGroupsWithState</code> stateful).</p></div>
+        <div class="card"><div class="ico" style="background:rgba(124,92,255,.15);color:#7c5cff"><i class="fas fa-robot"></i></div>
+          <h3>Tests CI end-to-end</h3><p>Kafka éphémère via Testcontainers automatisés en pipeline d'intégration continue.</p></div>
+      </div>
+    </section>
+
+    <!-- ====== FOOTER ====== -->
+    <footer>
+      <div class="f-name">DRISS Amine</div>
+      <div class="muted" style="margin-bottom:14px">TP Projet — Traitement de données en temps réel avec Kafka et Spark · ESIS 2 (2025-2026)</div>
+      <div class="f-icons">
+        <a href="#intro" title="Haut"><i class="fas fa-arrow-up"></i></a>
+        <a href="#" title="Auteur"><i class="fas fa-user"></i></a>
+        <a href="https://kafka.apache.org" target="_blank" rel="noopener" title="Kafka"><i class="fas fa-stream"></i></a>
+        <a href="https://spark.apache.org" target="_blank" rel="noopener" title="Spark"><i class="fas fa-fire"></i></a>
+      </div>
+      <div class="muted" style="margin-top:14px;font-size:11px">
+        © 2026 DRISS Amine — Tous droits réservés. Auteur présent dans l'ensemble des fichiers source et de ce rapport.
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<!-- ============ JS ============ -->
+<!-- Font Awesome (icônes) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<!-- Medium Zoom (images zoomables) -->
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js"></script>
+<script>
+// 1. Activez le zoom sur les screenshots
+mediumZoom('.shot img', { margin: 24, scrollOffset: 80, background: 'rgba(5,8,18,.92)' });
+
+// 2. Progress bar de scroll
+const progress = document.getElementById('progress');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const scrolled = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  progress.style.width = scrolled + '%';
+}, { passive: true });
+
+// 3. Sidebar active link
+const links = document.querySelectorAll('#nav a[href^="#"]');
+const sections = [...links].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+const setActive = () => {
+  let cur = sections[0];
+  for (const s of sections) {
+    if (s.getBoundingClientRect().top < 140) cur = s;
+  }
+  links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + cur.id));
+};
+window.addEventListener('scroll', setActive, { passive: true });
+setActive();
+
+// 4. Theme toggle
+const themeBtn = document.getElementById('theme-toggle');
+const themeIco = document.getElementById('theme-ico');
+themeBtn.addEventListener('click', () => {
+  const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  themeIco.innerHTML = t === 'dark' ? '\uD83C\uDF19' : '\u2600';  // lune / soleil
+});
+
+// 5. Fade-up au scroll (intersection observer)
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.06 });
+document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+
+// 6. Compteurs animés (stats)
+const animate = (el) => {
+  const target = +el.dataset.count;
+  let cur = 0, step = Math.max(1, Math.ceil(target / 60));
+  const tick = () => {
+    cur += step;
+    if (cur >= target) { el.textContent = target.toLocaleString('fr-FR'); return; }
+    el.textContent = cur.toLocaleString('fr-FR');
+    requestAnimationFrame(tick);
+  };
+  tick();
+};
+const statObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { animate(e.target); statObs.unobserve(e.target); } });
+}, { threshold: 0.4 });
+document.querySelectorAll('[data-count]').forEach(el => statObs.observe(el));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide de Déploiement - Application de Messagerie</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+            --card-bg: #fff;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            background: var(--card-bg);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            background: var(--card-bg);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .tab-btn:last-child {
+            border-right: none;
+        }
+
+        .tab-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .command {
+            color: #569cd6;
+            font-weight: bold;
+        }
+
+        .comment {
+            color: #6a9955;
+            font-style: italic;
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .danger {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .checklist li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .checklist li::before {
+            content: "☐";
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+
+        .checklist li.done::before {
+            content: "✓";
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.5em;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        .badge.primary { background-color: var(--primary-color); color: white; }
+        .badge.success { background-color: var(--success-color); color: white; }
+        .badge.warning { background-color: #ffc107; color: #212529; }
+        .badge.danger { background-color: var(--danger-color); color: white; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--secondary-color);
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            .tab-btn {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🚀 Guide de Déploiement</h1>
+        <p class="subtitle">Application de Messagerie en Temps Réel sur Contabo VPS</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('overview')">Vue d'Ensemble</button>
+            <button class="tab-btn" onclick="openTab('prerequisites')">Prérequis</button>
+            <button class="tab-btn" onclick="openTab('phase1')">Phase 1: VPS</button>
+            <button class="tab-btn" onclick="openTab('phase2')">Phase 2: Backend</button>
+            <button class="tab-btn" onclick="openTab('phase3')">Phase 3: Frontend</button>
+            <button class="tab-btn" onclick="openTab('phase4')">Phase 4: Sécurité</button>
+            <button class="tab-btn" onclick="openTab('testing')">Tests</button>
+            <button class="tab-btn" onclick="openTab('troubleshooting')">Dépannage</button>
+            <button class="tab-btn" onclick="openTab('commands')">Commandes</button>
+        </div>
+
+        <!-- Vue d'Ensemble -->
+        <div id="overview" class="tab-content active">
+            <h2>📋 Vue d'Ensemble du Projet</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>🏗️ Architecture</h3>
+                    <ul class="checklist">
+                        <li class="done">Backend: Node.js + Express + Socket.io</li>
+                        <li class="done">Frontend: React + Tailwind CSS</li>
+                        <li class="done">Base de données: MongoDB</li>
+                        <li class="done">Authentification: JWT + bcrypt</li>
+                        <li class="done">Communication: Socket.io en temps réel</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3>⚙️ Technologies</h3>
+                    <span class="badge primary">Node.js 18+</span>
+                    <span class="badge primary">MongoDB 7.0</span>
+                    <span class="badge primary">Nginx</span>
+                    <span class="badge primary">PM2</span>
+                    <span class="badge primary">Let's Encrypt</span>
+                </div>
+                
+                <div class="card">
+                    <h3>⏱️ Durée Estimée</h3>
+                    <p><strong>Total:</strong> 1h30 - 2h</p>
+                    <ul>
+                        <li>Phase 1: 30-45 min</li>
+                        <li>Phase 2: 20-30 min</li>
+                        <li>Phase 3: 30-45 min</li>
+                        <li>Phase 4: 15-20 min</li>
+                        <li>Tests: 10-15 min</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Important:</strong> Assurez-vous d'avoir accès SSH à votre VPS Contabo avant de commencer.
+                Si vous avez des problèmes de connexion SSH, consultez la section "Dépannage" en premier.
+            </div>
+
+            <h3 style="margin-top: 2rem;">📋 Checklist de Déploiement</h3>
+            <ul class="checklist">
+                <li>✅ VPS Contabo démarré et accessible</li>
+                <li>✅ Accès SSH fonctionnel</li>
+                <li>✅ Clé SSH générée (optionnel mais recommandé)</li>
+                <li>✅ Domaine configuré (optionnel)</li>
+                <li>✅ Sauvegarde des données existantes</li>
+            </ul>
+        </div>
+
+        <!-- Prérequis -->
+        <div id="prerequisites" class="tab-content">
+            <h2>🔧 Vérification des Prérequis</h2>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Vérifier l'état du VPS</h3>
+                <p>Depuis votre panel Contabo, assurez-vous que:</p>
+                <ul>
+                    <li>Votre VPS est dans l'état "Running"</li>
+                    <li>Vous avez l'adresse IP de votre VPS</li>
+                    <li>Le système d'exploitation est Ubuntu 20.04+ ou Debian 10+</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Tester la connexion SSH</h3>
+                <div class="code-block">
+                    <span class="comment"># Tester la connectivité</span>
+                    <span class="command">ping</span> votre-vps-ip
+
+                    <span class="comment"># Se connecter en SSH (remplacez par votre IP)</span>
+                    <span class="command">ssh</span> root@144.91.77.138
+
+                    <span class="comment"># Si le port 22 ne fonctionne pas, essayez le port 2222</span>
+                    <span class="command">ssh</span> -p 2222 root@144.91.77.138
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Vérifier les ports ouverts</h3>
+                <p>Assurez-vous que les ports suivants sont ouverts dans votre firewall Contabo:</p>
+                <ul>
+                    <li><strong>Port 22:</strong> SSH (ou 2222)</li>
+                    <li><strong>Port 80:</strong> HTTP</li>
+                    <li><strong>Port 443:</strong> HTTPS</li>
+                </ul>
+            </div>
+
+            <div class="success">
+                <strong>✅ Objectif:</strong> Une fois ces vérifications terminées, vous devriez pouvoir vous connecter à votre VPS via SSH sans problème.
+            </div>
+        </div>
+
+        <!-- Phase 1: VPS Setup -->
+        <div id="phase1" class="tab-content">
+            <h2>🖥️ Phase 1: Configuration du VPS</h2>
+            <p class="subtitle">Durée estimée: 30-45 minutes</p>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Connexion et mise à jour du système</h3>
+                <div class="code-block">
+                    <span class="comment"># Se connecter à votre VPS</span>
+                    <span class="command">ssh</span> root@votre-vps-ip
+
+                    <span class="comment"># Mettre à jour le système</span>
+                    <span class="command">apt update</span> <span class="command">&&</span> <span class="command">apt upgrade</span> -y
+
+                    <span class="comment"># Installer les outils de base</span>
+                    <span class="command">apt install</span> -y curl wget git ufw htop
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Installation de Node.js</h3>
+                <div class="code-block">
+                    <span class="comment"># Ajouter le référentiel Node.js</span>
+                    <span class="command">curl</span> -fsSL https://deb.nodesource.com/setup_18.x | <span class="command">bash</span> -
+
+                    <span class="comment"># Installer Node.js et npm</span>
+                    <span class="command">apt install</span> -y nodejs
+
+                    <span class="comment"># Vérifier l'installation</span>
+                    <span class="command">node</span> --version
+                    <span class="command">npm</span> --version
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Installation de MongoDB</h3>
+                <div class="code-block">
+                    <span class="comment"># Importer la clé GPG de MongoDB</span>
+                    <span class="command">wget</span> -qO - https://www.mongodb.org/static/pgp/server-7.0.asc | <span class="command">apt-key</span> add -
+
+                    <span class="comment"># Ajouter le référentiel MongoDB</span>
+                    <span class="command">echo</span> <span class="command">"deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/7.0 multiverse"</span> | <span class="command">tee</span> /etc/apt/sources.list.d/mongodb-org-7.0.list
+
+                    <span class="comment"># Installer MongoDB</span>
+                    <span class="command">apt update</span>
+                    <span class="command">apt install</span> -y mongodb-org
+
+                    <span class="comment"># Démarrer et activer MongoDB</span>
+                    <span class="command">systemctl start mongod</span>
+                    <span class="command">systemctl enable mongod</span>
+
+                    <span class="comment"># Vérifier le statut</span>
+                    <span class="command">systemctl status mongod</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Installation de PM2</h3>
+                <div class="code-block">
+                    <span class="comment"># Installer PM2 globalement</span>
+                    <span class="command">npm install</span> -g pm2
+
+                    <span class="comment"># Vérifier l'installation</span>
+                    <span class="command">pm2</span> --version
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Configuration du pare-feu</h3>
+                <div class="code-block">
+                    <span class="comment"># Autoriser SSH (important!)</span>
+                    <span class="command">ufw allow</span> 22
+                    <span class="comment"># ou si vous utilisez le port 2222</span>
+                    <span class="command">ufw allow</span> 2222
+
+                    <span class="comment"># Autoriser HTTP et HTTPS</span>
+                    <span class="command">ufw allow</span> 80
+                    <span class="command">ufw allow</span> 443
+
+                    <span class="comment"># Activer le pare-feu</span>
+                    <span class="command">ufw enable</span>
+
+                    <span class="comment"># Vérifier les règles</span>
+                    <span class="command">ufw status</span>
+                </div>
+            </div>
+
+            <div class="success">
+                <strong>✅ Objectif de la Phase 1:</strong> Votre VPS est maintenant prêt avec Node.js, MongoDB, PM2 et un pare-feu configuré.
+            </div>
+        </div>
+
+        <!-- Phase 2: Backend Setup -->
+        <div id="phase2" class="tab-content">
+            <h2>⚙️ Phase 2: Configuration du Backend</h2>
+            <p class="subtitle">Durée estimée: 20-30 minutes</p>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Clonage du projet</h3>
+                <div class="code-block">
+                    <span class="comment"># Se déplacer dans le répertoire home</span>
+                    <span class="command">cd</span> /home
+
+                    <span class="comment"># Créer un répertoire pour votre projet</span>
+                    <span class="command">mkdir</span> messagerie-app
+                    <span class="command">cd</span> messagerie-app
+
+                    <span class="comment"># Cloner votre projet (remplacez par votre URL)</span>
+                    <span class="command">git clone</span> https://github.com/votre-utilisateur/votre-projet.git .
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Installation des dépendances backend</h3>
+                <div class="code-block">
+                    <span class="comment"># Installer les dépendances backend</span>
+                    <span class="command">cd</span> backend
+                    <span class="command">npm install</span>
+
+                    <span class="comment"># Vérifier les dépendances installées</span>
+                    <span class="command">ls</span> node_modules | <span class="command">head</span> -10
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Configuration des variables d'environnement</h3>
+                <div class="code-block">
+                    <span class="comment"># Copier le fichier exemple</span>
+                    <span class="command">cp</span> .env.example .env
+
+                    <span class="comment"># Éditer le fichier .env</span>
+                    <span class="command">nano</span> .env
+                </div>
+                
+                <div class="warning">
+                    <strong>📝 Configuration requise dans .env:</strong>
+                    <div class="code-block">
+MONGODB_URI=mongodb://localhost:27017/messagerie-app
+JWT_SECRET=votre-secret-jwt-super-securise-ici
+JWT_REFRESH_SECRET=votre-refresh-secret-super-securise-ici
+PORT=5000
+NODE_ENV=production
+FRONTEND_URL=http://votre-vps-ip
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Lancement du backend avec PM2</h3>
+                <div class="code-block">
+                    <span class="comment"># Démarrer l'application avec PM2</span>
+                    <span class="command">pm2 start server.js --name "messagerie-backend"</span>
+
+                    <span class="comment"># Sauvegarder la configuration PM2</span>
+                    <span class="command">pm2 save</span>
+
+                    <span class="comment"># Configurer PM2 au démarrage</span>
+                    <span class="command">pm2 startup</span>
+
+                    <span class="comment"># Vérifier le statut</span>
+                    <span class="command">pm2 status</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Test du backend</h3>
+                <div class="code-block">
+                    <span class="comment"># Tester l'API backend</span>
+                    <span class="command">curl</span> http://localhost:5000/api/health
+
+                    <span class="comment"># Vérifier les logs</span>
+                    <span class="command">pm2 logs messagerie-backend</span>
+                </div>
+            </div>
+
+            <div class="success">
+                <strong>✅ Objectif de la Phase 2:</strong> Votre backend Node.js est maintenant en cours d'exécution sur le port 5000 et géré par PM2.
+            </div>
+        </div>
+
+        <!-- Phase 3: Frontend Setup -->
+        <div id="phase3" class="tab-content">
+            <h2>🎨 Phase 3: Configuration du Frontend</h2>
+            <p class="subtitle">Durée estimée: 30-45 minutes</p>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Installation de Nginx</h3>
+                <div class="code-block">
+                    <span class="comment"># Installer Nginx</span>
+                    <span class="command">apt install</span> -y nginx
+
+                    <span class="comment"># Démarrer et activer Nginx</span>
+                    <span class="command">systemctl start nginx</span>
+                    <span class="command">systemctl enable nginx</span>
+
+                    <span class="comment"># Vérifier le statut</span>
+                    <span class="command">systemctl status nginx</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Configuration du build frontend</h3>
+                <div class="code-block">
+                    <span class="comment"># Installer les dépendances frontend</span>
+                    <span class="command">cd</span> ../frontend
+                    <span class="command">npm install</span>
+
+                    <span class="comment"># Construire l'application React</span>
+                    <span class="command">npm run build</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Configuration Nginx reverse proxy</h3>
+                <div class="code-block">
+                    <span class="comment"># Créer un fichier de configuration</span>
+                    <span class="command">nano</span> /etc/nginx/sites-available/messagerie
+                </div>
+                
+                <div class="warning">
+                    <strong>📝 Configuration Nginx à copier:</strong>
+                    <div class="code-block">
+server {
+    listen 80;
+    server_name votre-vps-ip;
+
+    # Frontend (React build)
+    location / {
+        root /home/messagerie-app/frontend/build;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Backend API
+    location /api {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # Socket.io
+    location /socket.io/ {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Activation de la configuration</h3>
+                <div class="code-block">
+                    <span class="comment"># Activer le site</span>
+                    <span class="command">ln -s</span> /etc/nginx/sites-available/messagerie /etc/nginx/sites-enabled/
+
+                    <span class="comment"># Tester la configuration</span>
+                    <span class="command">nginx -t</span>
+
+                    <span class="comment"># Recharger Nginx</span>
+                    <span class="command">systemctl reload nginx</span>
+                </div>
+            </div>
+
+            <div class="success">
+                <strong>✅ Objectif de la Phase 3:</strong> Votre frontend React est maintenant servi par Nginx avec un reverse proxy configuré pour le backend.
+            </div>
+        </div>
+
+        <!-- Phase 4: Sécurité et SSL -->
+        <div id="phase4" class="tab-content">
+            <h2>🔒 Phase 4: Sécurité et SSL</h2>
+            <p class="subtitle">Durée estimée: 15-20 minutes</p>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Installation de Let's Encrypt</h3>
+                <div class="code-block">
+                    <span class="comment"># Installer Certbot</span>
+                    <span class="command">apt install</span> -y certbot python3-certbot-nginx
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Obtention du certificat SSL</h3>
+                <div class="code-block">
+                    <span class="comment"># Si vous avez un domaine</span>
+                    <span class="command">certbot --nginx -d</span> votre-domaine.com
+
+                    <span class="comment"># Si vous utilisez seulement l'IP (moins recommandé)</span>
+                    <span class="comment"># Note: Let's Encrypt nécessite généralement un nom de domaine</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Configuration HTTPS automatique</h3>
+                <div class="code-block">
+                    <span class="comment"># Configurer le renouvellement automatique</span>
+                    <span class="command">crontab -e</span>
+                </div>
+                
+                <div class="warning">
+                    <strong>📝 Ajouter cette ligne dans crontab:</strong>
+                    <div class="code-block">
+0 12 * * * /usr/bin/certbot renew --quiet
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Sécurité supplémentaire</h3>
+                <div class="code-block">
+                    <span class="comment"># Renforcer la sécurité Nginx</span>
+                    <span class="command">nano</span> /etc/nginx/nginx.conf
+                </div>
+                
+                <div class="warning">
+                    <strong>📝 Ajouter dans la section http:</strong>
+                    <div class="code-block">
+# Sécurité Nginx
+server_tokens off;
+add_header X-Frame-Options DENY;
+add_header X-Content-Type-Options nosniff;
+add_header X-XSS-Protection "1; mode=block";
+                    </div>
+                </div>
+            </div>
+
+            <div class="success">
+                <strong>✅ Objectif de la Phase 4:</strong> Votre application est maintenant sécurisée avec HTTPS et des en-têtes de sécurité renforcés.
+            </div>
+        </div>
+
+        <!-- Tests et Vérification -->
+        <div id="testing" class="tab-content">
+            <h2>🧪 Tests et Vérification</h2>
+            <p class="subtitle">Durée estimée: 10-15 minutes</p>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Tests backend</h3>
+                <div class="code-block">
+                    <span class="comment"># Tester l'API</span>
+                    <span class="command">curl</span> http://localhost:5000/api/health
+
+                    <span class="comment"># Vérifier MongoDB</span>
+                    <span class="command">systemctl status mongod</span>
+
+                    <span class="comment"># Vérifier PM2</span>
+                    <span class="command">pm2 status</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Tests frontend</h3>
+                <div class="code-block">
+                    <span class="comment"># Tester via curl</span>
+                    <span class="command">curl</span> -I http://votre-vps-ip
+
+                    <span class="comment"># Vérifier Nginx</span>
+                    <span class="command">systemctl status nginx</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Tests Socket.io</h3>
+                <div class="code-block">
+                    <span class="comment"># Tester la connexion Socket.io</span>
+                    <span class="command">curl</span> -i http://votre-vps-ip/socket.io/
+
+                    <span class="comment"># Vérifier les logs en temps réel</span>
+                    <span class="command">pm2 logs messagerie-backend --lines 100</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Vérification finale</h3>
+                <ul>
+                    <li>✅ Backend accessible sur http://votre-vps-ip:5000</li>
+                    <li>✅ Frontend accessible sur http://votre-vps-ip</li>
+                    <li>✅ Socket.io fonctionnel</li>
+                    <li>✅ MongoDB opérationnel</li>
+                    <li>✅ Nginx reverse proxy actif</li>
+                    <li>✅ SSL activé (si domaine configuré)</li>
+                </ul>
+            </div>
+
+            <div class="success">
+                <strong>🎉 Félicitations!</strong> Votre application de messagerie est maintenant déployée et fonctionnelle sur votre VPS Contabo.
+            </div>
+        </div>
+
+        <!-- Dépannage -->
+        <div id="troubleshooting" class="tab-content">
+            <h2>🔧 Guide de Dépannage</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Problèmes SSH</h3>
+                <div class="danger">
+                    <strong>❌ Erreur: "Connection timed out"</strong>
+                    <ul>
+                        <li>Vérifiez que votre VPS est démarré dans le panel Contabo</li>
+                        <li>Vérifiez que le port 22 (ou 2222) est ouvert dans le firewall</li>
+                        <li>Utilisez la console web depuis le panel Contabo</li>
+                        <li>Vérifiez votre connexion internet</li>
+                    </ul>
+                </div>
+
+                <div class="danger">
+                    <strong>❌ Erreur: "Permission denied (publickey)"</strong>
+                    <ul>
+                        <li>Vérifiez votre clé SSH</li>
+                        <li>Utilisez: ssh -i chemin/vers/votre/cle root@vps-ip</li>
+                        <li>Générez une nouvelle clé si nécessaire</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Problèmes MongoDB</h3>
+                <div class="danger">
+                    <strong>❌ Erreur: "Failed to start mongod.service"</strong>
+                    <div class="code-block">
+<span class="command">systemctl status mongod</span>
+<span class="command">journalctl -xe</span>
+<span class="command">mongod --version</span>
+                    </div>
+                    <ul>
+                        <li>Vérifiez l'espace disque: df -h</li>
+                        <li>Vérifiez les permissions du répertoire /var/lib/mongodb</li>
+                        <li>Vérifiez la configuration dans /etc/mongod.conf</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Problèmes Nginx</h3>
+                <div class="danger">
+                    <strong>❌ Erreur: "nginx: [emerg] unknown directive"</strong>
+                    <div class="code-block">
+<span class="command">nginx -t</span>
+<span class="command">nginx -s reload</span>
+                    </div>
+                    <ul>
+                        <li>Vérifiez la syntaxe de votre configuration</li>
+                        <li>Vérifiez que les modules nécessaires sont installés</li>
+                        <li>Vérifiez les chemins des fichiers</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Problèmes PM2</h3>
+                <div class="danger">
+                    <strong>❌ Erreur: "App [app-name] not found"</strong>
+                    <div class="code-block">
+<span class="command">pm2 list</span>
+<span class="command">pm2 status</span>
+<span class="command">pm2 logs</span>
+                    </div>
+                    <ul>
+                        <li>Vérifiez que l'application est bien démarrée</li>
+                        <li>Vérifiez le chemin du fichier</li>
+                        <li>Vérifiez les permissions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Problèmes généraux</h3>
+                <div class="warning">
+                    <strong>🔍 Commandes de diagnostic utiles:</strong>
+                    <div class="code-block">
+<span class="comment"># Vérifier l'espace disque</span>
+<span class="command">df -h</span>
+
+<span class="comment"># Vérifier l'utilisation mémoire</span>
+<span class="command">free -h</span>
+
+<span class="comment"># Vérifier les processus</span>
+<span class="command">ps aux | grep node</span>
+
+<span class="comment"># Vérifier les ports ouverts</span>
+<span class="command">netstat -tlnp</span>
+
+<span class="comment"># Vérifier les logs système</span>
+<span class="command">journalctl -f</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commandes Utiles -->
+        <div id="commands" class="tab-content">
+            <h2>📚 Commandes Utiles</h2>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>🐧 Commandes Linux</h3>
+                    <div class="code-block">
+<span class="command">pwd</span>                    <span class="comment"># Afficher le répertoire courant</span>
+<span class="command">ls -la</span>                 <span class="comment"># Lister les fichiers</span>
+<span class="command">cd</span> chemin               <span class="comment"># Changer de répertoire</span>
+<span class="command">mkdir</span> nom              <span class="comment"># Créer un dossier</span>
+<span class="command">rm -rf</span> nom             <span class="comment"># Supprimer un dossier</span>
+<span class="command">cp</span> source destination  <span class="comment"># Copier un fichier</span>
+<span class="command">mv</span> source destination  <span class="comment"># Déplacer un fichier</span>
+<span class="command">chmod</span> 755 fichier      <span class="comment"># Changer les permissions</span>
+<span class="command">chown</span> user:fichier     <span class="comment"># Changer le propriétaire</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🗄️ Commandes MongoDB</h3>
+                    <div class="code-block">
+<span class="command">systemctl start mongod</span>    <span class="comment"># Démarrer MongoDB</span>
+<span class="command">systemctl stop mongod</span>     <span class="comment"># Arrêter MongoDB</span>
+<span class="command">systemctl status mongod</span>   <span class="comment"># Vérifier le statut</span>
+<span class="command">mongo</span>                     <span class="comment"># Se connecter à MongoDB</span>
+<span class="command">show dbs</span>                  <span class="comment"># Afficher les bases de données</span>
+<span class="command">use nom_base</span>              <span class="comment"># Utiliser une base de données</span>
+<span class="command">db.collection.find()</span>    <span class="comment"># Rechercher dans une collection</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚡ Commandes PM2</h3>
+                    <div class="code-block">
+<span class="command">pm2 start app.js</span>        <span class="comment"># Démarrer une application</span>
+<span class="command">pm2 stop app</span>            <span class="comment"># Arrêter une application</span>
+<span class="command">pm2 restart app</span>         <span class="comment"># Redémarrer une application</span>
+<span class="command">pm2 delete app</span>          <span class="comment"># Supprimer une application</span>
+<span class="command">pm2 list</span>                <span class="comment"># Lister les applications</span>
+<span class="command">pm2 logs</span>                <span class="comment"># Afficher les logs</span>
+<span class="command">pm2 status</span>              <span class="comment"># Vérifier le statut</span>
+<span class="command">pm2 monit</span>               <span class="comment"># Interface de monitoring</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🌐 Commandes Nginx</h3>
+                    <div class="code-block">
+<span class="command">systemctl start nginx</span>   <span class="comment"># Démarrer Nginx</span>
+<span class="command">systemctl stop nginx</span>    <span class="comment"># Arrêter Nginx</span>
+<span class="command">systemctl reload nginx</span>  <span class="comment"># Recharger la configuration</span>
+<span class="command">nginx -t</span>                <span class="comment"># Tester la configuration</span>
+<span class="command">nginx -s reload</span>         <span class="comment"># Recharger sans redémarrage</span>
+<span class="command">tail -f /var/log/nginx/error.log</span>  <span class="comment"># Logs d'erreur</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔒 Commandes Sécurité</h3>
+                    <div class="code-block">
+<span class="command">ufw status</span>              <span class="comment"># Vérifier le firewall</span>
+<span class="command">ufw allow 80</span>            <span class="comment"># Autoriser un port</span>
+<span class="command">ufw deny 22</span>            <span class="comment"># Bloquer un port</span>
+<span class="command">netstat -tlnp</span>           <span class="comment"># Voir les ports écoutés</span>
+<span class="command">ss -tlnp</span>                <span class="comment"># Alternative à netstat</span>
+<span class="command">iptables -L</span>             <span class="comment"># Voir les règles iptables</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📦 Commandes Git</h3>
+                    <div class="code-block">
+<span class="command">git clone url</span>           <span class="comment"># Cloner un dépôt</span>
+<span class="command">git pull</span>                <span class="comment"># Mettre à jour le code</span>
+<span class="command">git status</span>              <span class="comment"># Vérifier l'état</span>
+<span class="command">git add .</span>               <span class="comment"># Ajouter les modifications</span>
+<span class="command">git commit -m "message"</span> <span class="comment"># Commiter les changements</span>
+<span class="command">git push</span>                <span class="comment"># Pousser vers le dépôt</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>🎯 <strong>Objectif atteint:</strong> Votre application de messagerie en temps réel est maintenant déployée sur votre VPS Contabo!</p>
+        <p>🔗 <a href="https://votre-vps-ip" target="_blank">Accéder à votre application</a></p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">
+            📝 <strong>Note:</strong> Remplacez "votre-vps-ip" par l'adresse IP réelle de votre VPS dans toutes les commandes et configurations.
+        </p>
+    </footer>
+
+    <script>
+        function openTab(tabName) {
+            // Cacher tous les onglets
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Retirer la classe active de tous les boutons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Afficher l'onglet sélectionné
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activer le bouton cliqué
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

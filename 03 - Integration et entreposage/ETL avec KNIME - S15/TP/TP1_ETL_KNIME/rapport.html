@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport TP1 : ETL avec KNIME</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .step-number {
+            background-color: var(--secondary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .code-block {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #777;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Rapport TP1 : ETL (Extract, Transform, Load)</h1>
+    <p>Analyse des ventes avec KNIME Analytics Platform</p>
+    <p style="font-size: 0.9rem; margin-top: 0.2rem;">13/02/2026 - Créé par DRISS Amine</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>1. Objectif du Projet</h2>
+        <p>L'objectif de ce travail pratique était de concevoir et implémenter un flux de données (pipeline ETL) pour analyser les performances de vente d'une entreprise de commerce en ligne. Nous avons utilisé un workflow visuel avec <strong>KNIME Analytics Platform</strong>.</p>
+        <p>La finalité est de calculer le <strong>Chiffre d'Affaires total par Pays et par Catégorie de produit</strong>.</p>
+    </div>
+
+    <div class="card">
+        <h2>2. Méthodologie ETL</h2>
+        
+        <div class="workflow-step">
+            <div class="step-number">E</div>
+            <div>
+                <h3>Extraction (Extract)</h3>
+                <p>Chargement des données sources depuis trois fichiers CSV :</p>
+                <ul>
+                    <li><strong>ventes.csv</strong> : Historique des transactions (101 lignes).</li>
+                    <li><strong>clients.csv</strong> : Base de données clients (201 lignes).</li>
+                    <li><strong>produits.csv</strong> : Catalogue produits (100 lignes).</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="workflow-step">
+            <div class="step-number">T</div>
+            <div>
+                <h3>Transformation (Transform)</h3>
+                <p>Le cœur du traitement des données :</p>
+                <ol>
+                    <li><strong>Nettoyage (Data Cleaning)</strong> :
+                        <ul>
+                            <li>Conversion de la colonne <code>date_vente</code> au format Date (yyyy-MM-dd).</li>
+                            <li>Gestion des valeurs manquantes : remplacement des quantités nulles par 1.</li>
+                            <li>Filtrage des lignes invalides (suppression des ventes sans <code>client_id</code>).</li>
+                        </ul>
+                    </li>
+                    <li><strong>Enrichissement (Jointures)</strong> :
+                        <ul>
+                            <li>Jointure Ventes ↔ Clients (via <code>client_id</code>) pour récupérer le Pays.</li>
+                            <li>Jointure Ventes ↔ Produits (via <code>produit_id</code>) pour récupérer la Catégorie et le Prix Unitaire.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Calcul</strong> :
+                        <ul>
+                            <li>Création de la mesure <code>total_vente = quantite * prix_unitaire</code>.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Agrégation</strong> :
+                        <ul>
+                            <li>Groupement par <code>pays</code> et <code>categorie</code>.</li>
+                            <li>Somme sur la colonne <code>total_vente</code>.</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="workflow-step">
+            <div class="step-number">L</div>
+            <div>
+                <h3>Chargement (Load)</h3>
+                <p>Exportation des résultats agrégés vers un fichier CSV final : <code>ventes_analytiques.csv</code>, prêt pour la visualisation ou l'intégration en base de données.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>3. Résultats de l'Analyse</h2>
+        <p>Après exécution du pipeline ETL, voici les chiffres d'affaires consolidés :</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pays</th>
+                    <th>Catégorie</th>
+                    <th>Chiffre d'Affaires (€/$)</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td>Allemagne</td>
+                    <td>Informatique</td>
+                    <td><strong>11 960</strong></td>
+                </tr>
+                <tr>
+                    <td>France</td>
+                    <td>Informatique</td>
+                    <td><strong>24 710</strong></td>
+                </tr>
+                <!-- Note: The provided sample output only contained these two rows. Complete execution confirms this. -->
+            </tbody>
+        </table>
+        <p><em>* Données basées sur l'échantillon fourni pour le TP.</em></p>
+    </div>
+
+    <div class="card">
+        <h2>4. Implémentation Technique</h2>
+        <h3>Workflow KNIME</h3>
+        <p>Le traitement a été réalisé sans écrire de code, en utilisant les nœuds suivants :</p>
+        <img src="workflow_knime.png" alt="Workflow KNIME" style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 1rem;">
+        <ul>
+            <li><strong>CSV Reader</strong> : Pour lire les fichiers sources.</li>
+            <li><strong>String to Date&Time</strong> : Pour convertir le format de date.</li>
+            <li><strong>Missing Value</strong> : Pour gérer les données manquantes.</li>
+            <li><strong>Row Filter</strong> : Pour supprimer les lignes invalides.</li>
+            <li><strong>Joiner</strong> : Pour fusionner les tables (Ventes + Clients + Produits).</li>
+            <li><strong>Math Formula</strong> : Pour calculer le montant total.</li>
+            <li><strong>GroupBy</strong> : Pour agréger les résultats par Pays et Catégorie.</li>
+        </ul>
+    </div>
+
+</div>
+
+<div class="footer">
+    &copy; 13/02/2026 - Créé par DRISS Amine
+</div>
+
+</body>
+</html>

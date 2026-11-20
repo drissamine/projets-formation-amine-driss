@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Rapport : Exercice 1 - CNN sur Colored MNIST</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #3b82f6;
+            --secondary-text: #94a3b8;
+            --border-color: #334155;
+            --success-color: #22c55e;
+            --highlight-bg: rgba(59, 130, 246, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            color: var(--text-color);
+            margin-top: 0;
+            font-size: 1.5rem;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: var(--secondary-text);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        pre {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+            color: #e2e8f0;
+        }
+
+        code {
+            font-family: 'Consolas', monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            color: #93c5fd;
+            font-weight: 600;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: block;
+            margin: 1rem auto;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+<h1>📊 Rapport : Exercice 1 - CNN sur Colored MNIST</h1>
+<p><strong>Fait par DRISS Amine le 16/02/2026</strong></p>
+</header>
+<div class="card">
+<h2>1. Charger et coloriser le dataset</h2>
+<p>L'objectif est de transformer le dataset MNIST (niveaux de gris) en images RGB.</p>
+<p>Voici le code utilisé pour générer des "Vraies Couleurs" aléatoires :</p>
+<pre><code>def colorize_mnist():
+    """
+    Transformer les images MNIST en niveaux de gris en images RGB colorisées (Vraies couleurs)
+    """
+    # 1. Charger MNIST depuis keras.datasets.mnist
+    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+
+    # 2. Normaliser les images entre 0 et 1
+    x_train = x_train.astype('float32') / 255.0
+    x_test = x_test.astype('float32') / 255.0
+
+    # 3. Redimensionner les images de 28x28 à 32x32 (utiliser tf.image.resize)
+    # Expand dims to (N, 28, 28, 1)
+    x_train = np.expand_dims(x_train, axis=-1)
+    x_test = np.expand_dims(x_test, axis=-1)
+
+    x_train = tf.image.resize(x_train, [32, 32]).numpy()
+    x_test = tf.image.resize(x_test, [32, 32]).numpy()
+
+    # 4. Coloriser aléatoirement
+    # Générer une couleur aléatoire (R, G, B) pour chaque image
+    # Shape: (N, 1, 1, 3)
+    n_train = x_train.shape[0]
+    n_test = x_test.shape[0]
+
+    # On prend des couleurs avec une intensité min de 0.2 pour éviter d'avoir du noir invisible
+    colors_train = np.random.uniform(0.2, 1.0, (n_train, 1, 1, 3))
+    colors_test = np.random.uniform(0.2, 1.0, (n_test, 1, 1, 3))
+
+    # Multiplication (Broadcasting): Image (N, 32, 32, 1) * Couleur (N, 1, 1, 3) -> (N, 32, 32, 3)
+    x_train_colored = x_train * colors_train
+    x_test_colored = x_test * colors_test
+
+    return (x_train_colored, y_train), (x_test_colored, y_test)
+
+# Charger et coloriser
+(x_train_mnist, y_train_mnist), (x_test_mnist, y_test_mnist) = colorize_mnist()</code></pre>
+<p><strong>Sortie de l'exécution :</strong></p>
+<pre><code>✓ Données colorisées (Vraies Couleurs) chargées
+  - Train shape: (60000, 32, 32, 3)
+  - Test shape: (10000, 32, 32, 3)
+  - Values range: [0.00, 1.00]</code></pre>
+</div>
+<div class="card">
+<h2>2. Visualiser les images colorisées</h2>
+<p>Cette étape permet de vérifier que les données sont correctement formatées et colorisées.</p>
+<pre><code># Afficher 10 images colorisées aléatoires
+fig, axes = plt.subplots(2, 5, figsize=(12, 5))
+indices = np.random.choice(len(x_train_mnist), 10, replace=False)
+
+for idx, ax_idx in enumerate(range(10)):
+    ax = axes[ax_idx // 5, ax_idx % 5]
+    ax.imshow(x_train_mnist[indices[idx]])
+    ax.set_title(f"Label: {y_train_mnist[indices[idx]]}")
+    ax.axis('off')
+
+plt.suptitle('Images MNIST colorisées')
+plt.tight_layout()
+plt.show()</code></pre>
+<p>Les chiffres apparaissent maintenant en Rouge, Vert, Bleu, Violet, etc. sur fond noir, ce qui force le CNN à être invariant à la couleur.</p>
+<img src="couleur.png" alt="Exemple MNIST avec Couleurs">
+</div>
+<div class="card">
+<h2>3. Construire l'architecture CNN</h2>
+<p>Le modèle utilisé est un CNN séquentiel classique :</p>
+<pre><code>def build_cnn_colored_mnist():
+    """
+    Construire un CNN pour classifier les chiffres colorisés
+    """
+    model = models.Sequential([
+        layers.Input(shape=(32, 32, 3)),
+        layers.Conv2D(32, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Flatten(),
+        layers.Dense(128, activation='relu'),
+        layers.Dropout(0.5),
+        layers.Dense(10, activation='softmax')
+    ])
+
+    model.compile(optimizer='adam',
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    return model
+
+model_ex1 = build_cnn_colored_mnist()
+model_ex1.summary()</code></pre>
+<p><strong>Résumé du Modèle :</strong></p>
+<pre><code>Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ conv2d (Conv2D)                 │ (None, 30, 30, 32)     │           896 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling2d (MaxPooling2D)    │ (None, 15, 15, 32)     │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv2d_1 (Conv2D)               │ (None, 13, 13, 64)     │        18,496 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling2d_1 (MaxPooling2D)  │ (None, 6, 6, 64)       │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ flatten (Flatten)               │ (None, 2304)           │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (Dense)                   │ (None, 128)            │       295,040 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout (Dropout)               │ (None, 128)            │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_1 (Dense)                 │ (None, 10)             │         1,290 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 315,722 (1.20 MB)
+ Trainable params: 315,722 (1.20 MB)
+ Non-trainable params: 0 (0.00 B)</code></pre>
+</div>
+<div class="card">
+<h2>4. Entraîner le modèle</h2>
+<p>L'entraînement a été réalisé avec les hyperparamètres suivants :</p>
+<pre><code>history_ex1 = model_ex1.fit(
+    x_train_mnist, y_train_mnist,
+    epochs=20,
+    batch_size=32,
+    validation_split=0.2,
+    verbose=1
+)</code></pre>
+<p><strong>Progression de l'entraînement :</strong></p>
+<pre><code>Epoch 1/20
+1500/1500 ━━━━━━━━━━━━━━━━━━━━ 6s 4ms/step - accuracy: 0.9958 - loss: 0.0123 - val_accuracy: 0.9910 - val_loss: 0.0642
+...
+Epoch 20/20
+1500/1500 ━━━━━━━━━━━━━━━━━━━━ 5s 4ms/step - accuracy: 0.9970 - loss: 0.0090 - val_accuracy: 0.9913 - val_loss: 0.0688</code></pre>
+</div>
+<div class="card">
+<h2>5. Évaluation</h2>
+<p>Le modèle final est évalué sur le jeu de test (10 000 images jamais vues).</p>
+<pre><code>test_loss, test_acc = model_ex1.evaluate(x_test_mnist, y_test_mnist)
+print(f"Test Loss: {test_loss:.4f}")
+print(f"Test Accuracy: {test_acc:.4f}")</code></pre>
+<p><strong>Résultats sur le jeu de test :</strong></p>
+<pre><code>313/313 ━━━━━━━━━━━━━━━━━━━━ 2s 4ms/step - accuracy: 0.9892 - loss: 0.0520
+Test Loss: 0.0401
+Test Accuracy: 0.9917</code></pre>
+<table>
+<thead><tr><th>Métrique</th><th>Valeur</th></tr></thead><tbody>
+<tr><td><strong>Train Accuracy</strong></td><td>99.70%</td></tr>
+<tr><td><strong>Validation Accuracy</strong></td><td>99.13%</td></tr>
+<tr><td><strong>Test Accuracy</strong></td><td><strong>99.17%</strong></td></tr>
+</tbody></table>
+<p>La précision est excellente et équivalente aux modèles sur MNIST gris, prouvant que le réseau gère parfaitement les canaux de couleurs ajoutés.</p>
+</div>
+<div class="card">
+<h2>6. Visualisation des résultats</h2>
+<p>Les courbes d'apprentissage montrent :</p>
+<pre><code>def plot_training_history(history, title="Training History"):
+    """
+    Tracer les courbes d'entraînement (loss et accuracy)
+    """
+    if history is None:
+        print("Pas d'historique d'entraînement disponible")
+        return
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+    # Plot Loss
+    axes[0].plot(history.history['loss'], label='Train Loss')
+    axes[0].plot(history.history['val_loss'], label='Val Loss')
+    axes[0].set_xlabel('Epoch')
+    axes[0].set_ylabel('Loss')
+    axes[0].set_title('Model Loss')
+    axes[0].legend()
+    axes[0].grid()
+
+    # Plot Accuracy
+    axes[1].plot(history.history['accuracy'], label='Train Accuracy')
+    axes[1].plot(history.history['val_accuracy'], label='Val Accuracy')
+    axes[1].set_xlabel('Epoch')
+    axes[1].set_ylabel('Accuracy')
+    axes[1].set_title('Model Accuracy')
+    axes[1].legend()
+    axes[1].grid()
+
+    plt.suptitle(title)
+    plt.tight_layout()
+    plt.show()
+
+plot_training_history(history_ex1, "Exercice 1 - Training History")</code></pre>
+<p><strong>Analyse des courbes :</strong></p>
+<ul>
+<li><strong>Train Loss</strong> : Descend jusqu'à <strong>0.0090</strong>.</li>
+<li><strong>Val Loss</strong> : Se stabilise vers <strong>0.06 - 0.07</strong>.</li>
+<li><strong>Observations</strong> : Le modèle apprend très bien (Train Acc > 99.7%). Il y a un léger overfitting (la val_loss remonte un peu à la fin), mais la précision de validation reste très élevée (>99.1%). Le dropout joue son rôle de régulateur.</li>
+<img src="courbes.png" alt="Courbes d'apprentissage">
+</ul>
+<p>---</p>
+</div>
+<div class="card">
+<h2>7. Réponses aux Questions de Réflexion</h2>
+<h3>1. Quelle est la précision du modèle ? Comparaison avec MNIST Gris ?</h3>
+<p>La précision est de <strong>99.17%</strong>. C'est <strong>équivalent</strong> à un CNN sur MNIST gris. L'ajout de couleur (bruit) n'a pas dégradé la performance grâce à la capacité d'extraction de features du CNN.</p>
+<h3>2. Y a-t-il de l'overfitting ?</h3>
+<p><strong>Oui, léger.</strong> La validation loss stagne alors que la training loss descend. C'est normal, mais contrôlé par le Dropout.</p>
+<h3>3. Effet du Dropout ?</h3>
+<p><strong>Positif.</strong> Il empêche le modèle d'apprendre par cœur. Sans lui, le Train Acc serait à 100% et le Val Acc plus bas.</p>
+<h3>4. Chiffres difficiles ?</h3>
+<p>Les confusions classiques : <strong>4 et 9</strong>, <strong>3 et 5</strong>, <strong>1 et 7</strong>.</p>
+<p>---</p>
+<p><strong>Fait par DRISS Amine le 16/02/2026</strong></p>
+</div>
+
+</div>
+
+</body>
+</html>

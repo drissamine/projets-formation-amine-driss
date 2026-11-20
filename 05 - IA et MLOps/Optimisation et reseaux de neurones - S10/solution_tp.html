@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solution Détaillée TP : Optimisation RN From Scratch</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+      }
+      h2 {
+        color: #2980b9;
+        margin-top: 30px;
+        border-left: 5px solid #3498db;
+        padding-left: 10px;
+      }
+      h3 {
+        color: #34495e;
+        margin-top: 20px;
+      }
+      .step {
+        background-color: #fff;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .explanation {
+        background-color: #e8f6f3;
+        border-left: 4px solid #1abc9c;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+      }
+      .code-block {
+        background-color: #282c34;
+        color: #abb2bf;
+        padding: 15px;
+        border-radius: 5px;
+        overflow-x: auto;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 14px;
+      }
+      .keyword {
+        color: #c678dd;
+      }
+      .function {
+        color: #61afef;
+      }
+      .string {
+        color: #98c379;
+      }
+      .comment {
+        color: #5c6370;
+        font-style: italic;
+      }
+      .number {
+        color: #d19a66;
+      }
+
+      strong {
+        color: #e74c3c;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>TP : Optimisation d'un Réseau de Neurones From Scratch</h1>
+    <p style="text-align: center">
+      Solution complète et détaillée étape par étape
+    </p>
+
+    <div class="step">
+      <h2>INTRODUCTION</h2>
+      <p>
+        Ce guide vous accompagne pas à pas dans la réalisation du TP. L'objectif
+        est d'utiliser les fonctions "From Scratch" (codées à la main) pour
+        résoudre un problème de classification de cancer du sein avec une
+        précision de 95%.
+      </p>
+    </div>
+
+    <div class="step">
+      <h2>PARTIE 0 : Importation des Fonctions</h2>
+      <div class="explanation">
+        <strong>Pourquoi ?</strong><br />
+        Nous réutilisons le "moteur" que nous avons construit en cours. C'est
+        l'équivalent d'importer une librairie comme TensorFlow ou PyTorch, sauf
+        que ici, c'est VOTRE librairie.
+      </div>
+
+      <h3>Code Complet des Fonctions (à copier dans la première cellule)</h3>
+      <pre class="code-block">
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ========== 1. FONCTIONS D'ACTIVATION ==========
+def <span class="function">sigmoid</span>(z):
+    <span class="comment">"""Sortie entre 0 et 1 (proba)"""</span>
+    return 1 / (1 + np.exp(-z))
+
+def <span class="function">sigmoid_derivative</span>(z):
+    s = sigmoid(z)
+    return s * (1 - s)
+
+def <span class="function">relu</span>(z):
+    <span class="comment">"""Max(0, z) - Standard pour couches cachées"""</span>
+    return np.maximum(0, z)
+
+def <span class="function">relu_derivative</span>(z):
+    <span class="comment">"""1 si z > 0 sinon 0"""</span>
+    return (z > 0).astype(float)
+
+# ========== 2. INITIALISATION ==========
+def <span class="function">initialize_parameters</span>(layer_dims):
+    <span class="comment">"""Initialisation de He pour ReLU"""</span>
+    np.random.seed(42)
+    parameters = {}
+    L = len(layer_dims)
+
+    for l in range(1, L):
+        # Petite initialisation aléatoire
+        parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) * 0.01 
+        # Biais à zéro
+        parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
+        
+    return parameters
+
+# ========== 3. FORWARD PROPAGATION ==========
+def <span class="function">forward_propagation</span>(X, parameters, activation_hidden='relu'):
+    cache = {}
+    A = X.T # Transpose pour avoir (n_features, m_samples)
+    L = len(parameters) // 2
+    
+    # Couches cachées
+    for l in range(1, L):
+        A_prev = A 
+        W = parameters['W' + str(l)]
+        b = parameters['b' + str(l)]
+        
+        Z = np.dot(W, A_prev) + b
+        
+        if activation_hidden == 'relu':
+            A = relu(Z)
+        else: # sigmoid
+            A = sigmoid(Z)
+            
+        cache['A' + str(l-1)] = A_prev
+        cache['Z' + str(l)] = Z
+    
+    # Couche de sortie (Toujours Sigmoid pour classification binaire)
+    W = parameters['W' + str(L)]
+    b = parameters['b' + str(L)]
+    ZL = np.dot(W, A) + b
+    AL = sigmoid(ZL)
+    
+    cache['A' + str(L-1)] = A
+    cache['Z' + str(L)] = ZL
+    cache['AL'] = AL
+    
+    return AL, cache
+
+# ========== 4. COÛT ==========
+def <span class="function">compute_cost</span>(AL, Y):
+    m = Y.shape[0]
+    Y = Y.T # Pour matcher AL
+    
+    # Ajout d'epsilon pour éviter log(0)
+    epsilon = 1e-8
+    cost = -1/m * np.sum(Y * np.log(AL + epsilon) + (1-Y) * np.log(1-AL + epsilon))
+    return np.squeeze(cost)
+
+# ========== 5. BACKWARD PROPAGATION ==========
+def <span class="function">backward_propagation</span>(AL, Y, parameters, cache, activation_hidden='relu'):
+    gradients = {}
+    L = len(parameters) // 2
+    m = AL.shape[1]
+    Y = Y.reshape(AL.shape) 
+    
+    # Gradient sortie
+    dZL = AL - Y # Dérivée simplifiée BCE + Sigmoid
+    gradients["dW" + str(L)] = 1./m * np.dot(dZL, cache['A' + str(L-1)].T)
+    gradients["db" + str(L)] = 1./m * np.sum(dZL, axis=1, keepdims=True)
+    
+    dA_prev = np.dot(parameters['W' + str(L)].T, dZL)
+    
+    # Gradients couches cachées
+    for l in reversed(range(1, L)):
+        Z = cache['Z' + str(l)]
+        
+        if activation_hidden == 'relu':
+            dZ = dA_prev * relu_derivative(Z)
+        else:
+            dZ = dA_prev * sigmoid_derivative(Z)
+            
+        gradients["dW" + str(l)] = 1./m * np.dot(dZ, cache['A' + str(l-1)].T)
+        gradients["db" + str(l)] = 1./m * np.sum(dZ, axis=1, keepdims=True)
+        
+        if l > 1:
+            dA_prev = np.dot(parameters['W' + str(l)].T, dZ)
+            
+    return gradients
+
+# ========== 6. UPDATE ==========
+def <span class="function">update_parameters</span>(parameters, gradients, learning_rate):
+    L = len(parameters) // 2 
+    for l in range(1, L + 1):
+        parameters["W" + str(l)] = parameters["W" + str(l)] - learning_rate * gradients["dW" + str(l)]
+        parameters["b" + str(l)] = parameters["b" + str(l)] - learning_rate * gradients["db" + str(l)]
+    return parameters
+
+# ========== 7. ENTRAÎNEMENT ==========
+def <span class="function">train_neural_network</span>(X, Y, layer_dims, learning_rate=0.01, num_iterations=1000, activation_hidden='relu', print_cost=False):
+    parameters = initialize_parameters(layer_dims)
+    costs = []
+    
+    for i in range(num_iterations):
+        AL, cache = forward_propagation(X, parameters, activation_hidden)
+        cost = compute_cost(AL, Y)
+        gradients = backward_propagation(AL, Y, parameters, cache, activation_hidden)
+        parameters = update_parameters(parameters, gradients, learning_rate)
+        
+        if i % 100 == 0:
+            costs.append(cost)
+            if print_cost:
+                print(f"Cost after iteration {i}: {cost}")
+                
+    return parameters, costs
+
+# ========== 8. PRÉDICTION ==========
+def <span class="function">predict</span>(X, parameters, activation_hidden='relu'):
+    AL, _ = forward_propagation(X, parameters, activation_hidden)
+    predictions = (AL > 0.5).astype(int)
+    return predictions.T 
+
+def <span class="function">compute_accuracy</span>(predictions, Y):
+    return (100 - np.mean(np.abs(predictions - Y)) * 100)
+        </pre>
+    </div>
+
+    <div class="step">
+      <h2>PARTIE 1 : Chargement des Données</h2>
+      <div class="explanation">
+        <strong>Point Critique :</strong> La normalisation (StandardScaler) est
+        OBLIGATOIRE en Deep Learning. <br />
+        Sans elle, les gradients explosent ou disparaissent car les variables
+        ont des échelles trop différentes (ex: aire=1000 vs symétrie=0.1).
+      </div>
+
+      <pre class="code-block">
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# 1. Charger
+data = load_breast_cancer()
+X = data.data
+y = data.target
+
+# 2. Split (80% train, 20% test)
+# random_state=42 assure que le mélange est toujours le même (reproductible)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 3. Normalisation
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train) # On apprend la moyenne/ecart-type sur le train
+X_test = scaler.transform(X_test)       # On applique la meme transformation sur le test
+
+# 4. Reshape
+# Nos fonctions s'attendent à des vecteurs colonnes (m, 1) pour y
+y_train = y_train.reshape(-1, 1)
+y_test = y_test.reshape(-1, 1)
+
+print(f"Shape X_train: {X_train.shape}")
+print(f"Shape y_train: {y_train.shape}")
+        </pre
+      >
+    </div>
+
+    <div class="step">
+      <h2>PARTIE 2 : Modèle Baseline</h2>
+      <p>On commence toujours par un modèle simple pour avoir une référence.</p>
+
+      <pre class="code-block">
+# Architecture : 30 entrées -> 10 cachés -> 1 sortie
+layer_dims = [30, 10, 1] 
+
+parameters, costs = train_neural_network(X_train, y_train, layer_dims, learning_rate=0.01, num_iterations=1000)
+
+# Évaluation
+train_pred = predict(X_train, parameters)
+test_pred = predict(X_test, parameters)
+
+print(f"Train Accuracy: {compute_accuracy(train_pred, y_train):.2f}%")
+print(f"Test Accuracy: {compute_accuracy(test_pred, y_test):.2f}%")
+        </pre
+      >
+    </div>
+
+    <div class="step">
+      <h2>PARTIE 3 : Optimisation de l'Architecture</h2>
+      <div class="explanation">
+        <strong>Théorie :</strong>
+        <ul>
+          <li>
+            Trop petit (ex: [30, 2, 1]) → <strong>Underfitting</strong> (pas
+            assez puissant pour comprendre les données).
+          </li>
+          <li>
+            Trop gros (ex: [30, 100, 50, 1]) →
+            <strong>Overfitting</strong> (apprend le bruit par coeur) + lent à
+            entraîner.
+          </li>
+        </ul>
+      </div>
+
+      <pre class="code-block">
+architectures = [
+    [30, 5, 1],         # Très petit
+    [30, 10, 1],        # Baseline
+    [30, 20, 10, 1],    # Plus profond
+    [30, 50, 20, 1],    # Plus large
+    [30, 20, 10, 5, 1]  # Très profond
+]
+
+results = {}
+
+for arch in architectures:
+    str_arch = str(arch)
+    print(f"Test architecture: {str_arch}")
+    
+    params, _ = train_neural_network(X_train, y_train, arch, learning_rate=0.01, num_iterations=1000)
+    acc = compute_accuracy(predict(X_test, params), y_test)
+    
+    results[str_arch] = acc
+    print(f"--> Accuracy: {acc:.2f}%")
+        </pre
+      >
+    </div>
+
+    <div class="step">
+      <h2>PARTIE 4 : Learning Rate</h2>
+      <div class="explanation">
+        <strong>Le paramètre le plus important !</strong><br />
+        C'est la taille des pas que fait l'algorithme vers le minimum
+        d'erreur.<br />
+        - Trop petit (0.0001) : Vous avancez en pas de fourmi, il faut des
+        millions d'itérations.<br />
+        - Trop grand (1.0) : Vous faites des sauts de géant et ratez le trou (le
+        minimum), voire vous vous en éloignez (divergence).
+      </div>
+
+      <pre class="code-block">
+learning_rates = [0.001, 0.01, 0.05, 0.1, 0.5]
+best_arch = [30, 20, 10, 1] # Exemple de bonne architecture trouvée avant
+
+for lr in learning_rates:
+    print(f"Test LR: {lr}")
+    params, costs = train_neural_network(X_train, y_train, best_arch, learning_rate=lr, num_iterations=1000)
+    
+    # Plot du coût
+    plt.plot(costs, label=f"LR={lr}")
+
+plt.legend()
+plt.title("Impact du Learning Rate sur la convergence")
+plt.show()
+        </pre
+      >
+    </div>
+
+    <div class="step">
+      <h2>PARTIE 6 : ReLU vs Sigmoid</h2>
+      <div class="explanation">
+        <strong>Pourquoi ReLU gagne ?</strong><br />
+        La fonction Sigmoid écrase les valeurs très grandes ou très petites vers
+        1 ou 0. La pente (dérivée) y est presque nulle.<br />
+        Cela tue le gradient (Vanishing Gradient) : les premières couches du
+        réseau ne reçoivent plus d'information et n'apprennent pas.<br />
+        ReLU n'a pas ce problème pour les valeurs positives (pente = 1
+        constante).
+      </div>
+    </div>
+
+    <div class="step">
+      <h2>PARTIE 7 : Solution Finale Optimale</h2>
+      <p>
+        Voici une configuration qui atteint généralement >96% sur ce dataset.
+      </p>
+
+      <pre class="code-block">
+# Configuration Gagnante
+final_arch = [30, 20, 10, 1]  # Assez de capacité mais pas trop
+final_lr = 0.01               # Stable
+final_iter = 3000             # Laisser le temps de converger
+final_activation = 'relu'     # Indispensable pour > 1 couche cachée
+
+print("=== ENTRAÎNEMENT FINAL ===")
+parameters_final, costs_final = train_neural_network(
+    X_train, y_train, 
+    final_arch, 
+    learning_rate=final_lr, 
+    num_iterations=final_iter, 
+    activation_hidden=final_activation,
+    print_cost=True
+)
+
+# Résultats
+y_pred_final = predict(X_test, parameters_final, final_activation)
+acc_final = compute_accuracy(y_pred_final, y_test)
+
+print(f"\n🏆 ACCURACY FINALE : {acc_final:.2f}%")
+
+if acc_final >= 95:
+    print("OBJECTIF ATTEINT ! Bravo ! 🎉")
+else:
+    print("Presque ! Essayez d'augmenter un peu les itérations.")
+        </pre
+      >
+    </div>
+
+    <footer>
+      <p>Généré par DRISS Amine pour le TP Deep Learning </p>
+    </footer>
+  </body>
+</html>

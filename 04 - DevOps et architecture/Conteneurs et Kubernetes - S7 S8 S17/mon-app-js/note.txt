@@ -1,0 +1,26 @@
+1- Enable Kubernetes dans Docker Desktop (installation)
+
+2- Vérifier la connexion au cluster avec la commande:  kubectl cluster-info
+
+3- Créer le namespace
+kubectl create namespace tp-devops-calculatrice
+
+4- Configurer le contexte par défaut
+kubectl config set-context --current --namespace=tp-devops-calculatrice
+
+5- Vérifier la configuration
+kubectl config view --minify
+
+6- Construction et déploiement de l'image Docker
+
+```bash
+# Construire l'image Docker
+docker build -t mon-app-js:latest .
+
+# Vérifier l'image
+docker images | grep mon-app-js
+
+# Si vous utilisez un registry privé (optionnel)
+# docker tag mon-app-js:latest votre-registry/mon-app-js:latest
+# docker push votre-registry/mon-app-js:latest
+```

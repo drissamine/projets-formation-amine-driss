@@ -1,0 +1,66 @@
+<div class="login-container" @fadeAnimation>
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Connexion</h2>
+      <p>Accédez à votre gestionnaire de portefeuille</p>
+    </div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Email Field -->
+      <div class="field">
+        <label for="email">Email</label>
+        <input 
+          pInputText 
+          id="email" 
+          type="email"
+          formControlName="email"
+          placeholder="Entrez votre email"
+          [ngClass]="{'ng-invalid ng-dirty': f['email'].touched && f['email'].errors}"
+        />
+        <small class="p-error block" *ngIf="f['email'].touched && f['email'].errors">
+          <span *ngIf="f['email'].errors['required']">L'email est requis</span>
+          <span *ngIf="f['email'].errors['email']">Email invalide</span>
+        </small>
+      </div>
+
+      <!-- Password Field -->
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <p-password 
+          id="password"
+          formControlName="password"
+          placeholder="Entrez votre mot de passe"
+          [toggleMask]="true"
+          [feedback]="false"
+          [ngClass]="{'ng-invalid ng-dirty': f['password'].touched && f['password'].errors}"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        ></p-password>
+        <small class="p-error block" *ngIf="f['password'].touched && f['password'].errors">
+          <span *ngIf="f['password'].errors['required']">Le mot de passe est requis</span>
+        </small>
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        pButton 
+        type="submit" 
+        label="Se connecter"
+        [loading]="loading"
+        [disabled]="loginForm.invalid"
+        styleClass="w-full login-button"
+      ></button>
+
+      <!-- Error Message -->
+      <p-message 
+        *ngIf="error" 
+        severity="error" 
+        [text]="error"
+        styleClass="w-full mt-3"
+      ></p-message>
+    </form>
+  </div>
+  <div class="login-footer">
+    <p>Créé par DRISS Amine</p>
+  </div>
+</div>

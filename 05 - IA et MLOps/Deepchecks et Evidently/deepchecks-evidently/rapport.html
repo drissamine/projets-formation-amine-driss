@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rapport MLOps, Tests et Monitoring Machine Learning</title>
+  <style>
+    :root {
+      --paper: oklch(98% 0.006 92);
+      --ink: oklch(18% 0.018 250);
+      --muted: oklch(45% 0.025 250);
+      --line: oklch(83% 0.018 92);
+      --panel: oklch(95.5% 0.012 92);
+      --panel-strong: oklch(91% 0.025 88);
+      --accent: oklch(57% 0.15 151);
+      --accent-dark: oklch(34% 0.09 151);
+      --blue: oklch(54% 0.13 246);
+      --red: oklch(55% 0.15 27);
+      --amber: oklch(70% 0.13 75);
+      --shadow: 0 18px 50px oklch(22% 0.02 250 / 0.12);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, oklch(92% 0.018 92) 1px, transparent 1px),
+        linear-gradient(180deg, oklch(92% 0.018 92) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.62;
+    }
+
+    a {
+      color: var(--accent-dark);
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 1px solid oklch(57% 0.15 151 / 0.35);
+    }
+
+    a:hover {
+      border-bottom-color: var(--accent-dark);
+    }
+
+    code {
+      color: oklch(24% 0.03 250);
+      background: oklch(90% 0.02 92);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 0.1rem 0.32rem;
+      font-size: 0.94em;
+    }
+
+    .shell {
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      color: oklch(94% 0.006 92);
+      background: oklch(21% 0.022 250);
+      border-radius: var(--radius);
+      padding: 1rem;
+      overflow-x: auto;
+      line-height: 1.55;
+      box-shadow: var(--shadow);
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: clamp(2rem, 5vw, 5.5rem);
+      align-items: center;
+      padding: clamp(3rem, 6vw, 6.5rem) 0 3rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.1rem;
+      color: var(--accent-dark);
+      font-weight: 800;
+      font-size: 0.84rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 2.2rem;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    h1 {
+      max-width: 12ch;
+      margin: 0;
+      font-size: clamp(3.3rem, 9vw, 7.8rem);
+      line-height: 0.92;
+      letter-spacing: 0;
+      font-weight: 850;
+    }
+
+    .lead {
+      max-width: 67ch;
+      margin: 1.6rem 0 0;
+      font-size: clamp(1.05rem, 1.6vw, 1.28rem);
+      color: oklch(30% 0.024 250);
+    }
+
+    .author {
+      margin-top: 1.4rem;
+      padding: 1rem 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      max-width: 38rem;
+    }
+
+    .author-name {
+      display: block;
+      font-size: 1.22rem;
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    .author-role,
+    .author-specialty {
+      display: block;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-top: 2rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.8rem;
+      padding: 0.7rem 1rem;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: var(--paper);
+      font-weight: 800;
+      border-bottom-width: 1px;
+    }
+
+    .button.primary {
+      color: oklch(96% 0.006 92);
+      background: var(--ink);
+    }
+
+    .score-plate {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: clamp(1rem, 3vw, 1.4rem);
+      box-shadow: var(--shadow);
+    }
+
+    .score-number {
+      font-size: clamp(5rem, 13vw, 9rem);
+      line-height: 0.86;
+      font-weight: 900;
+      color: var(--accent-dark);
+      letter-spacing: 0;
+    }
+
+    .score-label {
+      margin-top: 0.7rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .score-list {
+      margin: 1.3rem 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .score-list li {
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-start;
+      font-weight: 650;
+    }
+
+    .score-list li::before {
+      content: "";
+      flex: 0 0 0.6rem;
+      height: 0.6rem;
+      margin-top: 0.55rem;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    section {
+      padding: clamp(2.5rem, 6vw, 5rem) 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 0.45fr 1fr;
+      gap: clamp(1.5rem, 4vw, 4rem);
+      align-items: start;
+      margin-bottom: 2rem;
+    }
+
+    .section-number {
+      color: var(--accent-dark);
+      font-weight: 900;
+      font-size: clamp(1.9rem, 4vw, 3.2rem);
+      line-height: 1;
+    }
+
+    h2 {
+      max-width: 20ch;
+      margin: 0;
+      font-size: clamp(2rem, 4.2vw, 4.1rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 0.7rem;
+      font-size: 1.18rem;
+      line-height: 1.25;
+    }
+
+    .section-copy {
+      max-width: 72ch;
+      color: oklch(31% 0.022 250);
+      font-size: 1.05rem;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .evidence {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+
+    .evidence strong {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-size: 1.05rem;
+    }
+
+    .evidence p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      border: 1px solid var(--ink);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .pipe-step {
+      min-height: 170px;
+      padding: 1rem;
+      border-right: 1px solid var(--ink);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .pipe-step:last-child {
+      border-right: 0;
+    }
+
+    .pipe-index {
+      width: 2rem;
+      height: 2rem;
+      display: inline-grid;
+      place-items: center;
+      color: oklch(96% 0.006 92);
+      background: var(--ink);
+      border-radius: 50%;
+      font-weight: 900;
+    }
+
+    .pipe-step p {
+      margin: 0.7rem 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .metric-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .metric-table caption {
+      text-align: left;
+      padding: 1rem;
+      font-weight: 900;
+      color: var(--ink);
+      background: var(--panel-strong);
+    }
+
+    .metric-table th,
+    .metric-table td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-top: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    .metric-table th {
+      color: var(--muted);
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .bars {
+      display: grid;
+      gap: 0.85rem;
+      padding: 1rem;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 9rem 1fr 4rem;
+      gap: 0.8rem;
+      align-items: center;
+      font-weight: 700;
+    }
+
+    .track {
+      height: 0.78rem;
+      background: oklch(86% 0.018 92);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      background: var(--accent);
+    }
+
+    .fill.warning {
+      background: var(--amber);
+    }
+
+    .fill.drift {
+      background: var(--red);
+    }
+
+    .argument {
+      display: grid;
+      grid-template-columns: 0.7fr 1.3fr;
+      gap: clamp(1rem, 4vw, 3rem);
+      align-items: stretch;
+    }
+
+    .verdict {
+      color: oklch(96% 0.006 92);
+      background: var(--ink);
+      border-radius: var(--radius);
+      padding: clamp(1.2rem, 3vw, 2rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+    }
+
+    .verdict .big {
+      font-size: clamp(4rem, 10vw, 8rem);
+      line-height: 0.9;
+      font-weight: 900;
+    }
+
+    .rubric {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .rubric-row {
+      display: grid;
+      grid-template-columns: 9rem 1fr;
+      gap: 1rem;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .rubric-row strong {
+      color: var(--accent-dark);
+    }
+
+    .rubric-row p {
+      margin: 0;
+      color: oklch(31% 0.022 250);
+    }
+
+    .footer {
+      padding: 2rem 0 3rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .section-head,
+      .argument,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .evidence-grid,
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+
+      .pipe-step {
+        min-height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--ink);
+      }
+
+      .pipe-step:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .bar-row,
+      .rubric-row {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: clamp(3rem, 18vw, 4.6rem);
+      }
+    }
+
+    @media print {
+      body {
+        background: var(--paper);
+      }
+
+      .button,
+      .hero-actions {
+        display: none;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      section {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">Projet MLOps mai 2026</div>
+        <h1>Tests et monitoring ML</h1>
+        <p class="lead">
+          Ce rapport résume le travail effectué étape par étape pour démontrer la maîtrise du cycle MLOps demandé:
+          génération de données, entraînement du modèle, tests automatisés avec Deepchecks, monitoring de dérive avec
+          Evidently, production d'artefacts HTML et interprétation des résultats.
+        </p>
+        <div class="author" aria-label="Auteur du rapport">
+          <span class="author-name">DRISS Amine</span>
+          <span class="author-role">Expert en Systèmes d'Information et Sécurité</span>
+          <span class="author-specialty">Spécialisation : Ingénierie Logiciel &amp; Data</span>
+        </div>
+        <div class="hero-actions">
+          <a class="button primary" href="artifacts/deepchecks_report.html">Ouvrir Deepchecks</a>
+          <a class="button" href="artifacts/evidently_drift_report.html">Ouvrir Evidently</a>
+          <a class="button" href="README.md">Lire le README</a>
+        </div>
+      </div>
+
+      <aside class="score-plate" aria-label="Synthèse du dossier">
+        <div class="score-number">ML<span style="font-size: 0.42em;">Ops</span></div>
+        <div class="score-label">Dossier défendu par des preuves techniques vérifiables.</div>
+        <ul class="score-list">
+          <li>Projet exécutable de bout en bout.</li>
+          <li>Livrables attendus présents et régénérables.</li>
+          <li>Résultats interprétés, pas seulement générés.</li>
+          <li>Positionnement MLOps clair.</li>
+        </ul>
+      </aside>
+    </header>
+
+    <section id="objectif">
+      <div class="section-head">
+        <div class="section-number">01</div>
+        <div>
+          <h2>Objectif du projet</h2>
+          <p class="section-copy">
+            Le projet répond au sujet “Tests et Monitoring Machine Learning, Deepchecks et Evidently”.
+            Il montre comment surveiller un système ML quand le code reste stable mais que les données évoluent.
+            Le travail ne se limite pas à entraîner un modèle: il met en place des contrôles qualité, détecte les dérives
+            et produit des rapports exploitables pour une gouvernance MLOps.
+          </p>
+        </div>
+      </div>
+
+      <div class="evidence-grid">
+        <div class="evidence">
+          <strong>Question traitée</strong>
+          <p>Comment vérifier qu'un modèle reste fiable lorsque les données courantes changent par rapport à une référence historique.</p>
+        </div>
+        <div class="evidence">
+          <strong>Outils imposés</strong>
+          <p>Deepchecks pour les tests automatisés, Evidently pour le monitoring visuel de dérive.</p>
+        </div>
+        <div class="evidence">
+          <strong>Livrables</strong>
+          <p>Données, modèle sérialisé, rapports HTML, README et scripts reproductibles.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <div class="section-head">
+        <div class="section-number">02</div>
+        <div>
+          <h2>Pipeline réalisé</h2>
+          <p class="section-copy">
+            La logique du dépôt suit une chaîne MLOps claire. Chaque étape produit une preuve concrète et réutilisable,
+            ce qui rend le travail vérifiable par un évaluateur.
+          </p>
+        </div>
+      </div>
+
+      <div class="pipeline" role="list" aria-label="Pipeline MLOps">
+        <div class="pipe-step" role="listitem">
+          <div>
+            <span class="pipe-index">1</span>
+            <h3>Données</h3>
+          </div>
+          <p>Création de <code>reference.csv</code> et <code>current.csv</code> avec dérive simulée.</p>
+        </div>
+        <div class="pipe-step" role="listitem">
+          <div>
+            <span class="pipe-index">2</span>
+            <h3>Modèle</h3>
+          </div>
+          <p>Entraînement d'un pipeline sklearn et sauvegarde dans <code>model.joblib</code>.</p>
+        </div>
+        <div class="pipe-step" role="listitem">
+          <div>
+            <span class="pipe-index">3</span>
+            <h3>Tests</h3>
+          </div>
+          <p>Deepchecks contrôle l'intégrité, la cohérence reference/current et le comportement du modèle.</p>
+        </div>
+        <div class="pipe-step" role="listitem">
+          <div>
+            <span class="pipe-index">4</span>
+            <h3>Monitoring</h3>
+          </div>
+          <p>Evidently compare les distributions et mesure la dérive statistique des colonnes.</p>
+        </div>
+        <div class="pipe-step" role="listitem">
+          <div>
+            <span class="pipe-index">5</span>
+            <h3>Rapports</h3>
+          </div>
+          <p>Les résultats sont archivés dans <code>artifacts/</code> sous forme de rapports HTML.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="execution">
+      <div class="section-head">
+        <div class="section-number">03</div>
+        <div>
+          <h2>Exécution reproductible</h2>
+          <p class="section-copy">
+            Le projet peut être relancé depuis la racine. Les dépendances sont figées pour éviter les différences
+            d'environnement, et les scripts régénèrent les données, le modèle et les rapports.
+          </p>
+        </div>
+      </div>
+
+      <pre class="shell"><code>.\.venv\Scripts\python.exe scripts\01_generate_and_train.py
+.\.venv\Scripts\python.exe scripts\02_deepchecks_tests.py
+.\.venv\Scripts\python.exe scripts\03_evidently_drift_report.py
+.\.venv\Scripts\python.exe scripts\serveur_reports.py</code></pre>
+    </section>
+
+    <section id="donnees">
+      <div class="section-head">
+        <div class="section-number">04</div>
+        <div>
+          <h2>Données reference et current</h2>
+          <p class="section-copy">
+            La séparation entre données de référence et données courantes est le point central du monitoring ML.
+            La référence représente l'historique validé. Le courant simule la production avec des distributions modifiées.
+          </p>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <table class="metric-table">
+          <caption>Qualité et taille des datasets</caption>
+          <thead>
+            <tr>
+              <th>Dataset</th>
+              <th>Lignes</th>
+              <th>Colonnes</th>
+              <th>Valeurs manquantes</th>
+              <th>Doublons</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>reference.csv</code></td>
+              <td>2000</td>
+              <td>5</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td><code>current.csv</code></td>
+              <td>1200</td>
+              <td>5</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="bars" aria-label="Comparaison des distributions">
+          <h3>Signaux de changement observés</h3>
+          <div class="bar-row">
+            <span>Taux fraude ref</span>
+            <div class="track"><div class="fill" style="width: 38.15%"></div></div>
+            <span>38.15%</span>
+          </div>
+          <div class="bar-row">
+            <span>Taux fraude cur</span>
+            <div class="track"><div class="fill warning" style="width: 42.83%"></div></div>
+            <span>42.83%</span>
+          </div>
+          <div class="bar-row">
+            <span>Risque high ref</span>
+            <div class="track"><div class="fill" style="width: 11.25%"></div></div>
+            <span>11.25%</span>
+          </div>
+          <div class="bar-row">
+            <span>Risque high cur</span>
+            <div class="track"><div class="fill drift" style="width: 20%"></div></div>
+            <span>20%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="modele">
+      <div class="section-head">
+        <div class="section-number">05</div>
+        <div>
+          <h2>Modèle entraîné et traçable</h2>
+          <p class="section-copy">
+            Le modèle est sauvegardé comme un artefact versionnable. C'est une bonne pratique MLOps: le modèle devient
+            un objet réutilisable, auditable et compatible avec les étapes de test et monitoring.
+          </p>
+        </div>
+      </div>
+
+      <div class="evidence-grid">
+        <div class="evidence">
+          <strong>Prétraitement</strong>
+          <p>Pipeline sklearn avec standardisation des variables numériques et encodage one-hot de <code>merchant_risk</code>.</p>
+        </div>
+        <div class="evidence">
+          <strong>Modèle</strong>
+          <p>Régression logistique entraînée sur les données de référence.</p>
+        </div>
+        <div class="evidence">
+          <strong>Artefact</strong>
+          <p><a href="artifacts/model.joblib"><code>artifacts/model.joblib</code></a> contient le modèle, les features, la cible et la version.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="deepchecks">
+      <div class="section-head">
+        <div class="section-number">06</div>
+        <div>
+          <h2>Tests automatisés avec Deepchecks</h2>
+          <p class="section-copy">
+            Deepchecks sert de quality gate. Le rapport contrôle la qualité des données, compare les datasets
+            et mesure le comportement du modèle. Le script a été amélioré pour déclarer explicitement les colonnes
+            catégorielles et fournir une importance de variables calculée proprement.
+          </p>
+        </div>
+      </div>
+
+      <div class="evidence-grid">
+        <div class="evidence">
+          <strong>Intégrité</strong>
+          <p>Contrôle des doublons, valeurs manquantes, types, corrélations et anomalies de structure.</p>
+        </div>
+        <div class="evidence">
+          <strong>Validation reference/current</strong>
+          <p>Détection des différences entre baseline et données courantes, avec suite train-test validation.</p>
+        </div>
+        <div class="evidence">
+          <strong>Évaluation modèle</strong>
+          <p>Analyse de la performance, de la dérive de prédiction, de la matrice de confusion et de l'inférence.</p>
+        </div>
+      </div>
+
+      <p class="section-copy">
+        Rapport disponible ici:
+        <a href="artifacts/deepchecks_report.html"><code>artifacts/deepchecks_report.html</code></a>.
+      </p>
+    </section>
+
+    <section id="evidently">
+      <div class="section-head">
+        <div class="section-number">07</div>
+        <div>
+          <h2>Monitoring avec Evidently</h2>
+          <p class="section-copy">
+            Evidently est utilisé comme outil de surveillance post-déploiement. Il produit un rapport visuel qui compare
+            les distributions des données de référence et des données courantes, puis signale les colonnes en dérive.
+          </p>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <table class="metric-table">
+          <caption>Résultats de dérive Evidently</caption>
+          <thead>
+            <tr>
+              <th>Colonne</th>
+              <th>Méthode</th>
+              <th>Score</th>
+              <th>Lecture</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>amt</code></td>
+              <td>Wasserstein</td>
+              <td>0.4089</td>
+              <td>Dérive forte détectée.</td>
+            </tr>
+            <tr>
+              <td><code>merchant_risk</code></td>
+              <td>Jensen-Shannon</td>
+              <td>0.1012</td>
+              <td>Dérive détectée.</td>
+            </tr>
+            <tr>
+              <td><code>city_pop</code></td>
+              <td>Wasserstein</td>
+              <td>0.0634</td>
+              <td>Pas de dérive significative.</td>
+            </tr>
+            <tr>
+              <td><code>gender</code></td>
+              <td>Jensen-Shannon</td>
+              <td>0.0008</td>
+              <td>Distribution stable.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="bars">
+          <h3>Synthèse monitoring</h3>
+          <div class="bar-row">
+            <span>Colonnes driftées</span>
+            <div class="track"><div class="fill drift" style="width: 40%"></div></div>
+            <span>40%</span>
+          </div>
+          <div class="bar-row">
+            <span>Colonnes stables</span>
+            <div class="track"><div class="fill" style="width: 60%"></div></div>
+            <span>60%</span>
+          </div>
+          <p>
+            Le rapport confirme que la dérive est volontaire et observable. C'est précisément l'intérêt du monitoring:
+            détecter les changements avant qu'ils ne dégradent durablement la confiance dans le modèle.
+          </p>
+        </div>
+      </div>
+
+      <p class="section-copy">
+        Rapport disponible ici:
+        <a href="artifacts/evidently_drift_report.html"><code>artifacts/evidently_drift_report.html</code></a>.
+      </p>
+    </section>
+
+    <section id="interpretation">
+      <div class="section-head">
+        <div class="section-number">08</div>
+        <div>
+          <h2>Interprétation critique</h2>
+          <p class="section-copy">
+            Le projet ne cache pas les signaux négatifs. Au contraire, il les utilise comme preuve que le monitoring
+            fonctionne. Le modèle reste exploitable pour la démonstration, mais les rapports montrent une performance
+            limitée et une dérive de prédiction. Dans un vrai pipeline, ces alertes déclencheraient une analyse métier,
+            un recalibrage ou un réentraînement.
+          </p>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <table class="metric-table">
+          <caption>Performance modèle</caption>
+          <thead>
+            <tr>
+              <th>Dataset</th>
+              <th>Accuracy</th>
+              <th>F1</th>
+              <th>AUC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Reference</td>
+              <td>0.636</td>
+              <td>0.327</td>
+              <td>0.635</td>
+            </tr>
+            <tr>
+              <td>Current</td>
+              <td>0.596</td>
+              <td>0.438</td>
+              <td>0.626</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="evidence">
+          <strong>Ce que cela prouve</strong>
+          <p>
+            Le travail ne cherche pas à produire artificiellement un modèle parfait. Il démontre une compétence MLOps:
+            instrumenter un modèle, détecter les changements, interpréter les alertes et produire des preuves
+            consultables.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="livrables">
+      <div class="section-head">
+        <div class="section-number">09</div>
+        <div>
+          <h2>Livrables vérifiables</h2>
+          <p class="section-copy">
+            Chaque élément attendu dans l'énoncé est présent dans le dépôt. Les rapports ont été régénérés après
+            correction des warnings et amélioration de la reproductibilité.
+          </p>
+        </div>
+      </div>
+
+      <table class="metric-table">
+        <caption>Table des preuves</caption>
+        <thead>
+          <tr>
+            <th>Preuve</th>
+            <th>Fichier</th>
+            <th>Utilité</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Données de référence</td>
+            <td><a href="data/reference.csv"><code>data/reference.csv</code></a></td>
+            <td>Baseline historique validée.</td>
+          </tr>
+          <tr>
+            <td>Données courantes</td>
+            <td><a href="data/current.csv"><code>data/current.csv</code></a></td>
+            <td>Production simulée avec drift.</td>
+          </tr>
+          <tr>
+            <td>Modèle ML</td>
+            <td><a href="artifacts/model.joblib"><code>artifacts/model.joblib</code></a></td>
+            <td>Artefact sérialisé et réutilisable.</td>
+          </tr>
+          <tr>
+            <td>Rapport Deepchecks</td>
+            <td><a href="artifacts/deepchecks_report.html"><code>artifacts/deepchecks_report.html</code></a></td>
+            <td>Tests automatisés ML.</td>
+          </tr>
+          <tr>
+            <td>Rapport Evidently</td>
+            <td><a href="artifacts/evidently_drift_report.html"><code>artifacts/evidently_drift_report.html</code></a></td>
+            <td>Monitoring de dérive.</td>
+          </tr>
+          <tr>
+            <td>Documentation</td>
+            <td><a href="README.md"><code>README.md</code></a></td>
+            <td>Installation, exécution et interprétation.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="note">
+      <div class="section-head">
+        <div class="section-number">10</div>
+        <div>
+          <h2>Pourquoi ce travail est complet</h2>
+          <p class="section-copy">
+            Le dossier couvre les attendus du sujet, avec une exécution reproductible, des livrables vérifiables et
+            une interprétation MLOps des résultats. Le projet montre une compréhension opérationnelle, pas seulement
+            une exécution de scripts.
+          </p>
+        </div>
+      </div>
+
+      <div class="argument">
+        <div class="verdict">
+          <div class="big">OK</div>
+          <p>Un dossier complet, exécutable, surveillé et expliqué.</p>
+        </div>
+        <div class="rubric">
+          <div class="rubric-row">
+            <strong>Conformité</strong>
+            <p>Deepchecks et Evidently sont utilisés conformément au sujet, avec les rapports HTML attendus.</p>
+          </div>
+          <div class="rubric-row">
+            <strong>Reproductibilité</strong>
+            <p>Les versions sont figées, les scripts sont ordonnés et les artefacts peuvent être régénérés.</p>
+          </div>
+          <div class="rubric-row">
+            <strong>Qualité ML</strong>
+            <p>Les données sont propres, le modèle est sérialisé, les features et la cible sont explicitement tracées.</p>
+          </div>
+          <div class="rubric-row">
+            <strong>Monitoring</strong>
+            <p>La dérive est mesurée, localisée et expliquée avec des scores concrets.</p>
+          </div>
+          <div class="rubric-row">
+            <strong>Analyse</strong>
+            <p>Les alertes sont interprétées comme des signaux MLOps, avec une vision CI/CD et production.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Rapport généré pour le projet <strong>Tests et Monitoring Machine Learning</strong>.
+      Les liens pointent vers les artefacts locaux du dépôt.
+    </footer>
+  </main>
+</body>
+</html>

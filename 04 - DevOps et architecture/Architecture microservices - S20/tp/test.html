@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport de Tests - MediCare Appointment Service</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --border-color: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header h1 i {
+            color: var(--accent-green);
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon.total { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .card-icon.passed { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+        .card-icon.failed { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+        .card-icon.coverage { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .section-header.unit { border-left: 4px solid var(--accent-blue); }
+        .section-header.integration { border-left: 4px solid var(--accent-purple); }
+
+        .test-list {
+            list-style: none;
+        }
+
+        .test-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: background 0.15s;
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .test-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .test-icon.pass {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .test-icon.fail {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        .test-name {
+            flex: 1;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+        }
+
+        .test-duration {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge.unit {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .badge.integration {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--accent-purple);
+        }
+
+        .coverage-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .coverage-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .coverage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .coverage-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .coverage-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green), #34d399);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .test-item {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .test-item:nth-child(1) { animation-delay: 0.05s; }
+        .test-item:nth-child(2) { animation-delay: 0.1s; }
+        .test-item:nth-child(3) { animation-delay: 0.15s; }
+        .test-item:nth-child(4) { animation-delay: 0.2s; }
+        .test-item:nth-child(5) { animation-delay: 0.25s; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-flask"></i> Rapport de Tests</h1>
+            <p>Appointment Service - MediCare Microservices</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="summary-cards">
+            <div class="card">
+                <div class="card-icon total"><i class="fas fa-vials"></i></div>
+                <div class="card-value">17</div>
+                <div class="card-label">Total des tests</div>
+            </div>
+            <div class="card">
+                <div class="card-icon passed"><i class="fas fa-check-circle"></i></div>
+                <div class="card-value">17</div>
+                <div class="card-label">Tests réussis</div>
+            </div>
+            <div class="card">
+                <div class="card-icon failed"><i class="fas fa-times-circle"></i></div>
+                <div class="card-value">0</div>
+                <div class="card-label">Tests échoués</div>
+            </div>
+            <div class="card">
+                <div class="card-icon coverage"><i class="fas fa-shield-alt"></i></div>
+                <div class="card-value">100%</div>
+                <div class="card-label">Couverture de code</div>
+            </div>
+        </div>
+
+        <div class="coverage-section">
+            <div class="coverage-card">
+                <div class="coverage-header">
+                    <span class="coverage-title">Appointment.js</span>
+                    <span class="coverage-value">100%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%;"></div>
+                </div>
+                <p style="margin-top: 0.75rem; font-size: 0.8rem; color: var(--text-secondary);">
+                    <i class="fas fa-code"></i> 100% Statements, 100% Branches, 100% Functions, 100% Lines
+                </p>
+            </div>
+        </div>
+
+        <section class="section">
+            <div class="section-header unit">
+                <i class="fas fa-cube"></i>
+                <h2>Tests Unitaires - Logique Métier (10 tests)</h2>
+            </div>
+            <ul class="test-list">
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">should create appointment with SCHEDULED status</span>
+                    <span class="test-duration">2 ms</span>
+                    <span class="badge unit">Unit</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">should cancel scheduled appointment successfully</span>
+                    <span class="test-duration">1 ms</span>
+                    <span class="badge unit">Unit</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">should throw error when cancelling non-scheduled appointment</span>
+                    <span class="test-duration">7 ms</span>
+                    <span class="badge unit">Unit</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">should complete scheduled appointment</span>
+                    <span class="test-duration">1 ms</span>
+                    <span class="badge unit">Unit</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">should clear domain events after processing</span>
+                    <span class="test-duration">1 ms</span>
+                    <span class="badge unit">Unit</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">should not complete already cancelled appointment</span>
+                    <span class="test-duration">1 ms</span>
+                    <span class="badge unit">Unit</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">should not cancel already completed appointment</span>
+                    <span class="test-duration">1 ms</span>
+                    <span class="badge unit">Unit</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">should serialize to JSON correctly</span>
+                    <span class="test-duration">1 ms</span>
+                    <span class="badge unit">Unit</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">should not add event after status change</span>
+                    <span class="test-duration">1 ms</span>
+                    <span class="badge unit">Unit</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">should emit correct event data on cancellation</span>
+                    <span class="test-duration">1 ms</span>
+                    <span class="badge unit">Unit</span>
+                </li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <div class="section-header integration">
+                <i class="fas fa-plug"></i>
+                <h2>Tests d'Intégration - Endpoints API (7 tests)</h2>
+            </div>
+            <ul class="test-list">
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">POST /api/appointments - should create appointment with valid data</span>
+                    <span class="test-duration">37 ms</span>
+                    <span class="badge integration">Integration</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">POST /api/appointments - should reject missing required fields</span>
+                    <span class="test-duration">10 ms</span>
+                    <span class="badge integration">Integration</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">POST /api/appointments - should reject past date</span>
+                    <span class="test-duration">11 ms</span>
+                    <span class="badge integration">Integration</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">GET /api/appointments/:id - should return appointment by ID</span>
+                    <span class="test-duration">15 ms</span>
+                    <span class="badge integration">Integration</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">GET /api/appointments/:id - should return 404 for not found</span>
+                    <span class="test-duration">15 ms</span>
+                    <span class="badge integration">Integration</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">PUT /api/appointments/:id/cancel - should cancel appointment</span>
+                    <span class="test-duration">7 ms</span>
+                    <span class="badge integration">Integration</span>
+                </li>
+                <li class="test-item">
+                    <span class="test-icon pass"><i class="fas fa-check"></i></span>
+                    <span class="test-name">PUT /api/appointments/:id/cancel - should reject already cancelled</span>
+                    <span class="test-duration">6 ms</span>
+                    <span class="badge integration">Integration</span>
+                </li>
+            </ul>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p><i class="fas fa-clock"></i> Généré le 16 mars 2026 à 15:09</p>
+        <p style="margin-top: 0.5rem;">Jest v29.7.0 - supertest v6.3.3</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau Récapitulatif des Bounded Contexts - MediCare</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .save-btn {
+            display: block;
+            margin: 0 auto 20px;
+            padding: 10px 30px;
+            background-color: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .save-btn:hover {
+            background-color: #0284c7;
+        }
+        .save-btn:active {
+            background-color: #0369a1;
+        }
+        .status {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.success {
+            display: block;
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #0ea5e9;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        td {
+            cursor: text;
+            background-color: #fff;
+        }
+        td:hover {
+            background-color: #e8f4fd;
+            outline: 1px dashed #0ea5e9;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tableau Récapitulatif des Bounded Contexts</h1>
+    
+    <div id="status" class="status">Modifications enregistrées avec succès!</div>
+    
+    <button class="save-btn" onclick="saveTable()">Enregistrer les modifications</button>
+    
+    <table id="boundedTable">
+        <thead>
+            <tr>
+                <th>Bounded Context</th>
+                <th>Responsabilité</th>
+                <th>Concepts Clés</th>
+                <th>Dépendances</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td contenteditable="true"><strong>Patient Management</strong></td>
+                <td contenteditable="true">Gérer les patients et leur dossier administratif/médical de base</td>
+                <td contenteditable="true">Patient, DossierMédical, Allergie, Antécédent, ContactUrgence</td>
+                <td contenteditable="true">Aucune</td>
+            </tr>
+            <tr>
+                <td contenteditable="true"><strong>Appointment Management</strong></td>
+                <td contenteditable="true">Gérer les rendez-vous médicaux</td>
+                <td contenteditable="true">RendezVous, Créneau, Disponibilité, Annulation</td>
+                <td contenteditable="true">Patient, Staff</td>
+            </tr>
+            <tr>
+                <td contenteditable="true"><strong>Staff Management</strong></td>
+                <td contenteditable="true">Gérer le personnel médical et administratif</td>
+                <td contenteditable="true">Médecin, Infirmier, Spécialité, Planning, Congé</td>
+                <td contenteditable="true">Aucune</td>
+            </tr>
+            <tr>
+                <td contenteditable="true"><strong>Consultation Management</strong></td>
+                <td contenteditable="true">Gérer les consultations, diagnostics et plans de traitement</td>
+                <td contenteditable="true">Consultation, Diagnostic, NoteMédicale, PlanTraitement</td>
+                <td contenteditable="true">Patient, Staff</td>
+            </tr>
+            <tr>
+                <td contenteditable="true"><strong>Hospitalization Management</strong></td>
+                <td contenteditable="true">Gérer les admissions, chambres, lits et soins</td>
+                <td contenteditable="true">Hospitalisation, Chambre, Lit, AffectationSoignant</td>
+                <td contenteditable="true">Patient, Staff</td>
+            </tr>
+            <tr>
+                <td contenteditable="true"><strong>Billing Management</strong></td>
+                <td contenteditable="true">Gérer la facturation, assurances et remboursements</td>
+                <td contenteditable="true">Facture, Paiement, Assurance, Remboursement</td>
+                <td contenteditable="true">Appointment, Consultation, Hospitalization</td>
+            </tr>
+            <tr>
+                <td contenteditable="true"><strong>Pharmacy Management</strong></td>
+                <td contenteditable="true">Gérer les prescriptions et le stock de médicaments</td>
+                <td contenteditable="true">Prescription, Médicament, Stock, Délivrance</td>
+                <td contenteditable="true">Consultation</td>
+            </tr>
+            <tr>
+                <td contenteditable="true"><strong>Laboratory Management</strong></td>
+                <td contenteditable="true">Gérer les analyses et résultats de laboratoire</td>
+                <td contenteditable="true">Analyse, Échantillon, Résultat, Validation</td>
+                <td contenteditable="true">Consultation</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>Exercice 1 - TP Microservices MediCare | Driss Amine</p>
+    </div>
+
+    <script>
+        // Charger les données sauvegardées au démarrage
+        window.onload = function() {
+            loadTable();
+        };
+
+        function saveTable() {
+            const table = document.getElementById('boundedTable');
+            const rows = table.querySelectorAll('tbody tr');
+            const data = [];
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowData = [];
+                cells.forEach(cell => {
+                    rowData.push(cell.innerHTML);
+                });
+                data.push(rowData);
+            });
+
+            // Sauvegarder dans localStorage
+            localStorage.setItem('boundedContextsTable', JSON.stringify(data));
+
+            // Afficher le message de confirmation
+            const status = document.getElementById('status');
+            status.classList.add('success');
+            setTimeout(() => {
+                status.classList.remove('success');
+            }, 3000);
+        }
+
+        function loadTable() {
+            const savedData = localStorage.getItem('boundedContextsTable');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                const table = document.getElementById('boundedTable');
+                const rows = table.querySelectorAll('tbody tr');
+
+                rows.forEach((row, rowIndex) => {
+                    if (data[rowIndex]) {
+                        const cells = row.querySelectorAll('td');
+                        cells.forEach((cell, cellIndex) => {
+                            if (data[rowIndex][cellIndex]) {
+                                cell.innerHTML = data[rowIndex][cellIndex];
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+        // Sauvegarder automatiquement lors de la fermeture de la page
+        window.onbeforeunload = function() {
+            saveTable();
+        };
+    </script>
+</body>
+</html>

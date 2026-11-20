@@ -1,0 +1,31 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- C:\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: D:\M2\S9\TP-Projet-Kafka-Spark
+collecting ... collected 10 items
+
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_create_streaming_dataframe FAILED [ 10%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_json_parsing PASSED [ 20%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_1_popularity FAILED [ 30%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_2_engagement FAILED [ 40%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_3_genre_analysis FAILED [ 50%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_4_anomaly_detection FAILED [ 60%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_schema_definition PASSED [ 70%]
+tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_window_calculations FAILED [ 80%]
+tests/test_spark_streaming.py::TestSparkSession::test_session_configurations PASSED [ 90%]
+tests/test_spark_streaming.py::TestSparkSession::test_session_creation PASSED [100%]
+
+=========================== short test summary info ===========================
+FAILED tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_create_streaming_dataframe
+FAILED tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_1_popularity
+FAILED tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_2_engagement
+FAILED tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_3_genre_analysis
+FAILED tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_query_4_anomaly_detection
+FAILED tests/test_spark_streaming.py::TestSparkStreamingProcessor::test_window_calculations
+======================== 6 failed, 4 passed in 27.77s =========================
+Opération réussie : le processus de PID 10544 (processus enfant de PID 23368) a été
+arrêté.
+Opération réussie : le processus de PID 23368 (processus enfant de PID 12936) a été
+arrêté.
+Opération réussie : le processus de PID 12936 (processus enfant de PID 20252) a été
+arrêté.

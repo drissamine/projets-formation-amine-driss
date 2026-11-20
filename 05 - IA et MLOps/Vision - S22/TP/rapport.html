@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport TP Prétraitement des Images</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+            color: #333;
+        }
+        h1 {
+            background: linear-gradient(135deg, #0F2044 0%, #1A4A8A 55%, #2E86DE 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 14px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #0F2044;
+            border-bottom: 3px solid #0DC0C0;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+        h3 {
+            color: #1A4A8A;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .exercise {
+            background: #f0f4ff;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #0DC0C0;
+            border-radius: 5px;
+        }
+        .solution {
+            background: #e8f5e9;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .error {
+            background: #ffebee;
+            padding: 10px;
+            border-left: 4px solid #f44336;
+            margin: 10px 0;
+        }
+        .fix {
+            background: #e3f2fd;
+            padding: 10px;
+            border-left: 4px solid #2196F3;
+            margin: 10px 0;
+        }
+        code {
+            background: #263238;
+            color: #aed581;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #0F2044;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .toc {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .toc ul {
+            list-style: none;
+            padding: 0;
+        }
+        .toc li {
+            padding: 8px 0;
+        }
+        .toc a {
+            color: #1A4A8A;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            color: #0DC0C0;
+        }
+        .summary-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1 style="font-size:2.6em;margin:0 0 8px 0;color:#0DC0C0;letter-spacing:3px;">🧹 PRÉTRAITEMENT DES IMAGES</h1>
+<h2 style="font-size:1.4em;font-weight:300;margin:0 0 6px 0;color:white;">Travaux Pratiques approfondis — M2 Informatique / Vision par Ordinateur</h2>
+<p style="color:#0DC0C0;font-size:0.95em;margin:0 0 28px 0;font-style:italic;">Nettoyage · Normalisation · Transformations géométriques · Data Augmentation · Pipelines</p>
+  <p style="text-align:center;margin-top:10px;color:#0DC0C0;">📅 Rapport généré le 23 mars 2026 par DRISS Amine</p>
+<div class="toc">
+    <h3>📋 Table des Matières</h3>
+    <ul>
+        <li><a href="#intro">1. Introduction</a></li>
+        <li><a href="#installation">2. Installation & Configuration</a></li>
+        <li><a href="#exercice1">3. Exercice 1 - Sélection HSV</a></li>
+        <li><a href="#exercice2">4. Exercice 2 - Égalisation histogramme</a></li>
+        <li><a href="#exercice3">5. Exercice 3 - CLAHE</a></li>
+        <li><a href="#exercice4">6. Exercice 4 - Débruitage</a></li>
+        <li><a href="#exercice5">7. Exercice 5 - Non-Local Means</a></li>
+        <li><a href="#exercice6">8. Exercice 6 - Letterbox avec infos</a></li>
+        <li><a href="#exercice7">9. Exercice 7 - Augmentation géométrique</a></li>
+        <li><a href="#exercice8">10. Exercice 8 - Conditions météorologiques</a></li>
+        <li><a href="#exercice9">11. Exercice 9 - Mixup & CutMix</a></li>
+        <li><a href="#exercice10">12. Exercice 10 - Pipeline étendu</a></li>
+        <li><a href="#exercice11">13. Exercice 11 - Diagnostic automatique</a></li>
+        <li><a href="#summary">14. Résumé des fonctions</a></li>
+    </ul>
+</div>
+
+<div class="section" id="intro">
+    <h2>1. Introduction</h2>
+    <p>Ce TP couvre <strong>l'intégralité du pipeline de prétraitement</strong> en vision par ordinateur, de la lecture brute d'une image jusqu'aux techniques avancées d'augmentation de données utilisées en production.</p>
+    <p><strong>Objectif :</strong> Maîtriser le nettoyage, la normalisation, les transformations géométriques et la data augmentation.</p>
+    <div class="summary-box">
+        <strong>📊 Composition du TP :</strong>
+        <ul>
+            <li>7 Modules théoriques</li>
+            <li>14 Exercices guidés avec hints</li>
+            <li>Démonstrations visuelles (NumPy, OpenCV, PIL)</li>
+            <li>Projet final : pipeline complet</li>
+        </ul>
+    </div>
+</div>
+
+<div class="section" id="installation">
+    <h2>2. Installation & Configuration</h2>
+    <p>La première cellule installe les dépendances et configure l'environnement.</p>
+    
+    <h3>Bibliothèques utilisées :</h3>
+    <table>
+        <tr>
+            <th>Bibliothèque</th>
+            <th>Version</th>
+            <th>Usage</th>
+        </tr>
+        <tr>
+            <td>NumPy</td>
+            <td>2.4.3</td>
+            <td>Manipulation de tableaux, calculs numériques</td>
+        </tr>
+        <tr>
+            <td>OpenCV</td>
+            <td>4.13.0</td>
+            <td>Traitement d'images, transformations</td>
+        </tr>
+        <tr>
+            <td>Matplotlib</td>
+            <td>-</td>
+            <td>Visualisation, GridSpec</td>
+        </tr>
+        <tr>
+            <td>PIL (Pillow)</td>
+            <td>-</td>
+            <td>Lecture d'images, filtres</td>
+        </tr>
+        <tr>
+            <td>scikit-image</td>
+            <td>-</td>
+            <td>PSNR, SSIM</td>
+        </tr>
+    </table>
+
+    <h3>Images de test :</h3>
+    <ul>
+        <li><code>BASE_IMG</code> : Image de référence (256×256)</li>
+        <li><code>DARK_IMG</code> : Image sous-exposée</li>
+        <li><code>BRIGHT_IMG</code> : Image surexposée</li>
+        <li><code>NOISY_IMG</code> : Image bruitée</li>
+    </ul>
+
+
+</div>
+
+<div class="exercise" id="exercice1">
+    <h2>3. Exercice 1 - Sélection de couleur par masque HSV</h2>
+    <p><strong>Objectif :</strong> Utiliser l'espace colorimétrique HSV pour isoler des couleurs spécifiques.</p>
+    
+    <h3>Contexte théorique</h3>
+    <p>L'espace HSV (Hue, Saturation, Value) sépare la teinte (H), la saturation (S) et la luminosité (V). Cela facilite la sélection de couleurs car on peut filtrer sur une gamme de teintes spécifique.</p>
+    
+    <h3>Code utilisé :</h3>
+    <pre>
+# Conversion en HSV
+hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+
+# Définition des plages HSV pour le bleu
+lower_blue = np.array([100, 50, 50])
+upper_blue = np.array([130, 255, 255])
+
+# Création du masque
+mask = cv2.inRange(hsv, lower_blue, upper_blue)
+
+# Application du masque
+result = cv2.bitwise_and(img, img, mask=mask)</pre>
+    
+    <h3>Plages HSV couramment utilisées :</h3>
+    <table>
+        <tr>
+            <th>Couleur</th>
+            <th>Lower (H,S,V)</th>
+            <th>Upper (H,S,V)</th>
+        </tr>
+        <tr>
+            <td>Rouge</td>
+            <td>(0, 100, 100)</td>
+            <td>(10, 255, 255)</td>
+        </tr>
+        <tr>
+            <td>Vert</td>
+            <td>(40, 100, 100)</td>
+            <td>(80, 255, 255)</td>
+        </tr>
+        <tr>
+            <td>Bleu</td>
+            <td>(100, 100, 100)</td>
+            <td>(130, 255, 255)</td>
+        </tr>
+        <tr>
+            <td>Jaune</td>
+            <td>(20, 100, 100)</td>
+            <td>(30, 255, 255)</td>
+        </tr>
+    </table>
+    
+    <h3>Visualisation générée :</h3>
+    <p>Figure avec l'image originale, le masque HSV, et le résultat filtré pour différentes couleurs.</p>
+</div>
+
+<div class="exercise" id="exercice2">
+    <h2>4. Exercice 2 - Égalisation d'histogramme manuelle</h2>
+    <p><strong>Objectif :</strong> Implémenter l'égalisation d'histogramme sans utiliser cv2.equalizeHist.</p>
+    
+    <h3>Contexte théorique</h3>
+    <p>L'égalisation d'histogramme vise à répartir uniformément les intensités sur tout l'intervalle [0, 255], améliorant le contraste全局.</p>
+    
+    <h3>Fonction implémentée :</h3>
+    <div class="solution">def equalize_histogram_manual(img_gray):
+    """Égalisation d'histogramme manuelle (sans cv2.equalizeHist)"""
+    # 1. Calculer l'histogramme
+    hist, bins = np.histogram(img_gray.ravel(), bins=256, range=(0, 256))
+    
+    # 2. Calculer la CDF (Cumulative Distribution Function)
+    cdf = hist.cumsum()
+    
+    # 3. Normaliser la CDF
+    cdf_normalized = cdf * 255 / cdf[-1]
+    
+    # 4. Créer la table de lookup
+    cdf_m = np.ma.masked_equal(cdf, 0)
+    cdf_m = (cdf_m - cdf_m.min()) * 255 / (cdf_m.max() - cdf_m.min())
+    cdf = np.ma.filled(cdf_m, 0).astype('uint8')
+    
+    # 5. Appliquer la transformation
+    img_equalized = cdf[img_gray]
+    
+    return img_equalized</div>
+    
+    <h3>Formule utilisée :</h3>
+    <p>Pour chaque intensité i : nouvelle_intensité = (CDF(i) - CDF_min) × (L-1) / (M×N - CDF_min)</p>
+    <p>où L=256, M×N = nombre de pixels</p>
+    
+    <h3>Visualisation générée :</h3>
+    <p>Figure avec histogrammes avant/après égalisation et images correspondantes.</p>
+</div>
+
+<div class="exercise" id="exercice3">
+    <h2>5. Exercice 3 - CLAHE : trouver les bons hyperparamètres</h2>
+    <p><strong>Objectif :</strong> Tester différents paramètres de CLAHE (Contrast Limited Adaptive Histogram Equalization).</p>
+    
+    <h3>Contexte théorique</h3>
+    <p>CLAHE diffère de l'égalisation globale en appliquant l'égalisation sur des tuiles locales, avec une limite de contraste pour éviter l'amplification du bruit.</p>
+    
+    <h3>Fonction utilisée :</h3>
+    <pre>
+def apply_clahe(img, clip_limit=2.0, tile_size=(8,8)):
+    """Applique CLAHE sur le canal L de l'espace LAB"""
+    clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_size)
+    return clahe.apply(img)</pre>
+    
+    <h3>Paramètres à tester :</h3>
+    <table>
+        <tr>
+            <th>Paramètre</th>
+            <th>Effet</th>
+            <th>Valeurs testées</th>
+        </tr>
+        <tr>
+            <td>clipLimit</td>
+            <td>Limite le contraste pour éviter le bruit</td>
+            <td>1.0, 2.0, 3.0, 5.0</td>
+        </tr>
+        <tr>
+            <td>tileSize</td>
+            <td>Taille des tuiles pour l'égalisation locale</td>
+            <td>(4,4), (8,8), (16,16)</td>
+        </tr>
+    </table>
+    
+    <h3>Recommandations :</h3>
+    <ul>
+        <li><strong>clipLimit=2.0</strong> : Bon compromis entre amélioration du contraste et contrôle du bruit</li>
+        <li><strong>tileSize=(8,8)</strong> : Standard pour la plupart des images</li>
+    </ul>
+    
+    <h3>Visualisation générée :</h3>
+    <p>Figure comparant les résultats pour différentes combinaisons de paramètres.</p>
+</div>
+
+<div class="exercise" id="exercice4">
+    <h2>6. Exercice 4 - Débruitage sélectif</h2>
+    <p><strong>Objectif :</strong> Identifier le meilleur filtre de débruitage pour chaque type de bruit.</p>
+    
+    <h3>Types de bruit et filtres recommandés :</h3>
+    <table>
+        <tr>
+            <th>Type de bruit</th>
+            <th>Filtre recommandé</th>
+            <th>Paramètres</th>
+        </tr>
+        <tr>
+            <td>Bruit gaussien</td>
+            <td>GaussianBlur</td>
+            <td>ksize=5, sigma=1.0</td>
+        </tr>
+        <tr>
+            <td>Bruit sel & poivre</td>
+            <td>MedianBlur</td>
+            <td>ksize=5</td>
+        </tr>
+        <tr>
+            <td>Bruit mixte</td>
+            <td>BilateralFilter</td>
+            <td>d=9, sigmaColor=75, sigmaSpace=75</td>
+        </tr>
+    </table>
+    
+    <h3>Fonctions de métriques :</h3>
+    <pre>
+def metrics_str(original, denoised):
+    p = psnr(original, denoised, data_range=255)
+    s = ssim(original, denoised, channel_axis=2, data_range=255)
+    return f"PSNR: {p:.2f}dB, SSIM: {s:.4f}"</pre>
+    
+    <h3>Visualisation générée :</h3>
+    <p>Figure comparant les différents filtres avec leurs scores PSNR/SSIM.</p>
+</div>
+
+<div class="exercise" id="exercice5">
+    <h2>7. Exercice 5 - Non-Local Means</h2>
+    <p><strong>Objectif :</strong> Comprendre l'effet des paramètres de Non-Local Means Denoising.</p>
+    
+    <h3>Contexte théorique</h3>
+    <p>NLM compare des patchs similaires dans toute l'image pour réduire le bruit tout en préservant les détails.</p>
+    
+    <h3>Fonction :</h3>
+    <pre>
+result = cv2.fastNlMeansDenoisingColored(img, None, h, hForColorComponents, templateWindowSize, searchWindowSize)</pre>
+    
+    <h3>Paramètres :</h3>
+    <table>
+        <tr>
+            <th>Paramètre</th>
+            <th>Description</th>
+            <th>Effet</th>
+        </tr>
+        <tr>
+            <td>h</td>
+            <td>Force du débruitage</td>
+            <td>Plus élevé = plus de débruitage, plus flou</td>
+        </tr>
+        <tr>
+            <td>templateWindowSize</td>
+            <td>Taille de la fenêtre modèle</td>
+            <td>Doit être impair (7 par défaut)</td>
+        </tr>
+        <tr>
+            <td>searchWindowSize</td>
+            <td>Taille de la fenêtre de recherche</td>
+            <td>Doit être impair, plus grand = plus lent</td>
+        </tr>
+    </table>
+    
+    <h3>Recommandations :</h3>
+    <ul>
+        <li><strong>h=3-5</strong> : Pour bruit léger</li>
+        <li><strong>h=10-15</strong> : Pour bruit modéré</li>
+        <li><strong>searchWindowSize=21</strong> : Bon compromis qualité/vitesse</li>
+    </ul>
+    
+    <h3>Visualisation générée :</h3>
+    <p>Figure montrant l'effet de différents paramètres h sur le résultat.</p>
+</div>
+
+<div class="exercise" id="exercice6">
+    <h2>8. Exercice 6 - Letterbox avec informations</h2>
+    <p><strong>Objectif :</strong> Redimensionner en conservant le ratio (letterbox) et retourner les paramètres de transformation.</p>
+    
+    <h3>Fonctions implémentées :</h3>
+    
+    <h4>letterbox_with_info()</h4>
+    <div class="solution">def letterbox_with_info(img, target_size=(128, 128), pad_color=(114, 114, 114)):
+    """
+    Redimensionne en conservant le ratio (letterbox).
+    Retourne (img_resized, scale, off_x, off_y)
+    """
+    h, w = img.shape[:2]
+    target_w, target_h = target_size
+
+    # 1. Calculer le facteur d'échelle et les nouvelles dimensions
+    scale = min(target_w / w, target_h / h)
+    new_w = int(w * scale)
+    new_h = int(h * scale)
+
+    # 2. Redimensionner
+    resized = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+
+    # 3. Créer le canvas et calculer les offsets
+    canvas = np.full((target_h, target_w, 3), pad_color, dtype=np.uint8)
+    off_x  = (target_w - new_w) // 2
+    off_y  = (target_h - new_h) // 2
+    canvas[off_y:off_y+new_h, off_x:off_x+new_w] = resized
+
+    return canvas, scale, off_x, off_y</div>
+
+    <h4>to_original_coords()</h4>
+    <div class="solution">def to_original_coords(x_r, y_r, scale, off_x, off_y):
+    """Convertit des coordonnées dans l'image letterboxée vers l'image originale."""
+    x_orig = (x_r - off_x) / scale
+    y_orig = (y_r - off_y) / scale
+    return int(x_orig), int(y_orig)</div>
+</div>
+
+<div class="exercise" id="exercice7">
+    <h2>9. Exercice 7 - Augmentation géométrique avec labels</h2>
+    <p><strong>Objectif :</strong> Implémenter un flip horizontal qui transforme aussi les bounding boxes.</p>
+    
+    <h3>Bounding box de la porte :</h3>
+    <p><code>(120, 150, 140, 180)</code> → <code>(x_min, y_min, x_max, y_max)</code></p>
+    
+    <h3>Solution :</h3>
+    <div class="solution">import matplotlib.patches as patches
+
+# Flip horizontal de l'image
+img_flipped = img[:, ::-1, :]
+
+# Transformation de la bounding box
+# Après flip horizontal : x' = W - x
+x_min_new = w - x_max
+x_max_new = w - x_min
+y_min_new = y_min  # inchangé
+y_max_new = y_max  # inchangé
+
+# Visualisation avec matplotlib.patches.Rectangle</div>
+</div>
+
+<div class="exercise" id="exercice8">
+    <h2>10. Exercice 8 - Simulation de conditions météorologiques</h2>
+    <p><strong>Objectif :</strong> Implémenter les effets brume et pluie.</p>
+    
+    <h3>Fonctions :</h3>
+    
+    <h4>add_fog()</h4>
+    <div class="solution">def add_fog(img, intensity=0.5):
+    """Simule de la brume en mélangeant avec un fond blanc."""
+    fog_layer = np.ones_like(img) * 255
+    return np.clip((1-intensity)*img.astype(np.float32) + intensity*fog_layer, 0, 255).astype(np.uint8)</div>
+    
+    <h4>add_rain()</h4>
+    <div class="solution">def add_rain(img, num_drops=600, angle=-70, length=18, alpha=0.65):
+    """Simule la pluie avec des traits diagonaux semi-transparents."""
+    rain_layer = np.zeros_like(img)
+    h, w = img.shape[:2]
+    for _ in range(num_drops):
+        x1 = np.random.randint(0, w)
+        y1 = np.random.randint(0, h)
+        x2 = int(x1 + length * np.cos(np.radians(angle)))
+        y2 = int(y1 + length * np.sin(np.radians(angle)))
+        cv2.line(rain_layer, (x1, y1), (x2, y2), (200, 200, 220), 1)
+    return np.clip(alpha*img + (1-alpha)*rain_layer, 0, 255).astype(np.uint8)</div>
+</div>
+
+<div class="exercise" id="exercice9">
+    <h2>11. Exercice 9 - Mixup & CutMix</h2>
+    <p><strong>Objectif :</strong> Implémenter les techniques d'augmentation modernes.</p>
+    
+    <h3>Fonctions :</h3>
+    
+    <h4>mixup()</h4>
+    <div class="solution">def mixup(img1, img2, alpha=0.4):
+    """Mélange linéaire de deux images."""
+    lam = np.random.beta(alpha, alpha)
+    mixed = np.clip(lam*img1.astype(np.float32) + (1-lam)*img2.astype(np.float32), 0, 255).astype(np.uint8)
+    return mixed, lam</div>
+    
+    <h4>cutmix()</h4>
+    <div class="solution">def cutmix(img1, img2, alpha=1.0):
+    """Colle un rectangle de img2 dans img1."""
+    lam  = np.random.beta(alpha, alpha)
+    h, w = img1.shape[:2]
+    cut_w = int(w * np.sqrt(1 - lam))
+    cut_h = int(h * np.sqrt(1 - lam))
+    cx = np.random.randint(w); cy = np.random.randint(h)
+    x1 = max(cx - cut_w//2, 0); x2 = min(cx + cut_w//2, w)
+    y1 = max(cy - cut_h//2, 0); y2 = min(cy + cut_h//2, h)
+    result = img1.copy()
+    result[y1:y2, x1:x2] = img2[y1:y2, x1:x2]
+    lam_real = 1 - (x2-x1)*(y2-y1) / (h*w)
+    return result, lam_real</div>
+</div>
+
+<div class="exercise" id="exercice10">
+    <h2>12. Exercice 10 - Pipeline étendu</h2>
+    <p><strong>Objectif :</strong> Ajouter CLAHE et CutOut au pipeline existant.</p>
+    
+    <h3>EnhancedPipeline :</h3>
+    <div class="solution">class EnhancedPipeline(ImagePreprocessingPipeline):
+    def __init__(self, *args, use_clahe=True, cutout_holes=1, cutout_size=40, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.use_clahe     = use_clahe
+        self.cutout_holes  = cutout_holes
+        self.cutout_size   = cutout_size
+
+    def _apply_clahe(self, img, clip_limit=2.0):
+        """Applique CLAHE sur le canal L de l'espace LAB."""
+        lab    = cv2.cvtColor(img, cv2.COLOR_RGB2LAB)
+        clahe  = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=(8,8))
+        lab[:,:,0] = clahe.apply(lab[:,:,0])
+        return cv2.cvtColor(lab, cv2.COLOR_LAB2RGB)
+
+    def _cutout(self, img):
+        """Masque n_holes carrés de taille cutout_size en noir."""
+        h, w   = img.shape[:2]
+        result = img.copy()
+        for _ in range(self.cutout_holes):
+            cx = np.random.randint(w); cy = np.random.randint(h)
+            s  = self.cutout_size
+            x1 = max(cx - s//2, 0); x2 = min(cx + s//2, w)
+            y1 = max(cy - s//2, 0); y2 = min(cy + s//2, h)
+            result[y1:y2, x1:x2] = 0
+        return result</div>
+</div>
+
+<div class="exercise" id="exercice11">
+    <h2>13. Exercice 11 - Diagnostic automatique</h2>
+    <p><strong>Objectif :</strong> Système complet de diagnostic et correction d'images.</p>
+    
+    <h3>Fonctions :</h3>
+    
+    <h4>diagnose()</h4>
+    <div class="solution">def diagnose(img):
+    """Diagnostique les problèmes d'une image."""
+    gray = (0.2126*img[:,:,0] + 0.7152*img[:,:,1] + 0.0722*img[:,:,2])
+    issues = []
+    if gray.mean() < 80:  issues.append("sous_expose")
+    if gray.mean() > 180: issues.append("sur_expose")
+    if gray.std() < 30:   issues.append("faible_contraste")
+    lap_var = cv2.Laplacian(gray.astype(np.uint8), cv2.CV_64F).var()
+    if lap_var < 50:      issues.append("bruite")
+    stats = {"mean": gray.mean(), "std": gray.std(), "lap_var": lap_var}
+    return issues, stats</div>
+    
+    <h4>auto_correct()</h4>
+    <div class="solution">def auto_correct(img, issues):
+    """Applique les corrections adaptées."""
+    result = img.copy()
+    if "sous_expose" in issues or "sur_expose" in issues:
+        result = apply_clahe(result)
+    if "bruite" in issues:
+        result = cv2.bilateralFilter(result, 9, 75, 75)
+    if "faible_contraste" in issues:
+        result = normalize_percentile(result)
+    return result</div>
+    
+    <h3>Indicateurs :</h3>
+    <table>
+        <tr>
+            <th>Problème</th>
+            <th>Indicateur</th>
+            <th>Seuil</th>
+        </tr>
+        <tr>
+            <td>Sous-exposition</td>
+            <td>Moyenne globale</td>
+            <td>< 80</td>
+        </tr>
+        <tr>
+            <td>Surexposition</td>
+            <td>Moyenne globale</td>
+            <td>> 180</td>
+        </tr>
+        <tr>
+            <td>Faible contraste</td>
+            <td>Écart-type global</td>
+            <td>< 30</td>
+        </tr>
+        <tr>
+            <td>Bruit excessif</td>
+            <td>Variance du Laplacien</td>
+            <td>< 50</td>
+        </tr>
+    </table>
+    
+    <h3>Image pour test bonus :</h3>
+    <pre>
+url = "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400"</pre>
+</div>
+
+<div class="section" id="summary">
+    <h2>14. Résumé des fonctions implémentées</h2>
+    
+    <table>
+        <tr>
+            <th>Exercice</th>
+            <th>Fonction</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>Masque HSV</td>
+            <td>Sélection de couleurs par plage HSV</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td><code>equalize_histogram_manual()</code></td>
+            <td>Égalisation d'histogramme manuelle</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td><code>apply_clahe()</code></td>
+            <td>CLAHE avec hyperparamètres</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Filtres de débruitage</td>
+            <td>Gaussian, Median, Bilateral</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Non-Local Means</td>
+            <td>Débruitage NLM paramétrable</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td><code>letterbox_with_info()</code></td>
+            <td>Redimensionne en conservant le ratio</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td><code>to_original_coords()</code></td>
+            <td>Convertit coordonnées letterbox→originales</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>Flip + BBox</td>
+            <td>Flip horizontal avec transformation bbox</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td><code>add_fog()</code></td>
+            <td>Simule de la brume</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td><code>add_rain()</code></td>
+            <td>Simule la pluie</td>
+        </tr>
+        <tr>
+            <td>9</td>
+            <td><code>mixup()</code></td>
+            <td>Mélange linéaire de deux images</td>
+        </tr>
+        <tr>
+            <td>9</td>
+            <td><code>cutmix()</code></td>
+            <td>Colle un rectangle d'une image dans une autre</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td><code>EnhancedPipeline</code></td>
+            <td>Pipeline avec CLAHE et CutOut</td>
+        </tr>
+        <tr>
+            <td>11</td>
+            <td><code>diagnose()</code></td>
+            <td>Détecte les problèmes d'image</td>
+        </tr>
+        <tr>
+            <td>11</td>
+            <td><code>auto_correct()</code></td>
+            <td>Applique les corrections automatiques</td>
+        </tr>
+        <tr>
+            <td>11</td>
+            <td><code>generate_report()</code></td>
+            <td>Génère le rapport visuel complet</td>
+        </tr>
+    </table>
+    
+    <h3>Méthodes d'interpolation OpenCV :</h3>
+    <table>
+        <tr>
+            <th>Méthode</th>
+            <th>Usage recommandé</th>
+        </tr>
+        <tr>
+            <td>INTER_NEAREST</td>
+            <td>Masques de segmentation (préserve les labels)</td>
+        </tr>
+        <tr>
+            <td>INTER_LINEAR</td>
+            <td>Bon compromis vitesse/qualité</td>
+        </tr>
+        <tr>
+            <td>INTER_CUBIC</td>
+            <td>Meilleure qualité, plus lent</td>
+        </tr>
+        <tr>
+            <td>INTER_LANCZOS4</td>
+            <td>Très haute qualité (downscaling)</td>
+        </tr>
+        <tr>
+            <td>INTER_AREA</td>
+            <td>Downscaling uniquement, anti-aliasing optimal</td>
+        </tr>
+    </table>
+</div>
+
+<footer style="margin-top: 50px; padding: 20px; text-align: center; color: #666;">
+    <p>📅 Rapport généré le 23 mars 2026 par DRISS Amine</p>
+    <p>📚 TP Prétraitement des Images - M2 Informatique</p>
+</footer>
+
+</body>
+</html>

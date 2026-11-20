@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport Complet - Projet DevOps</title>
+    <!-- Inclure FontAwesome pour les icônes modernes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2b3a42;
+            --secondary: #3f5765;
+            --accent: #ff533d;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-dark: #333333;
+            --text-light: #777777;
+            --code-bg: #1e1e1e;
+            --code-color: #d4d4d4;
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text-dark);
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-banner {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+        }
+
+        .header-banner h1 {
+            margin: 0;
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .header-banner p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-top: 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem 2rem;
+        }
+
+        .section-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+            border-top: 5px solid var(--accent);
+            transition: var(--transition);
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        h2 i {
+            color: var(--accent);
+        }
+
+        h3 {
+            color: var(--secondary);
+            font-size: 1.4rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 i {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+        }
+
+        p.intro-text {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        /* Terminal Styles */
+        .terminal {
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-left: 5px solid #2ecc71;
+            position: relative;
+        }
+
+        .terminal::before {
+            content: "Terminal";
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #333;
+            color: #888;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-bottom-left-radius: 5px;
+            border-top-right-radius: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .terminal code {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .terminal code::before {
+            content: "$ ";
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .terminal code.comment::before {
+            content: "";
+        }
+        .terminal code.comment {
+            color: #6a9955;
+            font-style: italic;
+        }
+
+        /* Q&A Styles */
+        .qa-container {
+            background-color: #f9fcff;
+            border: 1px solid #e1effa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .question {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .question i {
+            color: #f39c12;
+            margin-top: 4px;
+        }
+
+        .answer {
+            color: var(--text-dark);
+            padding-left: 2rem;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid #e1effa;
+        }
+        
+        .answer:last-child {
+            margin-bottom: 0;
+        }
+
+        /* List Styling */
+        ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        ul li {
+            margin-bottom: 0.8rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        ul li::before {
+            content: "\f105";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        /* Inline Code */
+        p code, li code {
+            background-color: #f1f3f5;
+            color: #e83e8c;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.95em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+            background-color: var(--secondary);
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-banner">
+        <h1><i class="fa-solid fa-rocket"></i> Rapport de Projet DevOps</h1>
+        <p>Développement, Conteneurisation (Docker & Compose), Déploiement Kubernetes et Observabilité</p>
+    </div>
+
+    <div class="container">
+
+        <!-- PARTIE 0 & 1 -->
+        <div class="section-card">
+            <h2><i class="fa-brands fa-node-js"></i> Présentation & Préparation de l'Application</h2>
+            <p class="intro-text">Ce projet consiste à déployer étape par étape une application <strong>Javascript (Node.js)</strong> complète de calculatrice. Nous avons défini une architecture avec Express, organisé le code source <code>src/</code> et implémenté des tests unitaires avec Jest.</p>
+            
+            <h3><i class="fa-solid fa-terminal"></i> Commandes du Terminal exécutées</h3>
+            <div class="terminal">
+                <code class="comment"># Création des dossiers du projet</code>
+                <code>mkdir -p mon-app-js/src mon-app-js/tests</code>
+                <code class="comment"># Initialisation du projet NPM</code>
+                <code>cd mon-app-js && npm init -y</code>
+                <code class="comment"># Installation des dépendances Backend & Métriques</code>
+                <code>npm install express@^4.18.0 prom-client</code>
+                <code class="comment"># Installation des dépendances de Test</code>
+                <code>npm install --save-dev jest@^29.0.0 supertest@^6.3.0</code>
+                <code class="comment"># Validation locale de l'application</code>
+                <code>npm test</code>
+                <code>npm start</code>
+            </div>
+            
+            <div class="qa-container">
+                <div class="question"><i class="fa-solid fa-circle-question"></i> Résultat des tests</div>
+                <div class="answer">Les tests unitaires Jest pour les opérations mathématiques (Addition et Soustraction) du fichier <code>utils.js</code> passent avec succès. L'application est servie localement sur le port 3000 avec les endpoints de base <code>/health/live</code> fonctionnels.</div>
+            </div>
+        </div>
+
+        <!-- PARTIE 2 & 3 -->
+        <div class="section-card">
+            <h2><i class="fa-brands fa-docker"></i> Conteneurisation : Docker & Compose</h2>
+            <p class="intro-text">L'application a été conteneurisée grâce à un <code>Dockerfile</code> optimisé utilisant une image de base légère <code>node:18-alpine</code>. Un environnement multi-conteneurs a été simulé via <code>docker-compose.yml</code>.</p>
+            
+            <h3><i class="fa-solid fa-terminal"></i> Commandes du Terminal exécutées</h3>
+            <div class="terminal">
+                <code class="comment"># Construction de l'image Docker locale</code>
+                <code>docker build -t mon-app-js:1.0 .</code>
+                <code class="comment"># Option 1 : Lancement pur via Docker</code>
+                <code>docker run --rm -p 3000:3000 mon-app-js:1.0</code>
+                <code class="comment"># Option 2 : Construction et lancement via Docker Compose</code>
+                <code>docker compose build</code>
+                <code>docker compose up -d</code>
+            </div>
+            
+            <div class="qa-container">
+                <div class="question"><i class="fa-solid fa-circle-info"></i> Objectif de conception</div>
+                <div class="answer">L'utilisation du `.dockerignore` a permis de bloquer le transfert des paquets NPM inutiles et du dépôt Git vers le démon Docker. Le Compose permet d'injecter facilement des variables d'environnement (ex: <code>LOG_LEVEL</code>).</div>
+            </div>
+        </div>
+
+        <!-- PARTIE 4 -->
+        <div class="section-card">
+            <h2><i class="fa-solid fa-shield-halved"></i> Audit de Sécurité des Images K8s (Trivy)</h2>
+            <p class="intro-text">Analyse des vulnérabilités associées à l'image précédemment construite (CVE).</p>
+            
+            <h3><i class="fa-solid fa-terminal"></i> Commandes du Terminal exécutées</h3>
+            <div class="terminal">
+                <code class="comment"># Exécution de Trivy en tant que conteneur ciblant les failles HIGH et CRITICAL</code>
+                <code>docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL mon-app-js:1.0</code>
+            </div>
+            
+            <div class="qa-container">
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 1. Quelle est la source des failles (Node/Alpine vs Code) ?</div>
+                <div class="answer">Pour notre image de base <code>node:18-alpine</code>, la immense majorité des vulnérabilités proviennent soit du système d'exploitation Alpine sous-jacent (librairies système bas niveau), soit de dépendances globales obsolètes pré-installées avec Node, et assez rarement de notre propre code Javascript applicatif.</div>
+                
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 2. Quelles actions correctives proposez-vous pour réduire ces vulnérabilités ?</div>
+                <div class="answer">
+                    <ul>
+                        <li><span class="badge">OS / Image Basique</span> Déplacer l'image vers une version LTS plus récente de Node (ex: <code>node:20-alpine</code>) ou utiliser des images encore plus restreintes dites <strong>Distroless</strong> (sans OS Alpine).</li>
+                        <li><span class="badge">Code</span> Mettre à jour systématiquement les dépendances NPM via <code>npm audit fix</code>.</li>
+                        <li>Intégrer directement un scan Trivy critique bloquant dans le pipeline CI/CD (Pipeline Fail).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- PARTIE 5 -->
+        <div class="section-card">
+            <h2><i class="fa-brands fa-git-alt"></i> Versionnage Git Local</h2>
+            <p class="intro-text">Sauvegarde intégrale du code source et de l'infrastructure as code (fichiers YAML K8s et Docker) en créant le dépôt initial et en paramétrant le <code>.gitignore</code>.</p>
+            
+            <h3><i class="fa-solid fa-terminal"></i> Commandes du Terminal exécutées</h3>
+            <div class="terminal">
+                <code>git init</code>
+                <code class="comment"># Création du .gitignore (node_modules, /dist, logs)</code>
+                <code>git add .</code>
+                <code>git commit -m "Initialisation du projet JavaScript et validation locale"</code>
+            </div>
+        </div>
+
+        <!-- PARTIE 6 -->
+        <div class="section-card">
+            <h2><i class="fa-solid fa-dharmachakra"></i> Architecture Kubernetes (K8s)</h2>
+            <p class="intro-text">Déploiement complet des microservices applicatifs sur un cluster K8s via des ressources distinctes écrites manuellement dans le dossier <code>k8s/</code>.</p>
+            
+            <h3><i class="fa-solid fa-terminal"></i> Commandes du Terminal exécutées</h3>
+            <div class="terminal">
+                <code>mkdir -p k8s</code>
+                <code class="comment"># Application séquentielle des manifestes :</code>
+                <code>kubectl apply -f k8s/01-namespace.yaml</code>
+                <code>kubectl apply -f k8s/02-configmap-secret.yaml</code>
+                <code>kubectl apply -f k8s/03-redis-service.yaml</code>
+                <code>kubectl apply -f k8s/04-deployment.yaml</code>
+            </div>
+            
+            <div class="qa-container">
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 1. Pourquoi est-il important d'utiliser un namespace ? Différence avec un cluster ?</div>
+                <div class="answer">Un namespace permet l'<strong>isolation logique</strong> (ressources, droits, quotas) des applications au sein d'un même immense cluster physique/virtuel. Le cluster est l'infrastructure serveurs globale, le namespace est juste la "boîte" interne. Si on l'omet, Kubernetes installe tout dans le namespace <code>default</code>.</div>
+
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 2. Quelle est la différence entre une Image Docker, un Conteneur et un Pod ?</div>
+                <div class="answer">
+                    L'<strong>Image</strong> est le code mort/lecture seule. Le <strong>Conteneur</strong> est une instance "vivante" de cette image. Le <strong>Pod</strong> est l'unité encapsulatrice globale de Kubernetes, pouvant faire tourner plusieurs conteneurs fortement couplés partageant IP/Stockage. Un Pod seul n'est jamais mis en prod car s'il meurt, il ne ressuscite pas (pas d'auto-guérison).
+                </div>
+
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 3. Logique Pod -> Service -> Deployment ?</div>
+                <div class="answer">
+                    On enveloppe l'application dans un <strong>Pod</strong>, mais comme son IP change souvent, on met un <strong>Service</strong> devant pour agir comme LoadBalancer fixe. Et pour gérer la recréation automatique de ces Pods éphémères s'ils crashent (Auto-healing) ou de faire des mises à jour sans downtime, on englobe tout cela via un puissant <strong>Deployment</strong>.
+                </div>
+
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 4. ConfigMap & Secrets ? Faut-il redémarrer les pods en cas de modif ?</div>
+                <div class="answer">Pour respecter l'hygiène "12 factors app", on dissocie la Config du Code. Les ConfigMaps gèrent le texte clair, et les Secrets gèrent les valeurs sensibles encodées en Base64. De base, modifier un Secret ou ConfigMap injecté en variable d'environnement <strong>nécessite</strong> un redémarrage artificiel explicite des Pods pour qu'il soit relu/pris en compte.</div>
+            </div>
+        </div>
+
+        <!-- PARTIE 7 -->
+        <div class="section-card">
+            <h2><i class="fa-solid fa-server"></i> Haute Disponibilité, Scalabilité & État (Redis)</h2>
+            <p class="intro-text">L'ajout de HPA (autoscaling Horizontal) sur notre Deployment, ainsi que le déploiement de Redis persistant lié via Service "Headless".</p>
+            
+            <h3><i class="fa-solid fa-terminal"></i> Commandes du Terminal exécutées</h3>
+            <div class="terminal">
+                <code class="comment"># Exécution du StatefulSet Redis et HPA</code>
+                <code>kubectl apply -f k8s/05-hpa.yaml</code>
+                <code>kubectl apply -f k8s/06-redis-statefulset.yaml</code>
+                <code class="comment"># Stress Test réseau HTTP générant un pic CPU pour déclencher le HPA calculatrice</code>
+                <code>while($true) { curl http://localhost:8081/heavy?ms=500; Start-Sleep -Milliseconds 100 }</code>
+            </div>
+
+            <div class="qa-container">
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 1. Scalabilité Automatique : Scaler sur le CPU uniquement est-il suffisant ? Le cooldown ?</div>
+                <div class="answer">Non, pour un serveur lourdement I/O (réseau, téléchargement fichiers très lourds, attente BD), le programme attend beaucoup et le CPU paraît libre au système. Scaler via le CPU est insuffisant ici. De plus, toutes les règles de sizing intègrent un <strong>cooldown</strong> volontaire (≈ 5 min) limitant la fermeture anarchique des pods juste après un court rebond artificiel afin de stabiliser le réseau.</div>
+
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 2. Auto-Healing: Que devient l'adresse IP du Pod recréé ? Qui gère cela ?</div>
+                <div class="answer">L'adresse IP <strong>change forcément</strong>. C'est le composant <strong>ReplicaSet</strong> sous-jacent au Deployment, qui agit comme un chien de garde et recrée un nouveau POD. Le Service réseau Kubernetes met ensuite à jour sa balance de charge sans perturber le client.</div>
+
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 3. Quel est le rôle des Readiness Probes pendant un déploiement ?</div>
+                <div class="answer">La sonde Readiness interdit à l'équilibreur de charge d'envoyer votre trafic web au futur/nouveau pod, tant que l'applicatif n'a pas répondu OUI à son initialisation (base de données branchée, etc). Sans ça : erreur 502 / Temps d'arrêt.</div>
+
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 4. Redis avec StatefulSet : Volume & Nom du pod créés ?</div>
+                <div class="answer">Un StatefulSet fige le réseau, les noms deviennent incrémentiels, propres et inaltérables : <code>redis-0</code>, <code>redis-1</code>... Le cluster de bdd est ainsi capable de se reconnaitre (maître/esclaves) en cas de crash. K8s alloue dynamiquement <strong>1 Volume (PVC) différent personnellement dédié</strong> par Pod instancié (Via son <em>VolumeClaimTemplate</em>). Si redis-0 plante, il est recréé et retrouve le *même* disque qu'avant la mort.</div>
+            </div>
+        </div>
+
+        <!-- PARTIE 8 -->
+        <div class="section-card">
+            <h2><i class="fa-solid fa-chart-line"></i> Observabilité avec Prometheus</h2>
+            <p class="intro-text">Analyse temps réel via les métriques /metric du serveur Node.js par l'opérateur Prometheus de façon très modulaire et découplée.</p>
+            
+            <h3><i class="fa-solid fa-terminal"></i> Commandes du Terminal exécutées</h3>
+            <div class="terminal">
+                <code class="comment"># Création du connecteur ("Service Monitor" CRD) récupérant la ressource custom</code>
+                <code>kubectl apply -f k8s/07-servicemonitor.yaml</code>
+                <code class="comment"># Exposer le port de Grafana post-install (Identifiants : admin/admin)</code>
+                <code>kubectl port-forward svc/grafana 8082:3000 -n monitoring</code>
+            </div>
+
+            <div class="qa-container">
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 1. Quel est l'avantage du ServiceMonitor face aux Annotations standard ?</div>
+                <div class="answer">Dans les grappes à forte volumétrie (centaines d'éditeurs), le <strong>ServiceMonitor</strong> (introduit par le pattern Operator Prometheus) autorise une ingénierie et un paramètrage total de l'Observabilité, en sélectionnant l'appli externe par ses <em>Labels</em>, isolant ainsi purement le travail des opérations et évitant une réécriture fastidieuse interne des manifestes Node bas niveau.</div>
+
+                <div class="question"><i class="fa-solid fa-clipboard-question"></i> 2. Pourquoi prioriser la métrique *nodejs_eventloop_lag_seconds* ?</div>
+                <div class="answer">Javascript/Node.js tourne en "Single Thread", exécutant les codes de façon asynchrone non-bloquante via son immense Event Loop (Boucle d'Événements). Dès qu'un lag critique s’observe sur cette boucle, cela signifie brutalement que le canal exécute une fonction énorme bloquante l'empêchant de traiter *absolument toute autre connexion web entrante future*, un déni de service !</div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

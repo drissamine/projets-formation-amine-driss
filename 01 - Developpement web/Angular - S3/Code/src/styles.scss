@@ -1,0 +1,191 @@
+// Angular Material Theming (must be first)
+@use '@angular/material' as mat;
+
+/*
+ * Modern Minimalist Theme System
+ * Stock Portfolio Manager - Clean & Professional Design
+ * Fully responsive with smooth light/dark mode transitions
+ */
+
+// Google Fonts - Modern & Professional
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+// ============================================================================
+// DESIGN TOKENS - Light Theme
+// ============================================================================
+:root {
+  // === Color Palette - Light Mode ===
+  --primary-500: #3b82f6;
+  --success-500: #22c55e;
+  --warning-500: #f59e0b;
+  --danger-500: #ef4444;
+  --info-500: #8b5cf6;
+
+  // === Semantic Tokens - Light Mode ===
+  --bg-base: #fafafa;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f5f5f5;
+  --text-primary: #171717;
+  --text-secondary: #525252;
+  --border-subtle: #e5e5e5;
+  --border-default: #d4d4d4;
+
+  // === Typography ===
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-size-base: 1rem;
+
+  // === Spacing ===
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+
+  // === Transitions ===
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// ============================================================================
+// DESIGN TOKENS - Dark Theme
+// ============================================================================
+[data-theme="dark"] {
+  --bg-base: #0a0a0a;
+  --bg-surface: #171717;
+  --bg-surface-hover: #262626;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --border-subtle: #262626;
+  --border-default: #404040;
+}
+
+// ============================================================================
+// BASE STYLES
+// ============================================================================
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background-color: var(--bg-base);
+  transition: background-color var(--transition-slow), color var(--transition-slow);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+// ============================================================================
+// TYPOGRAPHY
+// ============================================================================
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-4);
+}
+
+h1 { font-size: 2.25rem; }
+h2 { font-size: 1.875rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-bottom: var(--spacing-4);
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--primary-500);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-500);
+  text-decoration: underline;
+}
+
+// ============================================================================
+// UTILITY CLASSES
+// ============================================================================
+.text-primary { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-success { color: var(--success-500) !important; }
+.text-warning { color: var(--warning-500) !important; }
+.text-danger { color: var(--danger-500) !important; }
+.text-info { color: var(--info-500) !important; }
+
+.bg-primary { background-color: var(--primary-500) !important; }
+.bg-success { background-color: var(--success-500) !important; }
+.bg-warning { background-color: var(--warning-500) !important; }
+.bg-danger { background-color: var(--danger-500) !important; }
+.bg-info { background-color: var(--info-500) !important; }
+.bg-surface { background-color: var(--bg-surface) !important; }
+
+.m-0 { margin: var(--spacing-0) !important; }
+.mt-1 { margin-top: var(--spacing-1) !important; }
+.mt-4 { margin-top: var(--spacing-4) !important; }
+.mb-4 { margin-bottom: var(--spacing-4) !important; }
+
+.p-4 { padding: var(--spacing-4) !important; }
+.p-6 { padding: var(--spacing-6) !important; }
+
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.d-flex { display: flex !important; }
+
+.flex-row { flex-direction: row !important; }
+.flex-column { flex-direction: column !important; }
+.align-items-center { align-items: center !important; }
+.justify-content-center { justify-content: center !important; }
+.justify-content-between { justify-content: space-between !important; }
+.gap-4 { gap: var(--spacing-4) !important; }
+
+// ============================================================================
+// CUSTOM SCROLLBAR
+// ============================================================================
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 9999px;
+  transition: background var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-subtle);
+}
+
+// ============================================================================
+// RESPONSIVE DESIGN
+// ============================================================================
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}

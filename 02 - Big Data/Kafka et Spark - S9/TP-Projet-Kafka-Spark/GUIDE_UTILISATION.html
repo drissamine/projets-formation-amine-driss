@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guide d'Utilisation - Pipeline Kafka-Spark</title>
+    <style>
+      :root {
+        --primary: #2c3e50;
+        --secondary: #3498db;
+        --accent: #27ae60;
+        --bg: #f8f9fa;
+        --text: #333;
+        --code-bg: #2d2d2d;
+        --code-text: #f8f8f2;
+      }
+
+      body {
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        color: var(--text);
+        background-color: var(--bg);
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: white;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        min-height: 100vh;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 3rem;
+        border-bottom: 2px solid var(--primary);
+        padding-bottom: 1rem;
+      }
+
+      h1 {
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+      }
+
+      h2 {
+        color: var(--secondary);
+        margin-top: 2rem;
+        border-left: 5px solid var(--secondary);
+        padding-left: 1rem;
+      }
+
+      h3 {
+        color: var(--primary);
+        margin-top: 1.5rem;
+      }
+
+      .step {
+        background: #fff;
+        border: 1px solid #e1e4e8;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s;
+      }
+
+      .step:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .step-number {
+        display: inline-block;
+        background: var(--secondary);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 30px;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      code {
+        font-family: "Consolas", "Monaco", monospace;
+        background-color: #f1f3f5;
+        padding: 2px 5px;
+        border-radius: 4px;
+        color: #d63384;
+      }
+
+      pre {
+        background-color: var(--code-bg);
+        color: var(--code-text);
+        padding: 1rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+
+      .note {
+        background-color: #fff3cd;
+        border-left: 5px solid #ffc107;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 4px;
+      }
+
+      .btn {
+        display: inline-block;
+        background: var(--accent);
+        color: white;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-top: 0.5rem;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 4rem;
+        color: #666;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🚀 Guide d'Utilisation</h1>
+        <p>Pipeline de Streaming Analytics avec Kafka et Spark</p>
+      </header>
+
+      <div id="prerequis" class="step">
+        <h2><span class="step-number">E</span>Environnement & Prérequis</h2>
+        <p>
+          Avant de commencer, assurez-vous d'avoir installé les outils suivants
+          :
+        </p>
+        <ul>
+          <li><strong>Java 8+</strong> (Requis pour Kafka et Spark)</li>
+          <li><strong>Python 3.9+</strong></li>
+        </ul>
+        <div class="note">
+          <strong>Installation des dépendances Python :</strong><br />
+          Ouvrez un terminal à la racine du projet et exécutez les commandes
+          suivantes :
+          <pre>
+pip install -r producer/requirements.txt
+pip install -r spark/consumer/requirements.txt
+pip install -r web/requirements.txt</pre
+          >
+        </div>
+      </div>
+
+      <div id="step1" class="step">
+        <h2>
+          <span class="step-number">1</span>Démarrer l'Infrastructure (Kafka)
+        </h2>
+        <p>
+          Nous devons d'abord lancer ZooKeeper et Kafka qui géreront le flux de
+          messages.
+        </p>
+
+        <h3>Lancement des serveurs</h3>
+        <p>
+          Exécutez le script suivant (double-cliquez ou lancez via terminal) :
+        </p>
+        <pre>kafka\start_kafka.bat</pre>
+        <p>
+          ⚠️ <strong>Important :</strong> Deux nouvelles fenêtres vont s'ouvrir
+          (ZooKeeper et Kafka). <strong>Ne les fermez pas !</strong> Laissez-les
+          tourner en arrière-plan.
+        </p>
+
+        <h3>Création du Topic</h3>
+        <p>
+          Une fois Kafka démarré, créez le topic qui recevra les données (à
+          faire une seule fois) :
+        </p>
+        <pre>kafka\create_topic.bat</pre>
+      </div>
+
+      <div id="step2" class="step">
+        <h2><span class="step-number">2</span>Lancer le Tableau de Bord</h2>
+        <p>
+          Démarrez l'interface web pour visualiser les données en temps réel.
+        </p>
+        <p>
+          Ouvrez un <strong>nouveau terminal</strong> à la racine du projet :
+        </p>
+        <pre>python web/dashboard.py</pre>
+        <p>
+          Ouvrez votre navigateur à l'adresse :
+          <a href="http://localhost:5000" target="_blank"
+            >http://localhost:5000</a
+          >
+        </p>
+      </div>
+
+      <div id="step3" class="step">
+        <h2><span class="step-number">3</span>Démarrer le Traitement Spark</h2>
+        <p>
+          Lancez le job Spark qui va consommer les données de Kafka et les
+          analyser.
+        </p>
+        <p>
+          Ouvrez un <strong>nouveau terminal</strong> à la racine du projet :
+        </p>
+        <pre>python spark/consumer/spark_streaming_app.py</pre>
+        <p>Vous verrez des logs indiquant que Spark traite des "Batchs".</p>
+      </div>
+
+      <div id="step4" class="step">
+        <h2>
+          <span class="step-number">4</span>Générer des Données (Producteur)
+        </h2>
+        <p>
+          Enfin, lancez le producteur pour simuler l'activité des utilisateurs.
+        </p>
+        <p>
+          Ouvrez un <strong>nouveau terminal</strong> à la racine du projet :
+        </p>
+        <pre>python producer/kafka_producer.py --continuous --delay 0.5</pre>
+        <p>
+          Le paramètre <code>--delay 0.5</code> envoie un événement toutes les
+          0.5 secondes. Vous pouvez ajuster cette valeur.
+        </p>
+      </div>
+
+      <div id="monitoring" class="step">
+        <h2><span class="step-number">✓</span>Vérification</h2>
+        <p>Si tout fonctionne correctement :</p>
+        <ol>
+          <li>Le <strong>Producteur</strong> affiche "Message sent...".</li>
+          <li>
+            Le <strong>Consommateur Spark</strong> affiche des tableaux de
+            résultats dans la console.
+          </li>
+          <li>
+            Le <strong>Dashboard Web</strong> (http://localhost:5000) se met à
+            jour automatiquement avec de nouveaux graphiques.
+          </li>
+        </ol>
+      </div>
+
+      <div id="tests" class="step">
+        <h2>🛠️ Lancer les Tests</h2>
+        <p>
+          Pour vérifier que tout le code est fonctionnel, vous pouvez lancer la
+          suite de tests :
+        </p>
+        <pre>python -m pytest tests/ -v</pre>
+      </div>
+
+      <footer>
+        <p>Projet Big Data & Streaming Analytics - 2026</p>
+      </footer>
+    </div>
+  </body>
+</html>

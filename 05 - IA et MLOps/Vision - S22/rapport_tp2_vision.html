@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport TP2 - Tâches de la Vision par Ordinateur</title>
+    <style>
+        :root {
+            --primary: #0F2044;
+            --secondary: #1A4A8A;
+            --accent: #0DC0C0;
+            --orange: #F4845F;
+            --green: #27AE60;
+            --purple: #8E44AD;
+            --light-bg: #F8F9FA;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: var(--light-bg);
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h1 { color: var(--accent); font-size: 2.5em; margin: 0; }
+        h2 { color: var(--primary); border-left: 5px solid var(--accent); padding-left: 15px; margin-top: 40px; }
+        h3 { color: var(--secondary); }
+        h4 { color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 5px; margin-top: 25px; }
+        
+        .section { background: white; padding: 30px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        .explanation-box {
+            border-left: 4px solid var(--accent);
+            padding: 15px; margin: 15px 0; border-radius: 5px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .explanation-box.theory { border-left-color: #1B6CA8; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); }
+        .explanation-box.step { border-left-color: var(--green); background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); }
+        .explanation-box.results { border-left-color: var(--purple); background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); }
+        .explanation-box.conclusion { border-left-color: var(--orange); background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); }
+        
+        .module { border-left: 5px solid var(--orange); padding-left: 20px; margin: 25px 0; }
+        .module.detection { border-color: var(--green); }
+        .module.segmentation { border-color: var(--purple); }
+        
+        code { background: #2d2d2d; color: #f8f8f2; padding: 2px 8px; border-radius: 4px; font-family: 'Consolas', monospace; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 0.85em; }
+        
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: var(--primary); color: white; }
+        
+        .result-box { background: #e8f5e9; border-left: 4px solid var(--green); padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .formula { background: #f0f0f0; padding: 12px; border-radius: 8px; text-align: center; font-family: 'Times New Roman', serif; margin: 10px 0; }
+        
+        .conclusion-box { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; padding: 25px; border-radius: 10px; }
+        .conclusion-box h3 { color: var(--accent); }
+        
+        ul { list-style-type: none; padding-left: 0; }
+        li { padding: 5px 0; padding-left: 20px; position: relative; }
+        li::before { content: "✓"; color: var(--green); position: absolute; left: 0; font-weight: bold; }
+        
+        .visualization { text-align: center; margin: 15px 0; padding: 15px; background: #f5f5f5; border-radius: 10px; }
+        .visualization img { max-width: 100%; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 15px 0; }
+        .info-card { background: var(--light-bg); padding: 12px; border-radius: 8px; border-left: 3px solid var(--accent); }
+        
+        .toc { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+            padding: 25px; 
+            border-radius: 15px; 
+            margin-bottom: 25px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .toc h3 { color: var(--accent); margin-top: 0; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        .toc ul { columns: 3; }
+        .toc li { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .toc a { color: white; text-decoration: none; font-weight: 500; display: block; padding: 4px 8px; border-radius: 4px; transition: all 0.3s; }
+        .toc a:hover { color: var(--accent); background: rgba(255,255,255,0.1); transform: translateX(5px); }
+        
+        footer { text-align: center; margin-top: 40px; padding: 20px; color: #666; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🏆 TP2 - Tâches de la Vision par Ordinateur</h1>
+    <p>Classification · Détection d'objets · Segmentation</p>
+    <p><strong>M2 Informatique</strong> | Année 2025-2026</p>
+    <p><em>Rapport généré par DRISS Amine</em></p>
+</header>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+    <h3>📚 Table des Matières</h3>
+    <ul>
+        <li><a href="#section1">1. Installation et Configuration</a></li>
+        <li><a href="#section2">2. Résultats et Explications</a></li>
+        <li><a href="#section3">3. Analyse</a></li>
+        <li><a href="#section4">4. Conclusion</a></li>
+    </ul>
+</div>
+
+<!-- SECTION 1: INSTALLATION -->
+<section class="section" id="section1">
+    <h2>📦 1. Installation et Configuration</h2>
+    <h3>1.1 Dépendances</h3>
+    <table><tr><th>Bibliothèque</th><th>Usage</th></tr>
+        <tr><td>numpy</td><td>Calculs numériques</td></tr>
+        <tr><td>opencv-python</td><td>Traitement d'images</td></tr>
+        <tr><td>matplotlib</td><td>Visualisation</td></tr>
+        <tr><td>scikit-learn</td><td>Classifieurs</td></tr>
+        <tr><td>scikit-image</td><td>Descripteurs HOG, LBP</td></tr>
+    </table>
+    <h3>1.2 Installation</h3>
+    <pre>pip install numpy matplotlib opencv-python pillow scikit-learn scikit-image scipy
+pip install torch torchvision  # optionnel pour Ex 1.3 et 3.4</pre>
+</section>
+
+<!-- SECTION 2: RESULTS WITH INLINE EXPLANATIONS -->
+<section class="section" id="section2">
+    <h2>📊 2. Résultats et Explications</h2>
+
+    <!-- Demo 1.1: Features -->
+    <div class="module">
+        <h3>🔬 Démonstration 1.1 - Extraction de Features</h3>
+        
+        <h4>Description des features</h4>
+        <div class="info-grid">
+            <div class="info-card"><strong>HOG</strong><p>Histogramme de gradients<br>8100 features</p></div>
+            <div class="info-card"><strong>LBP</strong><p>Patterns binaires locaux<br>64 bins</p></div>
+            <div class="info-card"><strong>Couleur HSV</strong><p>Histogramme couleur<br>96 bins</p></div>
+        </div>
+        
+        <div class="visualization">
+            <img src="output2.png" alt="HOG" style="max-width:45%;margin:5px;">
+            <img src="output3.png" alt="LBP" style="max-width:45%;margin:5px;">
+            <img src="output4.png" alt="Couleur" style="max-width:45%;margin:5px;">
+        </div>
+        
+        <div class="explanation-box theory">
+            <h4>🎯 Concepts théoriques</h4>
+            <ul>
+                <li><strong>HOG</strong> : Calcule l'histogramme des gradients orientés dans des cellules, capturant les formes et contours</li>
+                <li><strong>LBP</strong> : Compare chaque pixel à ses voisins, codant le résultat en binaire pour représenter les textures</li>
+                <li><strong>Couleur HSV</strong> : Représente les couleurs en termes de Teinte (H), Saturation (S) et Valeur (V)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Demo 1.2: Classifieurs -->
+    <div class="module">
+        <h3>🔬 Démonstration 1.2 - Classifieurs SVM, k-NN, Random Forest</h3>
+        
+        <h4>Résultats</h4>
+        <table><tr><th>Classifieur</th><th>Accuracy</th></tr>
+            <tr><td>SVM (RBF)</td><td>100.0%</td></tr>
+            <tr><td>k-NN (k=5)</td><td>100.0%</td></tr>
+            <tr><td>Random Forest</td><td>100.0%</td></tr>
+        </table>
+        
+        <div class="visualization"><img src="output5.png" alt="Matrice"></div>
+        
+        <div class="explanation-box theory">
+            <h4>🎯 Concepts théoriques</h4>
+            <ul>
+                <li><strong>SVM</strong> : Trouve l'hyperplan de marge maximale séparant les classes</li>
+                <li><strong>k-NN</strong> : Classifie selon les k plus proches voisins (vote majoritaire)</li>
+                <li><strong>Random Forest</strong> : Agrège les prédictions de multiples arbres de décision</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Ex 1.1: Softmax -->
+    <div class="module" id="ex1-1">
+        <h3>🏋️ Exercice 1.1 - Softmax Classifier</h3>
+        
+        <h4>Résultats</h4>
+        <table><tr><th>Métrique</th><th>Valeur</th></tr>
+            <tr><td>Accuracy</td><td>100.0%</td></tr>
+            <tr><td>Loss initiale</td><td>~1.10</td></tr>
+            <tr><td>Loss finale</td><td>~0.01</td></tr>
+        </table>
+        
+        <div class="visualization"><img src="output7.png" alt="Loss"></div>
+        
+        <div class="explanation-box theory">
+            <h4>🎯 Objectif et Concepts théoriques</h4>
+            <p><strong>Implémenter un classifieur Softmax avec gradient descent.</strong></p>
+            <div class="formula">Softmax: p_k = e^{z_k} / Σⱼ e^{z_j}</div>
+            <div class="formula">Cross-Entropy: L = -1/N Σᵢ log(ŷ_{yᵢ})</div>
+            <div class="formula">Gradient: ∂L/∂W = X^T(Ŷ - Y_onehot) / N</div>
+        </div>
+        
+        <div class="explanation-box step">
+            <h4>🔍 Implémentation</h4>
+            <pre>def softmax(self, z):
+    z_stable = z - z.max(axis=1, keepdims=True)
+    e = np.exp(z_stable)
+    return e / e.sum(axis=1, keepdims=True)</pre>
+            <p>La soustraction du maximum évite l'overflow numérique.</p>
+            <pre>grad_W = X.T @ (P - Y_oh) / N
+grad_b = (P - Y_oh).mean(axis=0)</pre>
+        </div>
+        
+        <div class="explanation-box results">
+            <h4>📈 Interprétation</h4>
+            <p>La loss décroît de ~1.10 (proche de -log(1/3)≈1.10) à ~0.01, montrant une convergence réussie. L'accuracy de 100% montre que le modèle classifie parfaitement.</p>
+        </div>
+        
+        <div class="explanation-box conclusion">
+            <h4>✅ Conclusion</h4>
+            <p>Cet exercice a permis de comprendre le fonctionnement de la softmax et l'optimisation par gradient descent.</p>
+        </div>
+    </div>
+
+    <!-- Ex 1.2: Impact du descripteur -->
+    <div class="module" id="ex1-2">
+        <h3>🏋️ Exercice 1.2 - Impact du descripteur</h3>
+        
+        <h4>Résultats</h4>
+        <table><tr><th>Descripteur</th><th>Accuracy</th></tr>
+            <tr><td>HOG seul</td><td>100.0%</td></tr>
+            <tr><td>LBP seul</td><td>50.0%</td></tr>
+            <tr><td>Couleur seul</td><td>100.0%</td></tr>
+            <tr><td>Combiné</td><td>100.0%</td></tr>
+        </table>
+        
+        <div class="visualization"><img src="output6.png" alt="Comparaison"></div>
+        
+        <div class="explanation-box theory">
+            <h4>🎯 Concepts</h4>
+            <p>Chaque descripteur capture une information différente :</p>
+            <ul>
+                <li><strong>HOG</strong> : Formes et contours (invariant aux changements d'éclairage)</li>
+                <li><strong>LBP</strong> : Textures locales (simple et efficace)</li>
+                <li><strong>Couleur</strong> : Distribution spectrale (efficace pour couleurs distinctes)</li>
+            </ul>
+        </div>
+        
+        <div class="explanation-box results">
+            <h4>📈 Interprétation</h4>
+            <p>LBP seul est insuffisant (50%) car les textures ne suffisent pas. HOG et Couleur atteignent 100% car les classes synthétiques ont des formes et couleurs distinctes.</p>
+        </div>
+    </div>
+
+    <!-- Ex 1.3: ResNet -->
+    <div class="module" id="ex1-3">
+        <h3>🏋️ Exercice 1.3 - ResNet-18 (optionnel)</h3>
+        
+        <h4>Résultats</h4>
+        <table><tr><th>Approche</th><th>Accuracy</th></tr>
+            <tr><td>HOG+LBP+SVM</td><td>100.0%</td></tr>
+            <tr><td>ResNet-18+SVM</td><td>100.0%</td></tr>
+        </table>
+        
+        <div class="explanation-box theory">
+            <h4>🎯 Transfer Learning</h4>
+            <p>ResNet-18 pré-entraîné sur ImageNet est utilisé comme extracteur de features (512 dimensions). Ces features learned capturent des patterns visuels de haut niveau.</p>
+        </div>
+    </div>
+
+    <!-- Module 2: Détection -->
+    <div class="module detection" id="ex2-1">
+        <h3>🎯 Module 2 - Détection d'objets</h3>
+        
+        <!-- Ex 2.1 -->
+        <h4>🏋️ Exercice 2.1 - IoU et mAP</h4>
+        
+        <h5>Matrice IoU</h5>
+        <table><tr><th>Prédictions \ GT</th><th>Voiture</th><th>Roue</th></tr>
+            <tr><td>Détection 1</td><td>0.935</td><td>0.046</td></tr>
+            <tr><td>Détection 2</td><td>0.891</td><td>0.053</td></tr>
+            <tr><td>Détection 3</td><td>0.072</td><td>0.915</td></tr>
+            <tr><td>Détection 4</td><td>0.058</td><td>0.882</td></tr>
+        </table>
+        
+        <div class="info-grid">
+            <div class="info-card"><strong>AP@0.5</strong><p>0.95</p></div>
+            <div class="info-card"><strong>TP</strong><p>2</p></div>
+            <div class="info-card"><strong>FP</strong><p>2</p></div>
+        </div>
+        
+        <div class="visualization">
+            <img src="output10.png" alt="IoU" style="max-width:45%;">
+            <img src="output11.png" alt="NMS" style="max-width:45%;">
+        </div>
+        
+        <div class="explanation-box theory">
+            <h4>🎯 Concepts</h4>
+            <div class="formula">IoU = |A ∩ B| / |A ∪ B|</div>
+            <p>IoU ≥ 0.5 = Vrai Positif (seuil PASCAL VOC).</p>
+        </div>
+        
+        <div class="explanation-box step">
+            <h4>🔍 Implémentation</h4>
+            <pre>def compute_iou(box1, box2):
+    x1 = max(box1[0], box2[0])
+    y1 = max(box1[1], box2[1])
+    x2 = min(box1[2], box2[2])
+    y2 = min(box1[3], box2[3])
+    inter = max(0, x2-x1) * max(0, y2-y1)
+    union = area(box1) + area(box2) - inter
+    return inter / union</pre>
+        </div>
+    </div>
+
+    <!-- Ex 2.2 -->
+    <div class="module detection" id="ex2-2">
+        <h4>🏋️ Exercice 2.2 - Template Matching</h4>
+        
+        <div class="info-grid">
+            <div class="info-card"><strong>Corrélation max</strong><p>0.970</p></div>
+            <div class="info-card"><strong>Position</strong><p>(30, 88)</p></div>
+        </div>
+        
+        <div class="visualization">
+            <img src="output12.png" alt="Template" style="max-width:45%;">
+            <img src="output9.png" alt="ResNet" style="max-width:45%;">
+        </div>
+        
+        <div class="explanation-box theory">
+            <h4>🎯 Concepts</h4>
+            <div class="formula">R(x,y) = Σ T(x',y') · I(x+x',y+y')</div>
+            <p>Le template matching calcule la corrélation normalisée entre le template et chaque région de l'image.</p>
+        </div>
+    </div>
+
+    <!-- Ex 2.3 -->
+    <div class="module detection" id="ex2-3">
+        <h4>🏋️ Exercice 2.3 - torchvision.ops</h4>
+        
+        <table><tr><th>Méthode</th><th>Indices conservés</th></tr>
+            <tr><td>Notre NMS</td><td>[0]</td></tr>
+            <tr><td>torchvision NMS</td><td>[0]</td></tr>
+        </table>
+        
+        <div class="explanation-box theory">
+            <h4>🎯 NMS (Non-Maximum Suppression)</h4>
+            <p>Élimine les bounding boxes redondantes en gardant uniquement celle avec le plus haut score par région.</p>
+        </div>
+    </div>
+
+    <!-- Module 3: Segmentation -->
+    <div class="module segmentation" id="ex3-1">
+        <h3>🗺️ Module 3 - Segmentation</h3>
+        
+        <!-- Ex 3.1 -->
+        <h4>🏋️ Exercice 3.1 - Dice et mIoU</h4>
+        
+        <table><tr><th>Métrique</th><th>Fond</th><th>Objet</th><th>Moyenne</th></tr>
+            <tr><td>Dice</td><td>0.991</td><td>0.955</td><td>0.973</td></tr>
+            <tr><td>IoU</td><td>0.983</td><td>0.914</td><td>0.949</td></tr>
+        </table>
+        
+        <div class="visualization"><img src="output14.png" alt="Dice"></div>
+        
+        <div class="explanation-box theory">
+            <h4>🎯 Concepts</h4>
+            <div class="formula">Dice = 2TP / (2TP + FP + FN)</div>
+            <div class="formula">mIoU = 1/C Σ IoU_c</div>
+            <p><strong>Dice</strong> mesure le chevauchement. <strong>mIoU</strong> est la métrique standard en segmentation.</p>
+        </div>
+    </div>
+
+    <!-- Ex 3.2 -->
+    <div class="module segmentation" id="ex3-2">
+        <h4>🏋️ Exercice 3.2 - Segmentation HSV</h4>
+        
+        <table><tr><th>Scène</th><th>Accuracy</th></tr>
+            <tr><td>Chat</td><td>70.3%</td></tr>
+            <tr><td>Voiture</td><td>70.4%</td></tr>
+            <tr><td>Maison</td><td>63.7%</td></tr>
+        </table>
+        
+        <div class="visualization"><img src="output15.png" alt="HSV"></div>
+        
+        <div class="explanation-box theory">
+            <h4>🎯 Segmentation par HSV</h4>
+            <p>Définition de plages de teinte (H) pour chaque classe. La segmentation HSV est intuitive mais sensible aux variations d'éclairage.</p>
+        </div>
+    </div>
+
+    <!-- Ex 3.3 -->
+    <div class="module segmentation" id="ex3-3">
+        <h4>🏋️ Exercice 3.3 - Segmentation d'Instances</h4>
+        
+        <div class="info-grid">
+            <div class="info-card"><strong>Instances</strong><p>3</p></div>
+            <div class="info-card"><strong>Instance 1</strong><p>19024 px²</p></div>
+            <div class="info-card"><strong>Instance 2</strong><p>6840 px²</p></div>
+        </div>
+        
+        <div class="visualization"><img src="output16.png" alt="Instances"></div>
+        
+        <div class="explanation-box step">
+            <h4>🔍 Code</h4>
+            <pre>from skimage.measure import regionprops, label
+labels = label(binary_mask)
+props = regionprops(labels)</pre>
+        </div>
+    </div>
+
+    <!-- Ex 3.4 -->
+    <div class="module segmentation" id="ex3-4">
+        <h4>🏋️ Exercice 3.4 - U-Net</h4>
+        
+        <table><tr><th>Paramètre</th><th>Valeur</th></tr>
+            <tr><td>Entrée</td><td>(1, 3, 256, 256)</td></tr>
+            <tr><td>Sortie</td><td>(1, 2, 256, 256)</td></tr>
+            <tr><td>Paramètres</td><td>310,518</td></tr>
+        </table>
+        
+        <div class="explanation-box theory">
+            <h4>🎯 Architecture U-Net</h4>
+            <p>Architecture encodeur-décodeur avec skip connections. L'encodeur réduit la résolution tandis que le décodeur la恢复. Les skip connections préservent l'information spatiale.</p>
+        </div>
+    </div>
+
+    <!-- Pipeline Final -->
+    <div class="module" id="ex-final">
+        <h3>🏆 Projet Final - Pipeline complet</h3>
+        
+        <h4>Résultats</h4>
+        <table><tr><th>Scène</th><th>Classe prédite</th><th>Confidence</th></tr>
+            <tr><td>Chat</td><td>Aucune détection</td><td>N/A</td></tr>
+            <tr><td>Voiture</td><td>Voiture</td><td>100%</td></tr>
+            <tr><td>Maison</td><td>Maison</td><td>100%</td></tr>
+        </table>
+        
+        <div class="result-box">
+            <strong>Accuracy:</strong> 2/3 (66.7%)<br>
+            <strong>Temps moyen:</strong> 84.1 ms
+        </div>
+        
+        <div class="visualization"><img src="output17.png" alt="Pipeline"></div>
+        
+        <div class="explanation-box step">
+            <h4>🔍 Structure du Pipeline</h4>
+            <ol>
+                <li><strong>Prétraitement</strong> : Normalisation, débruitage</li>
+                <li><strong>Classification</strong> : SVM sur HOG+LBP+Couleur</li>
+                <li><strong>Localisation</strong> : Template matching</li>
+                <li><strong>Segmentation</strong> : Masque HSV</li>
+            </ol>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 3: ANALYSE -->
+<section class="section" id="section3">
+    <h2>🔍 3. Analyse</h2>
+    
+    <h3>3.1 Classification</h3>
+    <p>La classification d'images consiste à assigner une image à une classe. Le pipeline comprend : prétraitement → extraction de features → classifieur.</p>
+    
+    <h3>3.2 Détection</h3>
+    <p>La détectionlocalise et classifie les objets avec leurs bounding boxes et scores de confiance.</p>
+    
+    <h3>3.3 Segmentation</h3>
+    <p>La segmentation attribue un label à chaque pixel. Différents niveaux : binaire, sémantique, instances.</p>
+</section>
+
+<!-- SECTION 4: CONCLUSION -->
+<section class="conclusion-box" id="section4">
+    <h2>🎓 4. Conclusion</h2>
+    
+    <h3>4.1 Apprentissages majeurs</h3>
+    <ul>
+        <li>Compréhension des trois tâches fondamentales : classification, détection, segmentation</li>
+        <li>Maîtrise des descripteurs classiques (HOG, LBP, couleur)</li>
+        <li>Implémentation de la régression Softmax avec gradient descent</li>
+        <li>Calcul des métriques IoU, Dice, mIoU</li>
+    </ul>
+    
+    <h3>4.2 Comparaison des approches</h3>
+    <table>
+        <tr><th>Approche</th><th>Avantages</th><th>Inconvénients</th></tr>
+        <tr><td>Features classiques</td><td>Interprétables, rapides</td><td>Limités pour variations complexes</td></tr>
+        <tr><td>Deep Learning</td><td>Très performants</td><td>Nécessite données</td></tr>
+        <tr><td>Template Matching</td><td>Simple</td><td>Sensible aux échelles</td></tr>
+    </table>
+    
+    <h3>4.3 Limites</h3>
+    <ul>
+        <li>Dataset synthétique limité</li>
+        <li>Segmentation HSV sensible aux variations</li>
+    </ul>
+    
+    <h3>4.4 Pistes d'amélioration</h3>
+    <ul>
+        <li>Fine-tuning ResNet/EfficientNet</li>
+        <li>Entraîner YOLOv8</li>
+        <li>U-Net sur données annotées</li>
+    </ul>
+</section>
+
+<footer>
+    <p>Rapport généré par DRISS Amine</p>
+    <p>TP2 de Vision par Ordinateur - M2 Informatique</p>
+    <p>Année 2025-2026</p>
+</footer>
+
+</body>
+</html>

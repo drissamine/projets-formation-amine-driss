@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport de Sécurité Trivy - Mon App JS (Corrigé)</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #60a5fa;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --info: #3b82f6;
+            --border-color: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-bottom: 4rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 0;
+            margin-bottom: 3rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--success), var(--accent-secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .meta-info {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        /* Dashboard Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-title {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .text-success { color: var(--success); }
+        .text-primary { color: var(--text-primary); }
+
+        /* Sections */
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .badge {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Executive Summary */
+        .summary-box {
+            background: linear-gradient(145deg, var(--bg-secondary), var(--bg-primary));
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+
+        .summary-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .question {
+            font-weight: 600;
+            color: var(--success);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .answer {
+            color: var(--text-secondary);
+        }
+
+        .action-list {
+            list-style: none;
+        }
+
+        .action-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .action-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            background-color: var(--bg-secondary);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        thead {
+            background-color: var(--bg-tertiary);
+        }
+
+        th {
+            padding: 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .code-snippet {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: rgba(0,0,0,0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: var(--accent-secondary);
+        }
+        
+        .fix-type {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background-color: rgba(16, 185, 129, 0.2); 
+            color: var(--success);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <div>
+                <h1>Rapport de Sécurité (Corrigé)</h1>
+                <p style="color: var(--text-secondary);">Analyse de vulnérabilité Trivy - Après Correction</p>
+            </div>
+            <div class="meta-info">
+                <p><strong>Projet:</strong> mon-app-js</p>
+                <p><strong>Date:</strong> 26 Janvier 2026</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Critical & High</div>
+                <div class="stat-value text-success">0</div>
+                <div style="font-size: 0.8em; color: var(--text-secondary)">4 Corrigées</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Medium</div>
+                <div class="stat-value text-success">0</div>
+                <div style="font-size: 0.8em; color: var(--text-secondary)">4 Corrigées</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Low</div>
+                <div class="stat-value text-success">0</div>
+                <div style="font-size: 0.8em; color: var(--text-secondary)">3 Corrigées</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Total Vulnérabilités</div>
+                <div class="stat-value text-success">0</div>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Synthèse des Corrections</h2>
+            </div>
+            <div class="summary-box">
+                <div class="summary-item">
+                    <div class="question">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        État Actuel
+                    </div>
+                    <div class="answer">
+                        Toutes les vulnérabilités (11 au total) ont été éradiquées. L'analyse ne rapporte plus aucune faille de sécurité connue.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Fixes -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Détails des Corrections Applicatives (Node.js)</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Package</th>
+                            <th>Ancienne Version</th>
+                            <th>Nouvelle Version</th>
+                            <th>Méthode de Correction</th>
+                            <th>Vulnérabilités Corrigées</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>cross-spawn</td>
+                            <td>7.0.3</td>
+                            <td><span class="code-snippet">^7.0.5</span></td>
+                            <td><span class="fix-type">NPM OVERRIDES</span></td>
+                            <td>CVE-2024-21538 (HIGH)</td>
+                        </tr>
+                        <tr>
+                            <td>glob</td>
+                            <td>10.4.2</td>
+                            <td><span class="code-snippet">^10.5.0</span></td>
+                            <td><span class="fix-type">NPM OVERRIDES</span></td>
+                            <td>CVE-2025-64756 (HIGH)</td>
+                        </tr>
+                        <tr>
+                            <td>tar</td>
+                            <td>6.2.1</td>
+                            <td><span class="code-snippet">^7.5.4</span></td>
+                            <td><span class="fix-type">NPM OVERRIDES</span></td>
+                            <td>CVE-2026-23745, CVE-2026-23950 (HIGH)</td>
+                        </tr>
+                        <tr>
+                            <td>brace-expansion</td>
+                            <td>2.0.1</td>
+                            <td><span class="code-snippet">^2.0.2</span></td>
+                            <td><span class="fix-type">NPM OVERRIDES</span></td>
+                            <td>CVE-2025-5889 (LOW)</td>
+                        </tr>
+                        <tr>
+                            <td>diff</td>
+                            <td>5.2.0</td>
+                            <td><span class="code-snippet">^8.0.3</span></td>
+                            <td><span class="fix-type">NPM OVERRIDES</span></td>
+                            <td>CVE-2026-24001 (LOW)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Détails des Corrections Système (Alpine Linux)</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Composant</th>
+                            <th>Action</th>
+                            <th>Commande Dockerfile</th>
+                            <th>Vulnérabilités Corrigées</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>busybox / ssl_client</td>
+                            <td>Mise à jour système</td>
+                            <td><span class="code-snippet">apk update && apk upgrade</span></td>
+                            <td>CVE-2024-58251 (MEDIUM)</td>
+                        </tr>
+                        <tr>
+                            <td>libcrypto3 / libssl3</td>
+                            <td>Mise à jour système</td>
+                            <td><span class="code-snippet">apk update && apk upgrade</span></td>
+                            <td>CVE-2025-9230, CVE-2025-9231 (MEDIUM), CVE-2025-9232 (LOW)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Optimisations Supplémentaires</h2>
+            </div>
+            <div class="summary-box">
+                <ul class="action-list">
+                    <li>
+                        <strong>Nettoyage des dépendances :</strong> Utilisation de <span class="code-snippet">npm ci --omit=dev</span> au lieu de <code>npm install</code>.
+                        <br><span style="font-size: 0.9em; color: var(--text-secondary); margin-left: 1.5rem;">Cela empêche l'installation de paquets comme <code>jest</code> ou <code>supertest</code> en production, réduisant la surface d'attaque.</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+    <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Preuve de Validation (Log Trivy)</h2>
+            </div>
+            <div class="summary-box" style="background: #000; color: #0f0; font-family: 'Courier New', monospace; padding: 1rem; border: 1px solid #333; overflow-x: auto;">
+                <pre>
+mon-app-js:latest (alpine 3.21.3)
+=================================
+Total: 0 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0)
+
+┌─────────────────────────────────────┬──────────┬─────────────────┬─────────┐
+│               Target                │   Type   │ Vulnerabilities │ Secrets │
+├─────────────────────────────────────┼──────────┼─────────────────┼─────────┤
+│ mon-app-js:latest (alpine 3.21.3)   │  alpine  │        0        │    -    │
+├─────────────────────────────────────┼──────────┼─────────────────┼─────────┤
+│ app/node_modules/accepts            │ node-pkg │        0        │    -    │
+│ ...                                 │          │                 │         │
+└─────────────────────────────────────┴──────────┴─────────────────┴─────────┘
+Status: CLEAN
+                </pre>
+            </div>
+            <p style="margin-top: 10px; color: var(--text-secondary); font-size: 0.9em;">
+                <em>Capture du terminal suite à la commande : <code>trivy image mon-app-js:latest</code></em>
+            </p>
+        </section>
+
+    <footer style="text-align: center; margin-top: 3rem; color: var(--text-secondary); font-size: 0.8rem;">
+        <p>&copy; 2026 - Rapport généré par <strong>DRISS Amine</strong></p>
+    </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="Architecture DWH - RetailPlus" id="dwh-retailplus">
+    <mxGraphModel dx="900" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="980" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TITRE -->
+        <mxCell id="title" value="Architecture d&#39;un Data Warehouse moderne — RetailPlus" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#1B2A4A;" vertex="1" parent="1">
+          <mxGeometry x="320" y="15" width="600" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- CAPTIONS DE COUCHE (gauche) -->
+        <mxCell id="cap1" value="① Sources de données" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontSize=11;fontColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="20" y="95" width="150" height="40" as="geometry" /></mxCell>
+        <mxCell id="cap2" value="② ETL / ELT" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontSize=11;fontColor=#82B366;" vertex="1" parent="1"><mxGeometry x="20" y="200" width="150" height="40" as="geometry" /></mxCell>
+        <mxCell id="cap3" value="③ Zone de Staging" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontSize=11;fontColor=#0E8088;" vertex="1" parent="1"><mxGeometry x="20" y="305" width="150" height="40" as="geometry" /></mxCell>
+        <mxCell id="cap4" value="④ ODS" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontSize=11;fontColor=#9673A6;" vertex="1" parent="1"><mxGeometry x="20" y="410" width="150" height="40" as="geometry" /></mxCell>
+        <mxCell id="cap5" value="⑤ Data Warehouse" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontSize=11;fontColor=#D79B00;" vertex="1" parent="1"><mxGeometry x="20" y="520" width="150" height="40" as="geometry" /></mxCell>
+        <mxCell id="cap6" value="⑥ Data Marts" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontSize=11;fontColor=#D6B656;" vertex="1" parent="1"><mxGeometry x="20" y="635" width="150" height="40" as="geometry" /></mxCell>
+        <mxCell id="cap7" value="⑦ Cube OLAP" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontSize=11;fontColor=#B85450;" vertex="1" parent="1"><mxGeometry x="20" y="740" width="150" height="40" as="geometry" /></mxCell>
+        <mxCell id="cap8" value="⑧ Outil BI" style="text;html=1;align=left;verticalAlign=middle;fontStyle=1;fontSize=11;fontColor=#B85450;" vertex="1" parent="1"><mxGeometry x="20" y="855" width="150" height="40" as="geometry" /></mxCell>
+
+        <!-- 1. SOURCES (bleu) -->
+        <mxCell id="src1" value="ERP Ventes&#10;(SAP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="240" y="90" width="140" height="50" as="geometry" /></mxCell>
+        <mxCell id="src2" value="CRM Clients&#10;(Salesforce)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="395" y="90" width="140" height="50" as="geometry" /></mxCell>
+        <mxCell id="src3" value="Gestion des stocks&#10;(WMS)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="550" y="90" width="140" height="50" as="geometry" /></mxCell>
+        <mxCell id="src4" value="Site e-commerce&#10;(Magento)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="705" y="90" width="140" height="50" as="geometry" /></mxCell>
+        <mxCell id="src5" value="Application mobile&#10;(API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="860" y="90" width="140" height="50" as="geometry" /></mxCell>
+
+        <!-- 2. ETL / ELT (vert) -->
+        <mxCell id="etl" value="ETL / ELT&#10;Extraction · Transformation · Chargement&#10;Talend · SSIS · dbt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="320" y="190" width="600" height="60" as="geometry" /></mxCell>
+
+        <!-- 3. STAGING (teal) -->
+        <mxCell id="stg" value="Zone de Staging&#10;Tables temporaires · validation · déduplication · contrôle qualité" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B0E3E6;strokeColor=#0E8088;" vertex="1" parent="1"><mxGeometry x="320" y="300" width="600" height="55" as="geometry" /></mxCell>
+
+        <!-- 4. ODS (violet) -->
+        <mxCell id="ods" value="ODS — Operational Data Store&#10;Vue intégrée à jour (latence &lt; 24h) · reporting opérationnel temps réel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;" vertex="1" parent="1"><mxGeometry x="370" y="405" width="500" height="55" as="geometry" /></mxCell>
+
+        <!-- 5. DATA WAREHOUSE (orange) -->
+        <mxCell id="dwh" value="Data Warehouse (entrepôt central)&#10;Intégré · historisé (5–10 ans) · non-volatile · orienté sujet (Inmon)&#10;Schéma en étoile / flocon — source unique de vérité" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="370" y="510" width="500" height="65" as="geometry" /></mxCell>
+
+        <!-- 6. DATA MARTS (jaune) -->
+        <mxCell id="dm1" value="Data Mart&#10;Ventes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;" vertex="1" parent="1"><mxGeometry x="290" y="625" width="150" height="55" as="geometry" /></mxCell>
+        <mxCell id="dm2" value="Data Mart&#10;Marketing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;" vertex="1" parent="1"><mxGeometry x="460" y="625" width="150" height="55" as="geometry" /></mxCell>
+        <mxCell id="dm3" value="Data Mart&#10;Logistique" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;" vertex="1" parent="1"><mxGeometry x="630" y="625" width="150" height="55" as="geometry" /></mxCell>
+        <mxCell id="dm4" value="Data Mart&#10;Finance" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;" vertex="1" parent="1"><mxGeometry x="800" y="625" width="150" height="55" as="geometry" /></mxCell>
+
+        <!-- 7. CUBE OLAP (rouge) -->
+        <mxCell id="cube" value="Cube OLAP&#10;Pré-agrégation multidimensionnelle (MOLAP / ROLAP / HOLAP)&#10;Roll-up · Drill-down · Slice · Dice · Pivot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;" vertex="1" parent="1"><mxGeometry x="445" y="730" width="350" height="65" as="geometry" /></mxCell>
+
+        <!-- 8. OUTIL BI (rouge) -->
+        <mxCell id="bi" value="Outil BI&#10;Tableaux de bord · KPI · rapports interactifs&#10;Power BI · Tableau · Qlik Sense" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="445" y="845" width="350" height="65" as="geometry" /></mxCell>
+
+        <!-- FLUX : Sources -> ETL -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="src1" target="etl"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="src2" target="etl"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="src3" target="etl"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="src4" target="etl"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="src5" target="etl"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- FLUX : pipeline central -->
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;strokeWidth=2;" edge="1" parent="1" source="etl" target="stg"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;strokeWidth=2;" edge="1" parent="1" source="stg" target="ods"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;strokeWidth=2;" edge="1" parent="1" source="ods" target="dwh"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- FLUX : DWH -> Data Marts -->
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="dwh" target="dm1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="dwh" target="dm2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="dwh" target="dm3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="dwh" target="dm4"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- FLUX : Data Marts -> Cube -->
+        <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="dm1" target="cube"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="dm2" target="cube"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="dm3" target="cube"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="dm4" target="cube"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- FLUX : Cube -> BI -->
+        <mxCell id="e17" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#666666;strokeWidth=2;" edge="1" parent="1" source="cube" target="bi"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

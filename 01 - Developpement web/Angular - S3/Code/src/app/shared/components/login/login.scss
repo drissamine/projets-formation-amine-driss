@@ -1,0 +1,272 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: slideUp 0.6s ease-out;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    
+    h2 {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.75rem;
+        margin: 0 0 0.5rem 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    p {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin: 0;
+        line-height: 1.6;
+    }
+}
+
+/* PrimeNG Form Styling */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.field label {
+    color: #34495e;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+/* PrimeNG Input Styling */
+:host ::ng-deep {
+    .p-inputtext {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.8);
+        
+        &:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        &.ng-invalid.ng-dirty {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+        
+        &::placeholder {
+            color: #95a5a6;
+        }
+    }
+    
+    /* PrimeNG Password Styling */
+    .p-password {
+        width: 100%;
+        
+        .p-inputtext {
+            width: 100%;
+        }
+        
+        &.ng-invalid.ng-dirty .p-inputtext {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+    }
+    
+    /* PrimeNG Button Styling */
+    .p-button {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        
+        &:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    }
+    
+    /* PrimeNG Message Styling */
+    .p-message {
+        margin-top: 1rem;
+        border-radius: 8px;
+        
+        &.p-message-error {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+    }
+    
+    /* Error Text Styling */
+    .p-error {
+        color: #e74c3c;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Loading Animation */
+.login-button:disabled::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 0.5rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 0.5rem;
+    }
+    
+    .login-card {
+        padding: 1.5rem;
+        max-width: 100%;
+    }
+    
+    .login-header {
+        margin-bottom: 1.5rem;
+        
+        h2 {
+            font-size: 1.5rem;
+        }
+    }
+    
+    :host ::ng-deep {
+        .p-inputtext,
+        .p-button {
+            padding: 0.75rem;
+            font-size: 0.875rem;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .login-card {
+        padding: 1.25rem;
+    }
+    
+    .login-header h2 {
+        font-size: 1.375rem;
+    }
+}
+
+/* Focus States */
+.login-card:focus-within {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* Background Effects */
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.02"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.02"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" opacity="0.03"/><circle cx="10" cy="60" r="0.5" fill="%23ffffff" opacity="0.03"/><circle cx="90" cy="40" r="0.5" fill="%23ffffff" opacity="0.03"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    pointer-events: none;
+}
+
+.login-footer {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    font-weight: 500;
+    
+    p {
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+}

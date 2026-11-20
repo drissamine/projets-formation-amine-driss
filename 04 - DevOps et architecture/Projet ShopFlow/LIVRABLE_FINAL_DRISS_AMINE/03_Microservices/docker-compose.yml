@@ -1,0 +1,46 @@
+services:
+  db-users:
+    image: postgres:latest
+    container_name: shopflow-db-users
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: shopflow_users
+    ports:
+      - "5431:5432"
+
+  db-products:
+    image: postgres:latest
+    container_name: shopflow-db-products
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: shopflow_products
+    ports:
+      - "5432:5432"
+
+  db-orders:
+    image: postgres:latest
+    container_name: shopflow-db-orders
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: shopflow_orders
+    ports:
+      - "5433:5432"
+
+  db-payments:
+    image: postgres:latest
+    container_name: shopflow-db-payments
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: shopflow_payments
+    ports:
+      - "5434:5432"
+
+  redis:
+    image: redis:latest
+    container_name: shopflow-redis
+    ports:
+      - "6379:6379"

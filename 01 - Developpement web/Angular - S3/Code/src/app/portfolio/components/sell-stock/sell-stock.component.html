@@ -1,0 +1,195 @@
+<div class="sell-container">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Vendre des Actions</h1>
+      <p class="subtitle">Réalisez vos plus-values et gérez vos liquidités</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="refreshPrices()">
+        <i class="fas fa-sync-alt"></i>
+        <span>Actualiser les prix</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="content-grid">
+    <!-- Main Form Section -->
+    <div class="main-section">
+      <div class="card form-card">
+        <div class="card-header">
+          <h3><i class="fas fa-hand-holding-usd text-warning"></i> Ordre de vente</h3>
+        </div>
+
+        <div class="card-body">
+          <!-- Messages -->
+          <div *ngIf="successMessage" class="feedback-message success">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ successMessage }}</span>
+          </div>
+
+          <div *ngIf="errorMessage" class="feedback-message error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ errorMessage }}</span>
+          </div>
+
+          <form [formGroup]="sellForm" (ngSubmit)="onSubmit()" class="sell-form">
+            <!-- Symbol Selection -->
+            <div class="form-group">
+              <label for="symbol">Action à vendre</label>
+              <div class="input-wrapper">
+                <i class="fas fa-chart-pie input-icon"></i>
+                <select id="symbol" formControlName="symbol" class="form-select"
+                  [class.error]="sellForm.get('symbol')?.invalid && sellForm.get('symbol')?.touched">
+                  <option value="" disabled>Sélectionnez une action</option>
+                  <option *ngFor="let stock of (availableStocks$ | async)" [value]="stock.symbol">
+                    {{ stock.symbol }} ({{ stock.shares }} parts disponibles)
+                  </option>
+                </select>
+              </div>
+              <div class="field-feedback" *ngIf="sellForm.get('symbol')?.invalid && sellForm.get('symbol')?.touched">
+                {{ getFieldError('symbol') }}
+              </div>
+              <div class="field-hint" *ngIf="ownedShares > 0">
+                <i class="fas fa-info-circle"></i> Vous possédez {{ ownedShares }} parts
+              </div>
+            </div>
+
+            <div class="form-row">
+              <!-- Shares Input -->
+              <div class="form-group">
+                <label for="shares">Nombre de parts</label>
+                <div class="input-wrapper">
+                  <i class="fas fa-hashtag input-icon"></i>
+                  <input type="number" id="shares" formControlName="shares" placeholder="0" min="1" [max]="ownedShares"
+                    class="form-input"
+                    [class.error]="sellForm.get('shares')?.invalid && sellForm.get('shares')?.touched">
+                </div>
+                <div class="field-feedback" *ngIf="sellForm.get('shares')?.invalid && sellForm.get('shares')?.touched">
+                  {{ getFieldError('shares') }}
+                </div>
+              </div>
+
+              <!-- Price Input -->
+              <div class="form-group">
+                <label for="pricePerShare">Prix par action (€)</label>
+                <div class="input-wrapper">
+                  <i class="fas fa-euro-sign input-icon"></i>
+                  <input type="number" id="pricePerShare" formControlName="pricePerShare" placeholder="0.00" step="0.01"
+                    class="form-input"
+                    [class.error]="sellForm.get('pricePerShare')?.invalid && sellForm.get('pricePerShare')?.touched">
+                </div>
+                <div class="field-feedback"
+                  *ngIf="sellForm.get('pricePerShare')?.invalid && sellForm.get('pricePerShare')?.touched">
+                  {{ getFieldError('pricePerShare') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Date Input -->
+            <div class="form-group">
+              <label for="date">Date d'exécution</label>
+              <div class="input-wrapper">
+                <i class="fas fa-calendar-alt input-icon"></i>
+                <input type="date" id="date" formControlName="date" class="form-input">
+              </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="order-summary" *ngIf="totalProceeds > 0">
+              <div class="summary-item">
+                <span>Produit total estimé</span>
+                <span class="total-price">
+                  {{ formatCurrency(totalProceeds) }}
+                </span>
+              </div>
+
+              <div class="summary-item">
+                <span>Plus/Moins-value estimée</span>
+                <div class="variation" [ngClass]="getChangeClass(potentialGainLoss)">
+                  <span class="amount">
+                    {{ potentialGainLoss > 0 ? '+' : '' }}{{ formatCurrency(potentialGainLoss) }}
+                  </span>
+                  <small>
+                    ({{ potentialGainLossPercent > 0 ? '+' : '' }}{{ formatPercentage(potentialGainLossPercent) }})
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-ghost" (click)="resetForm()">
+                Réinitialiser
+              </button>
+              <button type="submit" class="btn-warning-lg" [disabled]="!canSell || isSubmitting">
+                <i class="fas" [ngClass]="isSubmitting ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                {{ isSubmitting ? 'Traitement...' : 'Confirmer la vente' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Info -->
+    <div class="sidebar">
+      <!-- Market Data Card -->
+      <div class="card market-card" *ngIf="currentPrice > 0">
+        <div class="card-header">
+          <h4>Données de marché</h4>
+        </div>
+        <div class="card-body">
+          <div class="market-stat main">
+            <span class="label">Prix Actuel</span>
+            <span class="value">{{ formatCurrency(currentPrice) }}</span>
+          </div>
+          <div class="market-stat">
+            <span class="label">Variation (24h)</span>
+            <div class="variation" [ngClass]="getChangeClass(priceChange)">
+              <span class="amount">{{ priceChange > 0 ? '+' : '' }}{{ formatCurrency(priceChange) }}</span>
+              <span class="badge" [ngClass]="getChangeClass(priceChange)">
+                {{ priceChangePercent > 0 ? '+' : '' }}{{ formatPercentage(priceChangePercent) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Selection Placeholder -->
+      <div class="card placeholder-card" *ngIf="currentPrice <= 0">
+        <div class="icon-placeholder">
+          <i class="fas fa-search-dollar"></i>
+        </div>
+        <p>Sélectionnez une action dans votre portefeuille pour voir ses données.</p>
+      </div>
+
+      <!-- Tips Card -->
+      <div class="card tips-card">
+        <div class="card-header">
+          <h4><i class="fas fa-lightbulb text-warning"></i> Stratégie de Vente</h4>
+        </div>
+        <div class="card-body">
+          <ul class="tips-list">
+            <li>
+              <i class="fas fa-target"></i>
+              <span>Définissez des objectifs de gains réalistes avant de vendre.</span>
+            </li>
+            <li>
+              <i class="fas fa-chart-area"></i>
+              <span>Surveillez les tendances pour optimiser votre point de sortie.</span>
+            </li>
+            <li>
+              <i class="fas fa-balance-scale"></i>
+              <span>Rééquilibrez votre portefeuille régulièrement.</span>
+            </li>
+            <li>
+              <i class="fas fa-file-invoice-dollar"></i>
+              <span>N'oubliez pas de prendre en compte la fiscalité.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

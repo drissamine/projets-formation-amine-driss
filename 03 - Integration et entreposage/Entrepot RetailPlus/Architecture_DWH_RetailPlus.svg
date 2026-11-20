@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 950" width="2080" height="1900" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto">
+      <path d="M0,0 L6.5,3 L0,6 Z" fill="#5a5a5a"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1040" height="950" fill="#ffffff"/>
+
+  <!-- TITRE -->
+  <text x="620" y="34" text-anchor="middle" font-size="19" font-weight="700" fill="#1B2A4A">Architecture d'un Data Warehouse moderne — RetailPlus</text>
+
+  <!-- CAPTIONS DE COUCHE -->
+  <g font-size="12.5" font-weight="700">
+    <text x="28" y="120" fill="#6C8EBF">① Sources de données</text>
+    <text x="28" y="225" fill="#67953f">② ETL / ELT</text>
+    <text x="28" y="331" fill="#0E8088">③ Zone de Staging</text>
+    <text x="28" y="437" fill="#9673A6">④ ODS</text>
+    <text x="28" y="547" fill="#cc9000">⑤ Data Warehouse</text>
+    <text x="28" y="657" fill="#bda23f">⑥ Data Marts</text>
+    <text x="28" y="767" fill="#B85450">⑦ Cube OLAP</text>
+    <text x="28" y="882" fill="#B85450">⑧ Outil BI</text>
+  </g>
+
+  <!-- ARROWS (dessous des boîtes) -->
+  <g stroke="#5a5a5a" stroke-width="1.6" fill="none" marker-end="url(#arrow)">
+    <!-- Sources -> ETL -->
+    <line x1="310" y1="140" x2="600" y2="188"/>
+    <line x1="465" y1="140" x2="610" y2="188"/>
+    <line x1="620" y1="140" x2="620" y2="188"/>
+    <line x1="775" y1="140" x2="630" y2="188"/>
+    <line x1="930" y1="140" x2="640" y2="188"/>
+    <!-- pipeline central -->
+    <line x1="620" y1="250" x2="620" y2="298" stroke-width="2.2"/>
+    <line x1="620" y1="355" x2="620" y2="403" stroke-width="2.2"/>
+    <line x1="620" y1="460" x2="620" y2="508" stroke-width="2.2"/>
+    <!-- DWH -> Data Marts -->
+    <line x1="560" y1="575" x2="365" y2="623"/>
+    <line x1="600" y1="575" x2="535" y2="623"/>
+    <line x1="640" y1="575" x2="705" y2="623"/>
+    <line x1="680" y1="575" x2="875" y2="623"/>
+    <!-- Data Marts -> Cube -->
+    <line x1="365" y1="680" x2="585" y2="728"/>
+    <line x1="535" y1="680" x2="610" y2="728"/>
+    <line x1="705" y1="680" x2="630" y2="728"/>
+    <line x1="875" y1="680" x2="655" y2="728"/>
+    <!-- Cube -> BI -->
+    <line x1="620" y1="795" x2="620" y2="843" stroke-width="2.2"/>
+  </g>
+
+  <!-- 1. SOURCES -->
+  <g>
+    <rect x="240" y="90" width="140" height="50" rx="6" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <text x="310" y="111" text-anchor="middle" font-size="12.5" fill="#22364f">ERP Ventes</text>
+    <text x="310" y="127" text-anchor="middle" font-size="10.5" fill="#5a7090">(SAP)</text>
+    <rect x="395" y="90" width="140" height="50" rx="6" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <text x="465" y="111" text-anchor="middle" font-size="12.5" fill="#22364f">CRM Clients</text>
+    <text x="465" y="127" text-anchor="middle" font-size="10.5" fill="#5a7090">(Salesforce)</text>
+    <rect x="550" y="90" width="140" height="50" rx="6" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <text x="620" y="111" text-anchor="middle" font-size="12.5" fill="#22364f">Gestion stocks</text>
+    <text x="620" y="127" text-anchor="middle" font-size="10.5" fill="#5a7090">(WMS)</text>
+    <rect x="705" y="90" width="140" height="50" rx="6" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <text x="775" y="111" text-anchor="middle" font-size="12.5" fill="#22364f">Site e-commerce</text>
+    <text x="775" y="127" text-anchor="middle" font-size="10.5" fill="#5a7090">(Magento)</text>
+    <rect x="860" y="90" width="140" height="50" rx="6" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <text x="930" y="111" text-anchor="middle" font-size="12.5" fill="#22364f">Application mobile</text>
+    <text x="930" y="127" text-anchor="middle" font-size="10.5" fill="#5a7090">(API)</text>
+  </g>
+
+  <!-- 2. ETL / ELT -->
+  <rect x="320" y="190" width="600" height="60" rx="6" fill="#D5E8D4" stroke="#82B366" stroke-width="1.4"/>
+  <text x="620" y="212" text-anchor="middle" font-size="14" font-weight="700" fill="#2e5020">ETL / ELT</text>
+  <text x="620" y="229" text-anchor="middle" font-size="11.5" fill="#3c5a2e">Extraction · Transformation · Chargement</text>
+  <text x="620" y="244" text-anchor="middle" font-size="10.5" fill="#5a7048">Talend · SSIS · dbt</text>
+
+  <!-- 3. STAGING -->
+  <rect x="320" y="300" width="600" height="55" rx="6" fill="#B0E3E6" stroke="#0E8088" stroke-width="1.4"/>
+  <text x="620" y="324" text-anchor="middle" font-size="14" font-weight="700" fill="#0c5b5f">Zone de Staging</text>
+  <text x="620" y="342" text-anchor="middle" font-size="11" fill="#0f6064">Tables temporaires · validation · déduplication · contrôle qualité</text>
+
+  <!-- 4. ODS -->
+  <rect x="370" y="405" width="500" height="55" rx="6" fill="#E1D5E7" stroke="#9673A6" stroke-width="1.4"/>
+  <text x="620" y="429" text-anchor="middle" font-size="13.5" font-weight="700" fill="#5f4570">ODS — Operational Data Store</text>
+  <text x="620" y="447" text-anchor="middle" font-size="11" fill="#6b5179">Vue intégrée à jour (latence &lt; 24h) · reporting opérationnel</text>
+
+  <!-- 5. DATA WAREHOUSE -->
+  <rect x="370" y="510" width="500" height="65" rx="6" fill="#FFE6CC" stroke="#D79B00" stroke-width="1.6"/>
+  <text x="620" y="532" text-anchor="middle" font-size="14" font-weight="700" fill="#9a6f00">Data Warehouse (entrepôt central)</text>
+  <text x="620" y="549" text-anchor="middle" font-size="11" fill="#7d5e10">Intégré · historisé (5–10 ans) · non-volatile · orienté sujet (Inmon)</text>
+  <text x="620" y="565" text-anchor="middle" font-size="11" fill="#7d5e10">Schéma en étoile / flocon — source unique de vérité</text>
+
+  <!-- 6. DATA MARTS -->
+  <g>
+    <rect x="290" y="625" width="150" height="55" rx="6" fill="#FFF2CC" stroke="#D6B656" stroke-width="1.4"/>
+    <text x="365" y="649" text-anchor="middle" font-size="12.5" fill="#6e5d12">Data Mart</text>
+    <text x="365" y="666" text-anchor="middle" font-size="12.5" font-weight="700" fill="#5d4e0c">Ventes</text>
+    <rect x="460" y="625" width="150" height="55" rx="6" fill="#FFF2CC" stroke="#D6B656" stroke-width="1.4"/>
+    <text x="535" y="649" text-anchor="middle" font-size="12.5" fill="#6e5d12">Data Mart</text>
+    <text x="535" y="666" text-anchor="middle" font-size="12.5" font-weight="700" fill="#5d4e0c">Marketing</text>
+    <rect x="630" y="625" width="150" height="55" rx="6" fill="#FFF2CC" stroke="#D6B656" stroke-width="1.4"/>
+    <text x="705" y="649" text-anchor="middle" font-size="12.5" fill="#6e5d12">Data Mart</text>
+    <text x="705" y="666" text-anchor="middle" font-size="12.5" font-weight="700" fill="#5d4e0c">Logistique</text>
+    <rect x="800" y="625" width="150" height="55" rx="6" fill="#FFF2CC" stroke="#D6B656" stroke-width="1.4"/>
+    <text x="875" y="649" text-anchor="middle" font-size="12.5" fill="#6e5d12">Data Mart</text>
+    <text x="875" y="666" text-anchor="middle" font-size="12.5" font-weight="700" fill="#5d4e0c">Finance</text>
+  </g>
+
+  <!-- 7. CUBE OLAP -->
+  <rect x="445" y="730" width="350" height="65" rx="6" fill="#F8CECC" stroke="#B85450" stroke-width="1.6"/>
+  <text x="620" y="752" text-anchor="middle" font-size="14" font-weight="700" fill="#933532">Cube OLAP</text>
+  <text x="620" y="769" text-anchor="middle" font-size="10.5" fill="#8a3b39">Pré-agrégation multidim. (MOLAP / ROLAP / HOLAP)</text>
+  <text x="620" y="785" text-anchor="middle" font-size="10.5" fill="#8a3b39">Roll-up · Drill-down · Slice · Dice · Pivot</text>
+
+  <!-- 8. OUTIL BI -->
+  <rect x="445" y="845" width="350" height="65" rx="6" fill="#F8CECC" stroke="#B85450" stroke-width="1.6"/>
+  <text x="620" y="867" text-anchor="middle" font-size="14" font-weight="700" fill="#933532">Outil BI</text>
+  <text x="620" y="884" text-anchor="middle" font-size="10.5" fill="#8a3b39">Tableaux de bord · KPI · rapports interactifs</text>
+  <text x="620" y="900" text-anchor="middle" font-size="10.5" fill="#8a3b39">Power BI · Tableau · Qlik Sense</text>
+</svg>

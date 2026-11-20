@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 470" width="2080" height="940" font-family="'Segoe UI', Arial, sans-serif">
+  <rect x="0" y="0" width="1040" height="470" fill="#ffffff"/>
+  <text x="520" y="32" text-anchor="middle" font-size="19" font-weight="700" fill="#1B2A4A">Schéma en étoile (Star Schema) — RetailPlus</text>
+
+  <!-- liens dimension -> fait -->
+  <g stroke="#6C8EBF" stroke-width="1.6">
+    <line x1="250" y1="120" x2="500" y2="215"/>
+    <line x1="790" y1="120" x2="540" y2="215"/>
+    <line x1="160" y1="248" x2="440" y2="248"/>
+    <line x1="880" y1="248" x2="600" y2="248"/>
+    <line x1="250" y1="378" x2="500" y2="285"/>
+    <line x1="790" y1="378" x2="540" y2="285"/>
+  </g>
+
+  <!-- FACT au centre -->
+  <g>
+    <rect x="440" y="198" width="160" height="104" rx="4" fill="#FFE6CC" stroke="#D79B00" stroke-width="1.8"/>
+    <rect x="440" y="198" width="160" height="22" rx="4" fill="#D79B00"/>
+    <text x="520" y="213" text-anchor="middle" font-size="12.5" font-weight="700" fill="#ffffff">FactVente</text>
+    <text x="450" y="237" font-size="9.5" fill="#7d5e10">FK → Temps, Produit,</text>
+    <text x="450" y="250" font-size="9.5" fill="#7d5e10">Magasin, Client, Canal, Promo</text>
+    <line x1="448" y1="258" x2="592" y2="258" stroke="#e0c08a"/>
+    <text x="450" y="272" font-size="9.5" font-weight="700" fill="#9a6f00">CA, Bénéfice,</text>
+    <text x="450" y="285" font-size="9.5" font-weight="700" fill="#9a6f00">Quantité, Remise</text>
+  </g>
+
+  <!-- DIMENSIONS -->
+  <g font-size="9.5">
+    <!-- DimTemps -->
+    <rect x="170" y="60" width="160" height="62" rx="4" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <rect x="170" y="60" width="160" height="20" rx="4" fill="#6C8EBF"/>
+    <text x="250" y="74" text-anchor="middle" font-weight="700" fill="#fff">DimTemps</text>
+    <text x="180" y="95" fill="#22364f">DateKey (PK)</text>
+    <text x="180" y="108" fill="#22364f">Jour · Mois · Trimestre · Année</text>
+    <!-- DimClient -->
+    <rect x="710" y="60" width="160" height="62" rx="4" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <rect x="710" y="60" width="160" height="20" rx="4" fill="#6C8EBF"/>
+    <text x="790" y="74" text-anchor="middle" font-weight="700" fill="#fff">DimClient</text>
+    <text x="720" y="95" fill="#22364f">ClientKey (PK)</text>
+    <text x="720" y="108" fill="#22364f">Nom · Ville · Catégorie</text>
+    <!-- DimProduit -->
+    <rect x="55" y="217" width="160" height="62" rx="4" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <rect x="55" y="217" width="160" height="20" rx="4" fill="#6C8EBF"/>
+    <text x="135" y="231" text-anchor="middle" font-weight="700" fill="#fff">DimProduit</text>
+    <text x="65" y="252" fill="#22364f">ProduitKey (PK)</text>
+    <text x="65" y="265" fill="#22364f">Nom · Catégorie · Marque</text>
+    <!-- DimCanal -->
+    <rect x="825" y="217" width="160" height="62" rx="4" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <rect x="825" y="217" width="160" height="20" rx="4" fill="#6C8EBF"/>
+    <text x="905" y="231" text-anchor="middle" font-weight="700" fill="#fff">DimCanal</text>
+    <text x="835" y="252" fill="#22364f">CanalKey (PK)</text>
+    <text x="835" y="265" fill="#22364f">Type (Magasin/Web/App)</text>
+    <!-- DimMagasin -->
+    <rect x="170" y="374" width="160" height="62" rx="4" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <rect x="170" y="374" width="160" height="20" rx="4" fill="#6C8EBF"/>
+    <text x="250" y="388" text-anchor="middle" font-weight="700" fill="#fff">DimMagasin</text>
+    <text x="180" y="409" fill="#22364f">MagasinKey (PK)</text>
+    <text x="180" y="422" fill="#22364f">Ville · Région · Pays</text>
+    <!-- DimPromotion -->
+    <rect x="710" y="374" width="160" height="62" rx="4" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <rect x="710" y="374" width="160" height="20" rx="4" fill="#6C8EBF"/>
+    <text x="790" y="388" text-anchor="middle" font-weight="700" fill="#fff">DimPromotion</text>
+    <text x="720" y="409" fill="#22364f">PromoKey (PK)</text>
+    <text x="720" y="422" fill="#22364f">Type (Solde/Cashback/Bundle)</text>
+  </g>
+
+  <text x="520" y="456" text-anchor="middle" font-size="10.5" font-style="italic" fill="#777">Dimensions dénormalisées (1 table par dimension) — 1 seule jointure par dimension, requêtes rapides.</text>
+</svg>

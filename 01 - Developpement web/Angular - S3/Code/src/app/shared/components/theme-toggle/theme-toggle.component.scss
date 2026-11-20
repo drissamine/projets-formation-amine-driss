@@ -1,0 +1,120 @@
+/**
+ * Modern Theme Toggle Button
+ * SVG-based with smooth transitions and animations
+ */
+
+.theme-toggle-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-5);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  overflow: hidden;
+  white-space: nowrap;
+  user-select: none;
+
+  // Hover effects
+  &:hover {
+    background-color: var(--bg-surface-hover);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+  }
+
+  // Active/pressed state
+  &:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-xs);
+  }
+
+  // Focus styles for accessibility
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  // Icon styles
+  .theme-icon {
+    width: 18px;
+    height: 18px;
+    stroke: var(--text-secondary);
+    transition: all var(--transition-base);
+    opacity: 0;
+    transform: scale(0.8) rotate(-90deg);
+    position: absolute;
+    left: var(--spacing-3);
+
+    &.active {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+      position: relative;
+      left: 0;
+    }
+
+    &.sun-icon {
+      color: var(--warning-500);
+    }
+
+    &.moon-icon {
+      color: var(--info-400);
+    }
+  }
+
+  // Label text
+  .theme-label {
+    display: inline-block;
+    transition: opacity var(--transition-fast);
+  }
+
+  // Reduced motion support
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    .theme-icon {
+      transition: opacity var(--transition-fast);
+      transform: none !important;
+    }
+  }
+}
+
+// Responsive: Hide label on small screens
+@media (max-width: 640px) {
+  .theme-toggle-btn {
+    padding: var(--spacing-3);
+
+    .theme-label {
+      display: none;
+    }
+
+    .theme-icon {
+      left: 0;
+      position: relative;
+    }
+  }
+}
+
+// Dark mode specific adjustments
+[data-theme="dark"] {
+  .theme-toggle-btn {
+    &:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .theme-icon.sun-icon {
+      color: var(--warning-400);
+    }
+
+    .theme-icon.moon-icon {
+      color: var(--info-300);
+    }
+  }
+}

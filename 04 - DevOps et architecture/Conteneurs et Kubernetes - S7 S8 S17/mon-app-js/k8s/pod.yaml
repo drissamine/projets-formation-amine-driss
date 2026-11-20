@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mon-app-pod
+  namespace: tp-devops-calculatrice
+  labels:
+    app: mon-app-js
+spec:
+  containers:
+  - name: mon-app-js
+    image: mon-app-js:1.0
+    ports:
+    - containerPort: 3000

@@ -1,0 +1,100 @@
+SaleID,Date,Product,Category,UnitPrice,Quantity,City,Customer,Total
+1,2024-01-05,MacBook Pro,Électronique,2749.99,1,Paris,Dupont,2749.99
+3,2024-01-06,T-Shirt Coton,Vêtements,29.99,5,Marseille,Bernard,149.95
+4,2024-01-06,Table en Chêne,Maison,349.99,1,Toulouse,Petit,349.99
+5,2024-01-07,Café Bio,Alimentation,12.99,10,Paris,Robert,129.9
+7,2024-01-08,Python pour les Nuls,Livres,39.99,3,Marseille,Moreau,119.97
+8,2024-01-08,MacBook Pro,Électronique,2749.99,1,Bordeaux,Simon,2749.99
+9,2024-01-09,Jean Slim,Vêtements,79.99,2,Lille,Laurent,159.98
+10,2024-01-09,Canapé Angle,Maison,1299.99,1,Nice,Michel,1299.99
+11,2024-01-10,Thé Vert,Alimentation,8.99,15,Paris,Lefebvre,134.85
+12,2024-01-10,Tapis de Course,Sports,599.99,1,Nantes,Garcia,599.99
+13,2024-01-11,Data Science avec Python,Livres,49.99,2,Strasbourg,David,99.98
+14,2024-01-11,iPhone 15,Électronique,1429.99,1,Montpellier,Bertrand,1429.99
+15,2024-01-12,Robe d'Été,Vêtements,59.99,3,Toulouse,Roux,179.97
+16,2024-01-12,Lampe Design,Maison,89.99,4,Paris,Fournier,359.96
+18,2024-01-13,Haltères 10kg,Sports,49.99,2,Marseille,Bonnet,99.98
+19,2024-01-14,SQL Avancé,Livres,44.99,1,Bordeaux,Dupuis,44.99
+20,2024-01-14,Samsung Galaxy S24,Électronique,989.99,3,Lille,Lambert,2969.97
+21,2024-01-15,Veste en Cuir,Vêtements,199.99,1,Nice,Dupont,199.99
+22,2024-01-15,Chaise Bureau,Maison,249.99,2,Nantes,Martin,499.98
+23,2024-01-16,Biscuits Bio,Alimentation,4.99,12,Paris,Bernard,59.88
+24,2024-01-16,Ballon de Foot,Sports,29.99,3,Strasbourg,Petit,89.97
+25,2024-01-17,Big Data Analytics,Livres,54.99,1,Montpellier,Robert,54.99
+27,2024-01-18,Pull en Laine,Vêtements,69.99,4,Toulouse,Moreau,279.96
+28,2024-01-18,Lit King Size,Maison,899.99,1,Paris,Simon,899.99
+29,2024-01-19,Pâtes Italiennes,Alimentation,3.99,8,Marseille,Laurent,31.92
+30,2024-01-19,Raquette de Tennis,Sports,129.99,1,Bordeaux,Lefebvre,129.99
+31,2024-01-20,Apprentissage Automatique,Livres,59.99,2,Lille,Garcia,119.98
+32,2024-01-20,Casque Bluetooth,Électronique,164.99,3,Nice,David,494.97
+33,2024-01-21,Chemise Blanche,Vêtements,49.99,5,Nantes,Bertrand,249.95000000000002
+34,2024-01-21,Armoire Normande,Maison,599.99,1,Paris,Roux,599.99
+35,2024-01-22,Riz Basmati,Alimentation,7.99,6,Strasbourg,Fournier,47.94
+36,2024-01-22,Maillot de Foot,Sports,89.99,2,Montpellier,Girard,179.98
+38,2024-01-23,iPad Air,Électronique,824.99,1,Toulouse,Dupuis,824.99
+39,2024-01-24,Short de Sport,Vêtements,34.99,3,Paris,Lambert,104.97
+40,2024-01-24,Tapis Persan,Maison,349.99,2,Marseille,Dupont,699.98
+41,2024-01-25,Huile d'Olive,Alimentation,14.99,5,Bordeaux,Martin,74.95
+42,2024-01-25,Casque Vélo,Sports,39.99,2,Lille,Bernard,79.98
+43,2024-01-26,Réseaux Informatiques,Livres,49.99,1,Nice,Petit,49.99
+44,2024-01-26,"Écran 4K 27""",Électronique,549.99,2,Nantes,Robert,1099.98
+45,2024-01-27,Manteau d'Hiver,Vêtements,149.99,1,Paris,Richard,149.99
+46,2024-01-27,Rideaux Occultants,Maison,39.99,4,Strasbourg,Moreau,159.96
+47,2024-01-28,Miel Artisanal,Alimentation,11.99,3,Montpellier,Simon,35.97
+49,2024-01-29,CyberSécurité 101,Livres,59.99,2,Toulouse,Lefebvre,119.98
+50,2024-01-29,Clavier Mécanique,Électronique,219.99,1,Paris,Garcia,219.99
+51,2024-02-01,Basket Premium,Vêtements,119.99,2,Marseille,David,239.98
+52,2024-02-01,Oreiller Mémoire,Maison,69.99,3,Bordeaux,Bertrand,209.96999999999997
+53,2024-02-02,Confiture de Fraises,Alimentation,6.99,10,Lille,Roux,69.9
+54,2024-02-02,Sac de Sport,Sports,49.99,2,Nice,Fournier,99.98
+55,2024-02-03,Algorithmes Avancés,Livres,54.99,1,Nantes,Girard,54.99
+56,2024-02-03,Souris Sans Fil,Électronique,87.99,4,Paris,Bonnet,351.96
+57,2024-02-04,T-Shirt Coton,Vêtements,29.99,6,Strasbourg,Dupuis,179.94
+58,2024-02-04,Couverture Polaire,Maison,29.99,5,Montpellier,Lambert,149.95
+60,2024-02-05,Yoga Mat Premium,Sports,39.99,3,Toulouse,Martin,119.97
+61,2024-02-06,Design Patterns,Livres,44.99,2,Paris,Bernard,89.98
+62,2024-02-06,Chargeur USB-C,Électronique,32.99,10,Marseille,Petit,329.89
+63,2024-02-07,Robe d'Été,Vêtements,59.99,2,Bordeaux,Robert,119.98
+64,2024-02-07,Table Basse,Maison,199.99,1,Lille,Richard,199.99
+65,2024-02-08,Thé Vert,Alimentation,8.99,12,Nice,Moreau,107.88
+66,2024-02-08,Vélo de Course,Sports,899.99,1,Nantes,Simon,899.99
+67,2024-02-09,Python pour les Nuls,Livres,39.99,4,Paris,Laurent,159.96
+68,2024-02-09,MacBook Pro,Électronique,2749.99,1,Strasbourg,Lefebvre,2749.99
+69,2024-02-10,Jean Slim,Vêtements,79.99,3,Montpellier,Garcia,239.96999999999997
+71,2024-02-11,Café Bio,Alimentation,12.99,6,Toulouse,Bertrand,77.94
+72,2024-02-11,Haltères 10kg,Sports,49.99,4,Paris,Roux,199.96
+73,2024-02-12,Data Science avec Python,Livres,49.99,1,Marseille,Fournier,49.99
+74,2024-02-12,iPhone 15,Électronique,1429.99,1,Bordeaux,Girard,1429.99
+75,2024-02-13,Veste en Cuir,Vêtements,199.99,1,Lille,Bonnet,199.99
+76,2024-02-13,Lampe Design,Maison,89.99,2,Nice,Dupuis,179.98
+77,2024-02-14,Chocolat Noir,Alimentation,5.99,15,Nantes,Lambert,89.85000000000001
+78,2024-02-14,Ballon de Foot,Sports,29.99,5,Paris,Dupont,149.95
+79,2024-02-15,SQL Avancé,Livres,44.99,2,Strasbourg,Martin,89.98
+80,2024-02-15,Samsung Galaxy S24,Électronique,989.99,2,Montpellier,Bernard,1979.98
+82,2024-02-16,Chaise Bureau,Maison,249.99,2,Toulouse,Robert,499.98
+83,2024-02-17,Biscuits Bio,Alimentation,4.99,10,Paris,Richard,49.900000000000006
+84,2024-02-17,Tapis de Course,Sports,599.99,1,Marseille,Moreau,599.99
+85,2024-02-18,Big Data Analytics,Livres,54.99,3,Bordeaux,Simon,164.97
+86,2024-02-18,Casque Bluetooth,Électronique,164.99,2,Lille,Laurent,329.98
+87,2024-02-19,Chemise Blanche,Vêtements,49.99,4,Nice,Lefebvre,199.96
+88,2024-02-19,Armoire Normande,Maison,599.99,1,Nantes,Garcia,599.99
+89,2024-02-20,Riz Basmati,Alimentation,7.99,8,Paris,David,63.92
+90,2024-02-20,Maillot de Foot,Sports,89.99,3,Strasbourg,Bertrand,269.96999999999997
+91,2024-02-21,IA Moderne,Livres,64.99,2,Montpellier,Roux,129.98
+93,2024-02-22,Short de Sport,Vêtements,34.99,5,Toulouse,Girard,174.95000000000002
+94,2024-02-22,Tapis Persan,Maison,349.99,1,Paris,Bonnet,349.99
+95,2024-02-23,Huile d'Olive,Alimentation,14.99,8,Marseille,Dupuis,119.92
+96,2024-02-23,Casque Vélo,Sports,39.99,3,Bordeaux,Lambert,119.97
+97,2024-02-24,Réseaux Informatiques,Livres,49.99,2,Lille,Dupont,99.98
+98,2024-02-24,"Écran 4K 27""",Électronique,549.99,3,Nice,Martin,1649.97
+99,2024-02-25,Manteau d'Hiver,Vêtements,149.99,2,Nantes,Bernard,299.98
+100,2024-02-25,Rideaux Occultants,Maison,39.99,6,Paris,Petit,239.94
+101,2024-02-26,Miel Artisanal,Alimentation,11.99,4,Strasbourg,Robert,47.96
+102,2024-02-26,Gourde Isotherme,Sports,19.99,6,Montpellier,Richard,119.94
+104,2024-02-27,Chargeur USB-C,Électronique,32.99,8,Toulouse,Simon,263.91
+105,2024-02-28,Basket Premium,Vêtements,119.99,2,Paris,Laurent,239.98
+106,2024-03-01,Drone DJI,Électronique,999.99,1,Paris,Moreau,999.99
+107,2024-03-02,Montre Connectée,Électronique,349.99,2,Marseille,Dupont,699.98
+108,2024-03-03,Sac à Dos Randonnée,Sports,79.99,3,Bordeaux,Petit,239.96999999999997
+109,2024-03-04,Romans Policiers,Livres,24.99,5,Toulouse,Martin,124.94999999999999
+110,2024-03-05,Grille-Pain,Maison,49.99,2,Lille,Bernard,99.98

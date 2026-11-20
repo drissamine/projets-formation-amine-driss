@@ -1,0 +1,49 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Cube OLAP - RetailPlus" id="cube-retailplus">
+    <mxGraphModel dx="1084" dy="592" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="560" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;fontSize=18;fontStyle=1;fontColor=#1B2A4A;" value="Cube OLAP des ventes — RetailPlus" vertex="1">
+          <mxGeometry height="30" width="440" x="300" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="cube" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;fontStyle=1;fontSize=14;verticalAlign=middle;" value="Ventes" vertex="1">
+          <mxGeometry height="200" width="220" x="120" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="axp" parent="1" style="text;html=1;fontStyle=1;fontColor=#2F7FB8;" value="Produit ↗" vertex="1">
+          <mxGeometry height="20" width="90" x="350" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="axg" parent="1" style="text;html=1;fontStyle=1;fontColor=#0E7C86;align=right;" value="↖ Géographie" vertex="1">
+          <mxGeometry height="20" width="90" x="40" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="axt" parent="1" style="text;html=1;fontStyle=1;fontColor=#1B2A4A;align=center;" value="Temps ↓" vertex="1">
+          <mxGeometry height="20" width="90" x="185" y="315" as="geometry" />
+        </mxCell>
+        <mxCell id="dim" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8;fillColor=#F7F9FC;strokeColor=#DBE3EE;fontSize=11;" value="&lt;b style=&quot;font-size:13px;color:#0E7C86&quot;&gt;Dimensions &amp;amp; hiérarchies&lt;/b&gt;&lt;br&gt;&lt;br&gt;• &lt;b&gt;Géographie&lt;/b&gt; : Pays › Région › Ville&lt;br&gt;• &lt;b&gt;Temps&lt;/b&gt; : Année › Trimestre › Mois&lt;br&gt;• &lt;b&gt;Produit&lt;/b&gt; : Catégorie › Sous-catégorie › Produit&lt;br&gt;• &lt;b&gt;Canal&lt;/b&gt; : Magasin / E-commerce / App&lt;br&gt;• &lt;b&gt;Promotion&lt;/b&gt; : Solde / Cashback / Bundle" vertex="1">
+          <mxGeometry height="150" width="340" x="430" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="mes" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8;fillColor=#F7F9FC;strokeColor=#DBE3EE;fontSize=11;" value="&lt;b style=&quot;font-size:13px;color:#C77D1E&quot;&gt;Mesures&lt;/b&gt;&lt;br&gt;&lt;br&gt;• CA = SUM(Montant)&lt;br&gt;• Bénéfice = SUM(Benefice)&lt;br&gt;• Quantité = SUM(Quantite)&lt;br&gt;• Nb ventes = COUNT(*)&lt;br&gt;• Panier moyen = AVG(Montant)" vertex="1">
+          <mxGeometry height="150" width="280" x="790" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="optitle" parent="1" style="text;html=1;fontStyle=1;fontSize=13;fontColor=#B85450;" value="Les 5 opérations OLAP applicables sur ce cube" vertex="1">
+          <mxGeometry height="20" width="500" x="40" y="395" as="geometry" />
+        </mxCell>
+        <mxCell id="op1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#EAF2FA;strokeColor=#2F7FB8;fontSize=10;" value="&lt;b&gt;Roll-up&lt;/b&gt;&lt;br&gt;Agréger (monter la hiérarchie) :&lt;br&gt;&lt;b&gt;Mois → Année&lt;/b&gt;" vertex="1">
+          <mxGeometry height="90" width="195" x="33" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="op2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#EAF2FA;strokeColor=#2F7FB8;fontSize=10;" value="&lt;b&gt;Drill-down&lt;/b&gt;&lt;br&gt;Détailler (descendre la hiérarchie) :&lt;br&gt;&lt;b&gt;Région → Ville&lt;/b&gt;" vertex="1">
+          <mxGeometry height="90" width="195" x="240" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="op3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#EAF2FA;strokeColor=#2F7FB8;fontSize=10;" value="&lt;b&gt;Slice&lt;/b&gt;&lt;br&gt;Fixer 1 dimension :&lt;br&gt;&lt;b&gt;Année = 2026&lt;/b&gt; (tranche 2D)" vertex="1">
+          <mxGeometry height="90" width="195" x="447" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="op4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#EAF2FA;strokeColor=#2F7FB8;fontSize=10;" value="&lt;b&gt;Dice&lt;/b&gt;&lt;br&gt;Filtrer plusieurs dimensions :&lt;br&gt;&lt;b&gt;sous-cube&lt;/b&gt;" vertex="1">
+          <mxGeometry height="90" width="195" x="654" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="op5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#EAF2FA;strokeColor=#2F7FB8;fontSize=10;" value="&lt;b&gt;Pivot&lt;/b&gt;&lt;br&gt;Faire tourner les axes :&lt;br&gt;&lt;b&gt;lignes ⇄ colonnes&lt;/b&gt;" vertex="1">
+          <mxGeometry height="90" width="195" x="861" y="425" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

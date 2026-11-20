@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport de Sécurité Trivy - Mon App JS</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #60a5fa;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --info: #3b82f6;
+            --border-color: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-bottom: 4rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 0;
+            margin-bottom: 3rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .meta-info {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        /* Dashboard Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-title {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .text-critical { color: var(--danger); }
+        .text-high { color: var(--danger); }
+        .text-medium { color: var(--warning); }
+        .text-low { color: var(--info); }
+
+        /* Sections */
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .badge {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Executive Summary */
+        .summary-box {
+            background: linear-gradient(145deg, var(--bg-secondary), var(--bg-primary));
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+
+        .summary-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .question {
+            font-weight: 600;
+            color: var(--accent-secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .answer {
+            color: var(--text-secondary);
+        }
+
+        .action-list {
+            list-style: none;
+        }
+
+        .action-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .action-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            background-color: var(--bg-secondary);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        thead {
+            background-color: var(--bg-tertiary);
+        }
+
+        th {
+            padding: 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .vuln-high { border-left: 4px solid var(--danger); }
+        .vuln-medium { border-left: 4px solid var(--warning); }
+        .vuln-low { border-left: 4px solid var(--info); }
+
+        .pkg-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        td a {
+            color: var(--accent-secondary);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--accent-secondary);
+            transition: all 0.2s;
+        }
+        
+        td a:hover {
+            color: var(--accent-primary);
+            border-bottom-style: solid;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        
+        .pill.high { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .pill.medium { background-color: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .pill.low { background-color: rgba(59, 130, 246, 0.2); color: var(--info); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <div>
+                <h1>Rapport de Sécurité</h1>
+                <p style="color: var(--text-secondary);">Analyse de vulnérabilité Trivy</p>
+            </div>
+            <div class="meta-info">
+                <p><strong>Projet:</strong> mon-app-js</p>
+                <p><strong>Date:</strong> 26 Janvier 2026</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Critical & High</div>
+                <div class="stat-value text-high">4</div>
+                <div style="font-size: 0.8em; color: var(--text-secondary)">0 Critical, 4 High</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Medium</div>
+                <div class="stat-value text-medium">4</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Low</div>
+                <div class="stat-value text-low">3</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Total Vulnérabilités</div>
+                <div class="stat-value" style="color: var(--text-primary)">11</div>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Synthèse et Analyse</h2>
+            </div>
+            <div class="summary-box">
+                <div class="summary-item">
+                    <div class="question">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        1. Combien de vulnérabilités HIGH et CRITICAL sont détectées ?
+                    </div>
+                    <div class="answer">
+                        L'analyse a détecté <strong>4 vulnérabilités HIGH</strong> et <strong>0 vulnérabilité CRITICAL</strong>.
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="question">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        2. Proviennent-elles de l'image de base ou des dépendances applicatives ?
+                    </div>
+                    <div class="answer">
+                        Toutes les vulnérabilités de sévérité <strong>HIGH</strong> proviennent des <strong>dépendances applicatives</strong> (bibliothèques Node.js). L'image de base (Alpine) ne contient que des vulnérabilités de niveau Medium ou inférieur.
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="question">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                        3. Actions recommandées
+                    </div>
+                    <div class="answer">
+                        <ul class="action-list">
+                            <li><strong>Mise à jour prioritaire des dépendances NPM :</strong> Mettre à jour <code>cross-spawn</code> (vers 7.0.5), <code>glob</code> (vers 10.5.0) et <code>tar</code> (vers 7.5.4) pour corriger toutes les failles HIGH.</li>
+                            <li><strong>Mise à jour des paquets système :</strong> Ajouter <code>apk update && apk upgrade</code> dans le Dockerfile pour corriger les vulnérabilités Medium de Busybox et OpenSSL.</li>
+                            <li><strong>Nettoyage :</strong> Auditer le fichier <code>package.json</code> pour supprimer les dépendances inutilisées.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Node.js Findings -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Détails: Application (Node.js)</h2>
+                <span class="badge">6 Vulnérabilités</span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="5%"></th>
+                            <th>Package</th>
+                            <th>CVE ID</th>
+                            <th>Sévérité</th>
+                            <th>Version Installée</th>
+                            <th>Version Corrigée</th>
+                            <th>Titre</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- High -->
+                        <tr class="vuln-high">
+                            <td></td>
+                            <td><div class="pkg-name">cross-spawn</div></td>
+                            <td><a href="https://avd.aquasec.com/nvd/cve-2024-21538" target="_blank" rel="noopener noreferrer">CVE-2024-21538</a></td>
+                            <td><span class="pill high">HIGH</span></td>
+                            <td>7.0.3</td>
+                            <td>7.0.5</td>
+                            <td>Regular expression denial of service</td>
+                        </tr>
+                        <tr class="vuln-high">
+                            <td></td>
+                            <td><div class="pkg-name">glob</div></td>
+                            <td><a href="https://avd.aquasec.com/nvd/cve-2025-64756" target="_blank" rel="noopener noreferrer">CVE-2025-64756</a></td>
+                            <td><span class="pill high">HIGH</span></td>
+                            <td>10.4.2</td>
+                            <td>10.5.0</td>
+                            <td>Command Injection Vulnerability via Malicious Filenames</td>
+                        </tr>
+                        <tr class="vuln-high">
+                            <td></td>
+                            <td><div class="pkg-name">tar</div></td>
+                            <td><a href="https://avd.aquasec.com/nvd/cve-2026-23745" target="_blank" rel="noopener noreferrer">CVE-2026-23745</a></td>
+                            <td><span class="pill high">HIGH</span></td>
+                            <td>6.2.1</td>
+                            <td>7.5.3</td>
+                            <td>Arbitrary file overwrite and symlink poisoning</td>
+                        </tr>
+                        <tr class="vuln-high">
+                            <td></td>
+                            <td><div class="pkg-name">tar</div></td>
+                            <td><a href="https://avd.aquasec.com/nvd/cve-2026-23950" target="_blank" rel="noopener noreferrer">CVE-2026-23950</a></td>
+                            <td><span class="pill high">HIGH</span></td>
+                            <td>6.2.1</td>
+                            <td>7.5.4</td>
+                            <td>Arbitrary file overwrite via Unicode path collision</td>
+                        </tr>
+                        <!-- Low -->
+                        <tr class="vuln-low">
+                            <td></td>
+                            <td><div class="pkg-name">brace-expansion</div></td>
+                            <td><a href="https://avd.aquasec.com/nvd/cve-2025-5889" target="_blank" rel="noopener noreferrer">CVE-2025-5889</a></td>
+                            <td><span class="pill low">LOW</span></td>
+                            <td>2.0.1</td>
+                            <td>2.0.2</td>
+                            <td>ReDoS vulnerability</td>
+                        </tr>
+                        <tr class="vuln-low">
+                            <td></td>
+                            <td><div class="pkg-name">diff</div></td>
+                            <td><a href="https://avd.aquasec.com/nvd/cve-2026-24001" target="_blank" rel="noopener noreferrer">CVE-2026-24001</a></td>
+                            <td><span class="pill low">LOW</span></td>
+                            <td>5.2.0</td>
+                            <td>8.0.3</td>
+                            <td>Text differencing issue</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- OS Findings -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Détails: Système (Alpine 3.21.3)</h2>
+                <span class="badge">05 Vulnérabilités</span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="5%"></th>
+                            <th>Package</th>
+                            <th>CVE ID</th>
+                            <th>Sévérité</th>
+                            <th>Version Installée</th>
+                            <th>Version Corrigée</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="vuln-medium">
+                            <td></td>
+                            <td><div class="pkg-name">busybox / busybox-binsh</div></td>
+                            <td><a href="https://avd.aquasec.com/nvd/cve-2024-58251" target="_blank" rel="noopener noreferrer">CVE-2024-58251</a></td>
+                            <td><span class="pill medium">MEDIUM</span></td>
+                            <td>1.37.0-r12</td>
+                            <td>1.37.0-r14</td>
+                            <td>In netstat, local users can launch network attacks</td>
+                        </tr>
+                        <tr class="vuln-medium">
+                            <td></td>
+                            <td><div class="pkg-name">libcrypto3 / libssl3</div></td>
+                            <td><a href="https://avd.aquasec.com/nvd/cve-2025-9230" target="_blank" rel="noopener noreferrer">CVE-2025-9230</a></td>
+                            <td><span class="pill medium">MEDIUM</span></td>
+                            <td>3.3.3-r0</td>
+                            <td>3.3.5-r0</td>
+                            <td>Out-of-bounds read & write in RFC 3211 KEK Unwrap</td>
+                        </tr>
+                         <tr class="vuln-medium">
+                            <td></td>
+                            <td><div class="pkg-name">libcrypto3 / libssl3</div></td>
+                            <td><a href="https://avd.aquasec.com/nvd/cve-2025-9231" target="_blank" rel="noopener noreferrer">CVE-2025-9231</a></td>
+                            <td><span class="pill medium">MEDIUM</span></td>
+                            <td>3.3.3-r0</td>
+                            <td>3.3.5-r0</td>
+                            <td>Timing side-channel in SM2 algorithm</td>
+                        </tr>
+                        <tr class="vuln-medium">
+                            <td></td>
+                            <td><div class="pkg-name">ssl_client</div></td>
+                            <td><a href="https://avd.aquasec.com/nvd/cve-2024-58251" target="_blank" rel="noopener noreferrer">CVE-2024-58251</a></td>
+                            <td><span class="pill medium">MEDIUM</span></td>
+                            <td>1.37.0-r12</td>
+                            <td>1.37.0-r14</td>
+                            <td>Associated with Busybox vulnerability</td>
+                        </tr>
+                         <tr class="vuln-low">
+                            <td></td>
+                            <td><div class="pkg-name">libcrypto3 / libssl3</div></td>
+                            <td><a href="https://avd.aquasec.com/nvd/cve-2025-9232" target="_blank" rel="noopener noreferrer">CVE-2025-9232</a></td>
+                            <td><span class="pill low">LOW</span></td>
+                            <td>3.3.3-r0</td>
+                            <td>3.3.5-r0</td>
+                            <td>Out-of-bounds read in HTTP client no_proxy</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    <footer style="text-align: center; margin-top: 3rem; color: var(--text-secondary); font-size: 0.8rem;">
+        <p>&copy; 2026 - Rapport généré par <strong>DRISS Amine</strong></p>
+    </footer>
+    </div>
+</body>
+</html>

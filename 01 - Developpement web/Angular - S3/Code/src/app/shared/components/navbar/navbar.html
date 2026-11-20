@@ -1,0 +1,75 @@
+<header class="navbar">
+    <div class="navbar-container">
+        <!-- Brand Logo -->
+        <a routerLink="/" class="navbar-brand">
+            <div class="brand-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="brand-text">GESTIONNAIRE DE PORTEFEUILLE BOURSIER</span>
+        </a>
+
+        <!-- Main Navigation -->
+        <nav class="navbar-nav" *ngIf="currentUser$ | async">
+            <a routerLink="/portfolio" routerLinkActive="active" class="nav-link">
+                <i class="fas fa-columns"></i>
+                <span>Tableau de bord</span>
+            </a>
+            <a routerLink="/portfolio/buy" routerLinkActive="active" class="nav-link">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Acheter</span>
+            </a>
+            <a routerLink="/portfolio/sell" routerLinkActive="active" class="nav-link">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span>Vendre</span>
+            </a>
+            <a routerLink="/portfolio/history" routerLinkActive="active" class="nav-link">
+                <i class="fas fa-clock-rotate-left"></i>
+                <span>Historique</span>
+            </a>
+            <a routerLink="/portfolio/alerts" routerLinkActive="active" class="nav-link">
+                <i class="fas fa-bell"></i>
+                <span>Alertes</span>
+            </a>
+        </nav>
+
+        <!-- User Actions -->
+        <div class="navbar-actions">
+            <ng-container *ngIf="currentUser$ | async as user; else loginLink">
+                <div class="user-info">
+                    <div class="user-details">
+                        <span class="user-name">
+                            <i class="fas fa-user-circle"></i>
+                            {{user.name}}
+                        </span>
+                        <span class="user-email">{{user.email}}</span>
+                    </div>
+                    <div class="user-balance-group" title="Solde actuel sur Budget initial">
+                        <div class="user-balance">
+                            <i class="fas fa-wallet"></i>
+                            {{user.currentBudget | currency:'EUR':'symbol':'1.0-0'}}
+                        </div>
+                        <span class="user-initial-budget">
+                            / {{user.initialBudget | currency:'EUR':'symbol':'1.0-0'}}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <app-theme-toggle></app-theme-toggle>
+
+                <button (click)="logout()" class="btn-logout" title="Déconnexion">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </ng-container>
+
+            <ng-template #loginLink>
+                <a routerLink="/login" routerLinkActive="active" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Connexion
+                </a>
+            </ng-template>
+        </div>
+
+    </div>
+</header>

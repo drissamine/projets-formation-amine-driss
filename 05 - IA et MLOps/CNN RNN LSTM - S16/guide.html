@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guide d'Exécution sur Kaggle - CNN & Transfer Learning</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-color: #0f172a;
+        --card-bg: #1e293b;
+        --text-color: #f8fafc;
+        --accent-color: #3b82f6;
+        --accent-hover: #2563eb;
+        --secondary-text: #94a3b8;
+        --code-bg: #0f172a;
+        --border-color: #334155;
+        --success-color: #22c55e;
+        --warning-color: #eab308;
+        --danger-color: #ef4444;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #60a5fa, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      h2 {
+        color: var(--text-color);
+        margin-top: 2rem;
+        font-size: 1.5rem;
+        border-left: 4px solid var(--accent-color);
+        padding-left: 1rem;
+      }
+
+      .subtitle {
+        color: var(--secondary-text);
+        font-size: 1.1rem;
+      }
+
+      .card {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: transform 0.2s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      .step-number {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
+        color: white;
+        width: 32px;
+        height: 32px;
+        text-align: center;
+        line-height: 32px;
+        border-radius: 50%;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      code {
+        font-family: "Consolas", "Monaco", monospace;
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #60a5fa;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+
+      pre {
+        background-color: var(--code-bg);
+        padding: 1rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        border: 1px solid var(--border-color);
+      }
+
+      .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .alert-info {
+        background-color: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+      }
+
+      .alert-warning {
+        background-color: rgba(234, 179, 8, 0.1);
+        border: 1px solid rgba(234, 179, 8, 0.2);
+        color: #facc15;
+      }
+
+      .btn {
+        display: inline-block;
+        background-color: var(--accent-color);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: background-color 0.2s;
+        margin-top: 1rem;
+      }
+
+      .btn:hover {
+        background-color: var(--accent-hover);
+      }
+
+      ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+
+      li {
+        margin-bottom: 0.5rem;
+        position: relative;
+        padding-left: 1.5rem;
+      }
+
+      li::before {
+        content: "•";
+        color: var(--accent-color);
+        position: absolute;
+        left: 0;
+        font-weight: bold;
+      }
+
+      .screenshot-placeholder {
+        background-color: #0f172a;
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--secondary-text);
+        margin: 1rem 0;
+        font-size: 0.9rem;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+        color: var(--secondary-text);
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Guide d'utilisation Kaggle</h1>
+        <p class="subtitle">
+          TP Réseaux de Neurones Convolutifs (CNN) & Transfer Learning
+        </p>
+        <p
+          style="
+            margin-top: 1rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            color: #cbd5e1;
+          "
+        >
+          Ce guide vous accompagne étape par étape pour importer, configurer et
+          exécuter le notebook <code>TP_CNN.ipynb</code> sur la plateforme
+          Kaggle en utilisant l'accélération GPU gratuite.
+        </p>
+      </header>
+
+      <div class="card">
+        <h2><span class="step-number">1</span>Prérequis</h2>
+        <p>Avant de commencer, vous aurez besoin de :</p>
+        <ul>
+          <li>
+            Un compte sur
+            <a
+              href="https://www.kaggle.com/"
+              target="_blank"
+              style="color: var(--accent-color)"
+              >Kaggle.com</a
+            >
+            (Gratuit).
+          </li>
+          <li>
+            Le fichier <code>TP_CNN.ipynb</code> téléchargé sur votre
+            ordinateur.
+          </li>
+        </ul>
+        <div class="alert alert-info">
+          <strong>Note :</strong> Kaggle offre gratuitement environ 30 heures de
+          GPU T4 x2 par semaine, ce qui est idéal pour ce TP.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="step-number">2</span>Création et Importation</h2>
+        <ol style="margin-left: 1.5rem; color: var(--text-color)">
+          <li style="margin-bottom: 1rem">Connectez-vous à Kaggle.</li>
+          <li style="margin-bottom: 1rem">
+            Naviguez vers la section <strong>"Code"</strong> dans le menu de
+            gauche.
+          </li>
+          <li style="margin-bottom: 1rem">
+            Cliquez sur le bouton <strong>"New Notebook"</strong>.
+          </li>
+          <li style="margin-bottom: 1rem">
+            Une fois l'éditeur ouvert, allez dans le menu
+            <strong>File</strong> (en haut à gauche) >
+            <strong>Import Notebook</strong>.
+          </li>
+          <li style="margin-bottom: 1rem">
+            Sélectionnez le fichier <code>TP_CNN.ipynb</code> depuis votre
+            ordinateur.
+          </li>
+        </ol>
+        <p>
+          Le contenu du notebook va charger et remplacer le notebook vide par
+          défaut.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span class="step-number">3</span>Configuration Critique (GPU &
+          Internet)
+        </h2>
+        <p>
+          Pour que le code fonctionne correctement (surtout pour l'entraînement
+          des CNN et le téléchargement des datasets), vous devez configurer ces
+          deux options :
+        </p>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+          "
+        >
+          <div
+            style="
+              background: rgba(255, 255, 255, 0.05);
+              padding: 1rem;
+              border-radius: 8px;
+            "
+          >
+            <h3 style="margin-top: 0; color: #facc15">1. Activer le GPU</h3>
+            <p style="font-size: 0.9rem">
+              Essentiel pour la vitesse d'entraînement.
+            </p>
+            <ul style="font-size: 0.9rem">
+              <li>
+                Ouvrez le panneau de droite (cliquez sur la flèche si masqué).
+              </li>
+              <li>Cherchez la section <strong>Session options</strong>.</li>
+              <li>
+                Changez <strong>Accelerator</strong> de "None" vers
+                <strong>"GPU T4 x2"</strong>.
+              </li>
+            </ul>
+          </div>
+          <div
+            style="
+              background: rgba(255, 255, 255, 0.05);
+              padding: 1rem;
+              border-radius: 8px;
+            "
+          >
+            <h3 style="margin-top: 0; color: #22c55e">2. Activer Internet</h3>
+            <p style="font-size: 0.9rem">
+              Requis pour télécharger MNIST/CIFAR-10/MobileNetV2.
+            </p>
+            <ul style="font-size: 0.9rem">
+              <li>Toujours dans <strong>Session options</strong>.</li>
+              <li>Localisez l'option <strong>Internet</strong>.</li>
+              <li>Basculez le switch sur <strong>"On"</strong>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="alert alert-warning" style="margin-top: 1.5rem">
+          <strong>Important :</strong> Si vous n'activez pas Internet, les
+          commandes comme
+          <code>keras.datasets.cifar10.load_data()</code> échoueront avec une
+          erreur de connexion.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="step-number">4</span>Exécution du Notebook</h2>
+        <p>Une fois configuré, vous pouvez lancer l'exécution :</p>
+        <ul>
+          <li>
+            Cliquez sur <strong>"Run All"</strong> pour tout exécuter d'un coup.
+          </li>
+          <li>
+            Ou exécutez cellule par cellule avec <code>Shift + Enter</code>.
+          </li>
+        </ul>
+        <p>
+          Le notebook est structuré pour télécharger automatiquement les données
+          nécessaires :
+        </p>
+        <ul>
+          <li><strong>MNIST</strong> : ~11 MB</li>
+          <li><strong>CIFAR-10</strong> : ~170 MB</li>
+          <li><strong>MobileNetV2 (ImageNet weights)</strong> : ~16 MB</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2><span class="step-number">5</span>Sauvegarde et Export</h2>
+        <p>Après avoir terminé le TP ou pour sauvegarder votre progression :</p>
+        <ul>
+          <li>
+            Utilisez le bouton <strong>"Save Version"</strong> en haut à droite.
+          </li>
+          <li>
+            Choisissez <strong>"Quick Save"</strong> pour sauvegarder l'état
+            actuel.
+          </li>
+          <li>
+            Choisissez <strong>"Save & Run All"</strong> pour générer une
+            version propre exécutée de A à Z (utile pour le rendu final).
+          </li>
+          <li>
+            Pour récupérer le fichier <code>.ipynb</code> modifié : Menu
+            <strong>File</strong> > <strong>Download Notebook</strong>.
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Dépannage Rapide</h2>
+        <details>
+          <summary
+            style="
+              cursor: pointer;
+              color: var(--accent-color);
+              font-weight: 600;
+            "
+          >
+            Erreur "Out of Memory (OOM)"
+          </summary>
+          <p style="margin-top: 0.5rem; color: var(--secondary-text)">
+            Si vous rencontrez une erreur de mémoire GPU :
+          </p>
+          <ul style="margin-top: 0.5rem">
+            <li>Redémarrez le kernel (icône de flèche circulaire en haut).</li>
+            <li>
+              Réduisez la taille du batch (<code>batch_size=16</code> au lieu de
+              32).
+            </li>
+            <li>
+              Assurez-vous de ne pas avoir lancé plusieurs entraînements lourds
+              simultanément en mémoire.
+            </li>
+          </ul>
+        </details>
+        <details style="margin-top: 1rem">
+          <summary
+            style="
+              cursor: pointer;
+              color: var(--accent-color);
+              font-weight: 600;
+            "
+          >
+            Erreur de téléchargement "Connection refused"
+          </summary>
+          <p style="margin-top: 0.5rem; color: var(--secondary-text)">
+            Vérifiez que l'option <strong>Internet On</strong> est bien activée
+            dans le panneau de droite. C'est la cause n°1 des problèmes sur
+            Kaggle pour ce TP.
+          </p>
+        </details>
+      </div>
+
+      <footer>
+        <p>© 2026 Guide TP CNN - Généré par votre Assistant IA</p>
+      </footer>
+    </div>
+  </body>
+</html>

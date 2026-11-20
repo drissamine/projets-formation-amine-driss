@@ -1,0 +1,63 @@
+<div class="task-details-container" *ngIf="task">
+  <p-card class="task-details-card">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <h2>
+            <i class="pi pi-eye"></i>
+            Détails de la Tâche
+          </h2>
+          <div class="header-actions">
+            <p-button
+              label="Modifier"
+              icon="pi pi-pencil"
+              styleClass="p-button-primary"
+              (onClick)="editTask()">
+            </p-button>
+            <p-button
+              label="Retour"
+              icon="pi pi-arrow-left"
+              styleClass="p-button-secondary"
+              (onClick)="goBack()">
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="task-content">
+      <div class="task-info">
+        <h3>{{ taskSafe.title }}</h3>
+        <p class="task-description">{{ taskSafe.description }}</p>
+
+        <div class="task-meta">
+          <div class="meta-item">
+            <strong>Statut:</strong>
+            <p-tag
+              [value]="getStatusLabel(taskSafe.status)"
+              [severity]="getStatusSeverity(taskSafe.status)">
+            </p-tag>
+          </div>
+
+          <div class="meta-item">
+            <strong>Priorité:</strong>
+            <p-tag
+              [value]="getPriorityLabel(taskSafe.priority)"
+              [severity]="getPrioritySeverity(taskSafe.priority)">
+            </p-tag>
+          </div>
+
+          <div class="meta-item">
+            <strong>Créée le:</strong>
+            <span>{{ taskSafe.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+          </div>
+
+          <div class="meta-item">
+            <strong>Dernière modification:</strong>
+            <span>{{ taskSafe.updatedAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-card>
+</div>

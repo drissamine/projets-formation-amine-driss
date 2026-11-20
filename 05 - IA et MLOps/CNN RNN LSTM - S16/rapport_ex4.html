@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport : Exercice 4 (Bonus) - Visualisation des Caractéristiques</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #3b82f6;
+            --secondary-text: #94a3b8;
+            --border-color: #334155;
+            --success-color: #22c55e;
+            --highlight-bg: rgba(59, 130, 246, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            color: var(--text-color);
+            margin-top: 0;
+            font-size: 1.5rem;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: var(--secondary-text);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        pre {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+            color: #e2e8f0;
+        }
+
+        code {
+            font-family: 'Consolas', monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            color: #93c5fd;
+            font-weight: 600;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: block;
+            margin: 1rem auto;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+<h1>Rapport : Exercice 4 (Bonus) - Visualisation des Caractéristiques</h1>
+<p>---</p>
+</header>
+<div class="card">
+<h2>1. Contexte</h2>
+<p>Comprendre ce qu'un réseau de neurones "voit" est crucial pour interpréter ses décisions. Dans cet exercice bonus, nous visualisons :</p>
+<p>1. <strong>Les filtres de convolution</strong> : Ce que chaque filtre cherche dans l'image (bords, couleurs, textures).</p>
+<p>2. <strong>Les feature maps</strong> : La réponse du réseau à une image donnée (quelles zones activent quels filtres).</p>
+<p>---</p>
+</div>
+<div class="card">
+<h2>2. Visualiser les filtres de convolution</h2>
+<p>Les filtres de la première couche convolutionnelle sont souvent interprétables visuellement (détecteurs de bords, de couleurs).</p>
+<pre><code>def visualize_conv_filters(model, layer_index=0, figsize=(12, 8)):
+    """
+    Visualiser les filtres d'une couche de convolution
+    """
+    layer = model.layers[layer_index]
+    filters = layer.get_weights()[0]  # shape: (height, width, in_channels, out_channels)
+
+    # Normaliser
+    min_val = filters.min()
+    max_val = filters.max()
+    filters = (filters - min_val) / (max_val - min_val + 1e-8)
+
+    # Afficher
+    num_filters = min(32, filters.shape[3])
+    cols = 8
+    rows = (num_filters + cols - 1) // cols
+
+    fig, axes = plt.subplots(rows, cols, figsize=figsize)
+    axes = axes.flatten() if num_filters > 1 else [axes]
+
+    for i in range(num_filters):
+        ax = axes[i]
+        if filters.shape[2] == 3:  # RGB
+            ax.imshow(filters[:, :, :, i])
+        else:  # Single channel
+            ax.imshow(filters[:, :, 0, i], cmap='gray')
+        ax.axis('off')
+        ax.set_title(f'Filter {i}')
+
+    # Masquer les axes inutilisés
+    for j in range(num_filters, len(axes)):
+        axes[j].axis('off')
+
+    plt.suptitle(f'Filters from layer: {layer.name} (shape: {filters.shape})')
+    plt.tight_layout()
+    plt.show()
+
+# Visualiser les filtres du premier modèle CIFAR-10
+if 'model_ex2_simple' in locals():
+    for i, layer in enumerate(model_ex2_simple.layers):
+        if isinstance(layer, keras.layers.Conv2D):
+            visualize_conv_filters(model_ex2_simple, layer_index=i)
+            break</code></pre>
+<p><em>(Insérer ici l'image des filtres générés)</em></p>
+<p>---</p>
+</div>
+<div class="card">
+<h2>3. Visualiser les feature maps</h2>
+<p>Les feature maps montrent comment une image spécifique active les différents filtres.</p>
+<p>> <strong>Correction :</strong> La fonction utilise <code>model.inputs</code> (pluriel) au lieu de <code>model.input</code> pour être compatible avec les versions récentes de Keras où l'attribut <code>.input</code> peut être absent sur les modèles Séquentiels non construits explicitement.</p>
+<pre><code>def visualize_feature_maps(model, image, layer_index=0, figsize=(12, 8)):
+    """
+    Visualiser les feature maps générées par une couche
+    """
+    # Préparer l'image
+    image_input = tf.expand_dims(image, 0)
+
+    # Créer un modèle partiel
+    # Utilisation de model.inputs (liste) pour robustesse Keras 3
+    intermediate_model = models.Model(
+        inputs=model.inputs,
+        outputs=model.layers[layer_index].output
+    )
+
+    # Obtenir les feature maps
+    feature_maps = intermediate_model.predict(image_input, verbose=0)
+    feature_maps = feature_maps[0]  # Retirer la dimension batch
+
+    # Afficher
+    num_maps = min(32, feature_maps.shape[2])
+    cols = 8
+    rows = (num_maps + cols - 1) // cols
+
+    fig, axes = plt.subplots(rows, cols, figsize=figsize)
+    axes = axes.flatten()
+
+    for i in range(num_maps):
+        ax = axes[i]
+        ax.imshow(feature_maps[:, :, i], cmap='viridis')
+        ax.axis('off')
+        ax.set_title(f'Map {i}')
+
+    # Masquer les axes inutilisés
+    for j in range(num_maps, len(axes)):
+        axes[j].axis('off')
+
+    plt.suptitle(f'Feature Maps from {model.layers[layer_index].name}')
+    plt.tight_layout()
+    plt.show()
+
+# Visualiser les feature maps d'une image de test
+if 'model_ex2_simple' in locals() and 'x_test_cifar' in locals():
+    test_image = x_test_cifar[0]
+    # Trouver une couche Conv plus profonde
+    conv_indices = [i for i, l in enumerate(model_ex2_simple.layers) if isinstance(l, keras.layers.Conv2D)]
+    if len(conv_indices) > 1:
+        visualize_feature_maps(model_ex2_simple, test_image, layer_index=conv_indices[1])</code></pre>
+<p><em>(Insérer ici l'image des feature maps générées)</em></p>
+<p>---</p>
+</div>
+<div class="card">
+<h2>4. Analyser les prédictions incorrectes</h2>
+<p>Visualiser les erreurs du modèle permet de comprendre ses faiblesses (quelles classes sont confondues et pourquoi).</p>
+<pre><code># Afficher les images mal classées
+if 'model_ex2_simple' in locals():
+    y_pred = model_ex2_simple.predict(x_test_cifar).argmax(axis=1)
+    incorrect_mask = y_pred != y_test_cifar
+    incorrect_indices = np.where(incorrect_mask)[0]
+
+    # Afficher les 12 premières erreurs
+    fig, axes = plt.subplots(3, 4, figsize=(12, 9))
+    for idx, ax in enumerate(axes.flat):
+        if idx < len(incorrect_indices):
+            img_idx = incorrect_indices[idx]
+            ax.imshow(x_test_cifar[img_idx])
+            true_class = cifar_classes[y_test_cifar[img_idx]]
+            pred_class = cifar_classes[y_pred[img_idx]]
+            ax.set_title(f'True: {true_class}\nPred: {pred_class}', color='red')
+            ax.axis('off')
+        else:
+            ax.axis('off')
+
+    plt.suptitle(f'Incorrect predictions (showing {min(12, len(incorrect_indices))} of {len(incorrect_indices)})')
+    plt.tight_layout()
+    plt.show()</code></pre>
+<p><em>(Insérer ici l'image des prédictions incorrectes)</em></p>
+<p>---</p>
+<p><strong>Fait par DRISS Amine le 16/02/2026</strong></p>
+</div>
+
+</div>
+
+</body>
+</html>

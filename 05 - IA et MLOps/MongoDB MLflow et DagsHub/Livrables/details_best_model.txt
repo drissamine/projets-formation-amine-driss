@@ -1,0 +1,8 @@
+Détails du Meilleur Modèle :
+---------------------------
+Nom du modèle : XGBClassifier
+Métrique F1 : 1.0
+Run ID : ff991eacdd48475984501d9c08990838
+
+Synthèse Finale (Justification) :
+Le choix final s'est porté sur l'XGBClassifier. Bien que la Régression Logistique et la Forêt Aléatoire aient également atteint un score F1 de 1.0 sur ce jeu de données simplifié, XGBoost a été sélectionné pour sa robustesse supérieure sur des jeux de données plus larges et sa capacité à généraliser efficacement grâce au gradient boosting. L'intégration réussie avec MLflow et DagsHub confirme que ce modèle est prêt pour un déploiement stable, avec un environnement et des dépendances parfaitement tracés.

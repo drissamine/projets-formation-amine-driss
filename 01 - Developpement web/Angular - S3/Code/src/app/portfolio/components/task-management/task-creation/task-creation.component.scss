@@ -1,0 +1,90 @@
+.task-creation-container {
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.task-creation-card {
+  ::ng-deep .p-card-header {
+    background: var(--bg-surface-hover);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: var(--spacing-6);
+  }
+
+  ::ng-deep .p-card-body {
+    padding: var(--spacing-8);
+  }
+}
+
+.card-header {
+  h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+
+    i {
+      color: var(--text-primary);
+    }
+  }
+}
+
+.form-field {
+  margin-bottom: var(--spacing-6);
+
+  label {
+    display: block;
+    margin-bottom: var(--spacing-2);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: var(--spacing-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-subtle);
+    }
+
+    &.ng-invalid {
+      border-color: var(--color-danger);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--spacing-4);
+  justify-content: flex-end;
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .task-creation-container {
+    padding: 0.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

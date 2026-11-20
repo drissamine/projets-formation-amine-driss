@@ -1,0 +1,105 @@
+// ============================================================================
+// MIXINS - Stock Portfolio Manager
+// ============================================================================
+
+// Mixin pour les médias queries
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == mobile {
+    @media (max-width: 768px) {
+      @content;
+    }
+  }
+
+  @if $breakpoint == tablet {
+    @media (min-width: 769px) and (max-width: 1024px) {
+      @content;
+    }
+  }
+
+  @if $breakpoint == desktop {
+    @media (min-width: 1025px) {
+      @content;
+    }
+  }
+}
+
+// Mixin pour les transitions
+@mixin transition($properties: all, $duration: 200ms, $timing: ease) {
+  transition: $properties $duration $timing;
+}
+
+// Mixin pour les ombres
+@mixin box-shadow($shadow: $shadow-md) {
+  box-shadow: $shadow;
+}
+
+// Mixin pour les flexbox
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Mixin pour les boutons
+@mixin button-variant($bg-color, $text-color: white) {
+  background-color: $bg-color;
+  color: $text-color;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// Mixin pour les cards
+@mixin card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: $shadow-sm;
+  padding: 1.5rem;
+  transition: all 200ms ease;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+}
+
+// Mixin pour le texte responsive
+@mixin responsive-text($size-mobile, $size-tablet: null, $size-desktop: null) {
+  font-size: $size-mobile;
+
+  @if $size-tablet != null {
+    @include respond-to(tablet) {
+      font-size: $size-tablet;
+    }
+  }
+
+  @if $size-desktop != null {
+    @include respond-to(desktop) {
+      font-size: $size-desktop;
+    }
+  }
+}

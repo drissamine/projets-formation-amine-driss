@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopFlow - Architectural Deep Dive & DDD Modeling</title>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #10b981;
+            --border: #e2e8f0;
+            --bg-soft: #f8fafc;
+        }
+
+        @media print {
+            @page { size: A4; margin: 25mm 20mm; }
+            body { background: white !important; font-size: 11pt; }
+            .no-print { display: none; }
+            .page-break { page-break-before: always; }
+            .section { break-inside: avoid-page; }
+            h2 { break-before: page; margin-top: 2rem !important; }
+            -webkit-print-color-adjust: exact !important;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Libre Baskerville', serif; color: #334155; line-height: 1.8; background: #fff; }
+        h1, h2, h3, h4, .toc, .header-meta { font-family: 'Montserrat', sans-serif; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 0 40px; }
+        
+        /* Cover Page */
+        .cover { 
+            height: 95vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center;
+            border-bottom: 8px solid var(--primary);
+        }
+        .cover .institution { font-weight: 300; letter-spacing: 4px; color: var(--text-muted); margin-bottom: 2rem; text-transform: uppercase; }
+        .cover h1 { font-size: 3.5rem; font-weight: 800; color: var(--primary); margin-bottom: 1rem; line-height: 1.1; }
+        .cover .subtitle { font-size: 1.4rem; font-weight: 300; font-style: italic; color: #64748b; margin-bottom: 4rem; max-width: 600px; }
+        .cover .meta { width: 100%; display: flex; justify-content: space-around; padding-top: 3rem; border-top: 1px solid var(--border); }
+        .meta-item span { display: block; font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; font-weight: 600; }
+
+        /* General Typography */
+        h2 { font-size: 2rem; color: var(--primary); margin: 4rem 0 2rem; font-weight: 800; text-transform: uppercase; letter-spacing: -1px; }
+        h3 { font-size: 1.5rem; color: #1e293b; margin: 2.5rem 0 1rem; font-weight: 700; border-left: 4px solid var(--accent); padding-left: 1rem; }
+        p { margin-bottom: 1.5rem; text-align: justify; }
+
+        /* Table of Contents */
+        .toc { background: var(--bg-soft); padding: 3rem; border-radius: 4px; margin: 4rem 0; border: 1px solid var(--border); }
+        .toc h2 { font-size: 1.2rem; margin: 0 0 1.5rem 0; border: none; }
+        .toc ul { list-style: none; }
+        .toc li { margin-bottom: 0.8rem; display: flex; align-items: baseline; }
+        .toc li::after { content: ""; flex: 1; border-bottom: 1px dotted #cbd5e1; margin: 0 10px; }
+        .toc a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+        /* Content Blocks */
+        .abstract { font-style: italic; font-size: 1.1rem; color: #475569; border: 1px solid var(--border); padding: 2rem; margin: 3rem 0; background: #fff; }
+        .diagram-box { background: #fff; border: 1px solid var(--border); padding: 2rem; margin: 2.5rem 0; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+        .mermaid { transform: scale(1.05); transform-origin: top center; }
+
+        .callout { background: #f0fdf4; border-left: 5px solid var(--accent); padding: 1.5rem; margin: 2rem 0; font-size: 0.95rem; }
+        .callout strong { color: #065f46; }
+
+        table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; }
+        th, td { padding: 16px; border: 1px solid var(--border); text-align: left; }
+        th { background: var(--primary); color: white; font-weight: 600; }
+        tr:nth-child(even) { background: var(--bg-soft); }
+
+        .glossary-dt { font-weight: 700; color: var(--primary); font-size: 1.1rem; margin-top: 1.5rem; }
+        .glossary-dd { margin-left: 1.5rem; color: #475569; margin-bottom: 1rem; }
+
+        footer { text-align: center; margin-top: 6rem; padding: 2rem 0; border-top: 1px solid var(--border); font-size: 0.8rem; color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Cover Page -->
+        <div class="cover">
+            <div class="institution">Master Expert - Ingénierie Logiciel & Data</div>
+            <h1>Architecture & <br>Modélisation DDD <br>ShopFlow</h1>
+            <div class="subtitle">Conception d'un écosystème e-commerce résilient via les patterns de Bounded Contexts et Strategic Design.</div>
+            <div class="meta">
+                <div class="meta-item"><span>Candidat</span><strong>Driss Amine</strong></div>
+                <div class="meta-item"><span>Superviseur</span><strong>Mme. Lydia BOUCHLAGHEM</strong></div>
+                <div class="meta-item"><span>Date</span><strong>Avril 2026</strong></div>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- Abstract -->
+        <div class="abstract">
+            <strong>Résumé :</strong> Ce document expose la démarche de modélisation stratégique et tactique de la plateforme ShopFlow. 
+            À travers l'application rigoureuse des principes du Domain-Driven Design, nous décomposons la complexité d'un monolithe 
+            en contextes délimités, garantissant une cohérence transactionnelle forte et une isolation physique indispensable 
+            à l'évolution vers une topologie de microservices.
+        </div>
+
+        <!-- TOC -->
+        <div class="toc">
+            <h2>Table des Matières</h2>
+            <ul>
+                <li><a href="#strategic">I. Analyse Stratégique & Event Storming</a></li>
+                <li><a href="#contexts">II. Bounded Context Mapping</a></li>
+                <li><a href="#actors">III. Commandes, Acteurs & Flux de Domaine</a></li>
+                <li><a href="#tactical">IV. Modélisation Tactique & Invariants</a></li>
+                <li><a href="#uml">V. Spécifications Structurales (UML)</a></li>
+                <li><a href="#dynamic">VI. Orchestration Dynamique (Séquence)</a></li>
+                <li><a href="#glossary">VII. Glossaire & Ubiquitous Language</a></li>
+            </ul>
+        </div>
+
+        <section id="strategic" class="section">
+            <h2>I. Analyse Stratégique & Event Storming</h2>
+            <p>
+                L'Event Storming est la pierre angulaire de notre démarche. En identifiant les événements domaine comme 
+                <em>OrderPlaced</em> ou <em>StockReserved</em>, nous capturons les changements d'état immuables qui dictent 
+                le comportement du système.
+            </p>
+            <div class="callout">
+                <strong>Principe de Conception :</strong> Un événement domaine est un fait passé incontestable. 
+                Toute réaction à cet événement doit être traitée soit de manière synchrone (cohérence immédiate), 
+                soit via une cohérence éventuelle (Event-Driven).
+            </div>
+            
+            <h3>La Chronologie du Domaine</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Context</th>
+                        <th>Event</th>
+                        <th>Business Trigger</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Identity</td>
+                        <td>UserRegistered</td>
+                        <td>Création d'un accès sécurisé</td>
+                    </tr>
+                    <tr>
+                        <td>Catalog</td>
+                        <td>InventoryDecremented</td>
+                        <td>Réduction suite à une réservation</td>
+                    </tr>
+                    <tr>
+                        <td>Ordering</td>
+                        <td>OrderValidated</td>
+                        <td>Vérification du paiement et du stock</td>
+                    </tr>
+                    <tr>
+                        <td>Payment</td>
+                        <td>TransactionAuthorized</td>
+                        <td>Validation par le processeur externe</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <div class="page-break"></div>
+
+        <section id="contexts" class="section">
+            <h2>II. Bounded Context Mapping</h2>
+            <p>
+                Pour ShopFlow, le découpage suit les frontières de compétences métier. La <em>Context Map</em> ci-dessous 
+                illustre non seulement les dépendances, mais aussi la nature du couplage (ACL, Customer/Supplier).
+            </p>
+            <div class="diagram-box">
+                <div class="mermaid">
+                    graph TB
+                        subgraph "Context Map ShopFlow"
+                            Identity[Identity Context]
+                            Catalog[Catalog Context]
+                            Ordering[Ordering Context]
+                            Payment[Payment Context]
+                            Notify[Notification Context]
+
+                            Ordering -- "Shared Kernel (User Profile)" --> Identity
+                            Ordering -- "Customer/Supplier (Upstream)" --> Catalog
+                            Ordering -- "Anti-Corruption Layer (External API)" --> Payment
+                            Ordering -- "Published Language" --> Notify
+                        end
+                        
+                        style Ordering stroke-width:4px,stroke:#10b981
+                        style Payment stroke-dasharray: 5 5
+                </div>
+            </div>
+            <p>
+                <strong>Justification :</strong> L'<em>Ordering Context</em> est le "Cerveau" de l'application. 
+                Il consomme le catalogue mais se protège de l'instabilité du système de paiement par une couche 
+                d'Anti-Corruption (ACL) garantissant que son modèle interne ne dépend pas du format JSON de Stripe ou PayPal.
+            </p>
+        </section>
+
+        <section id="actors" class="section">
+            <h2>III. Commandes, Acteurs & Flux de Domaine</h2>
+            <p>
+                Avant de modéliser les objets techniques, nous définissons qui agit sur le système et quelles intentions 
+                (Commandes) déclenchent les changements d'état (Événements).
+            </p>
+
+            <h3>A. Les Acteurs du Système</h3>
+            <ul>
+                <li><strong>Client (Customer) :</strong> Déclenche les commandes de produits et les paiements.</li>
+                <li><strong>Administrateur :</strong> Gère le catalogue, les stocks et résout les litiges.</li>
+                <li><strong>Système (Clock/Policy) :</strong> Déclenche des actions automatiques (ex: annulation si non-paiement après 15 min).</li>
+            </ul>
+
+            <h3>B. Cycle Commande ↔ Événement</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Commande (Input)</th>
+                        <th>Acteur</th>
+                        <th>Conséquence (Événement)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><em>RegisterUser</em></td>
+                        <td>Client</td>
+                        <td>UserRegistered</td>
+                    </tr>
+                    <tr>
+                        <td><em>PlaceOrder</em></td>
+                        <td>Client</td>
+                        <td>OrderPlaced</td>
+                    </tr>
+                    <tr>
+                        <td><em>ConfirmPayment</em></td>
+                        <td>Banque / Système</td>
+                        <td>PaymentSuccess</td>
+                    </tr>
+                    <tr>
+                        <td><em>RestockProduct</em></td>
+                        <td>Admin</td>
+                        <td>StockUpdated</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="tactical" class="section">
+            <h2>IV. Modélisation Tactique & Invariants</h2>
+            <h3>A. Définition des Agrégats (Aggregate Roots)</h3>
+            <p>
+                L'agrégat définit une frontière de cohérence transactionnelle. Toute modification au sein de l'agrégat 
+                doit laisser le système dans un état valide selon les règles métier (Invariants).
+            </p>
+            <ul>
+                <li><strong>Aggregate Root : Order</strong><br>
+                    <em>Attributs :</em> ID, CustomerID, TotalAmount, Status, CreationDate.<br>
+                    <em>Invariants :</em> Le montant total doit toujours être positif. On ne peut pas confirmer une commande sans items.
+                </li>
+                <li><strong>Aggregate Root : Product</strong><br>
+                    <em>Attributs :</em> SKU, BasePrice, CurrentStock, DisplayStatus.<br>
+                    <em>Invariants :</em> Le CurrentStock ne peut pas être inférieur à zéro.
+                </li>
+            </ul>
+
+            <h3>B. Value Objects (Immuabilité)</h3>
+            <p>
+                Contrairement aux entités, les Value Objects sont définis par leurs valeurs. Nous les utilisons pour encapsuler la logique métier complexe.
+                <strong>Money</strong> gère les arrondis et les devises, tandis que <strong>OrderLine</strong> fige le prix du produit à l'instant T.
+            </p>
+        </section>
+
+        <div class="page-break"></div>
+
+        <section id="uml" class="section">
+            <h2>V. Spécifications Structurales (UML)</h2>
+            <p>Visualisation de la structure des objets de domaine pour les contextes Coeur (Ordering & Catalog).</p>
+            <div class="diagram-box">
+                <div class="mermaid">
+                    classDiagram
+                        class Order {
+                            +UUID orderId
+                            +UUID customerId
+                            +Money totalAmount
+                            +OrderStatus status
+                            +addItem(Product, qty)
+                            +cancel(reason)
+                        }
+                        class OrderLine {
+                            +UUID productId
+                            +int quantity
+                            +Money unitPrice
+                            +calculateSubtotal() Money
+                        }
+                        class Money {
+                            +Decimal amount
+                            +String currency
+                            +add(Money)
+                        }
+                        Order "1" *-- "many" OrderLine : Aggregates
+                        OrderLine --> Money : Defines
+                        Order --> Money : StoresValue
+                        
+                        class Product {
+                            +SKU barcode
+                            +String name
+                            +Money price
+                            +Inventory stock
+                        }
+                        OrderLine ..> Product : References
+                </div>
+            </div>
+        </section>
+
+        <section id="dynamic" class="section">
+            <h2>VI. Orchestration Dynamique (Séquence)</h2>
+            <p>Le scénario "Heureux" (Happy Path) illustrant la communication orchestrée par la Gateway.</p>
+            <div class="diagram-box">
+                <div class="mermaid">
+                    sequenceDiagram
+                        autonumber
+                        participant UI as Client Web
+                        participant G as API Gateway (Nginx/Node)
+                        participant O as Ordering Context
+                        participant P as Payment Context (ACL)
+                        
+                        UI->>G: POST /orders (items, token)
+                        G->>G: Validate JWT
+                        G->>O: CreateOrder(data)
+                        O->>O: Validate Business Rules
+                        O->>P: ProcessPayment(Money)
+                        alt Payment Accepted
+                            P-->>O: PaymentConfirmed(TxId)
+                            O->>O: UpdateStatus(CONFIRMED)
+                            O-->>G: HTTP 201 (OrderResource)
+                        else Payment Refused
+                            P-->>O: PaymentDenied(Error)
+                            O->>O: UpdateStatus(FAILED)
+                            O-->>G: HTTP 402 (PaymentRequired)
+                        end
+                        G-->>UI: Proxy final response
+                </div>
+            </div>
+        </section>
+
+        <div class="page-break"></div>
+
+        <section id="glossary" class="section">
+            <h2>VII. Glossaire & Ubiquitous Language</h2>
+            <dl>
+                <div class="glossary-item">
+                    <dt class="glossary-dt">Aggregate Root</dt>
+                    <dd class="glossary-dd">L'entité "Passerelle" d'un domaine qui assure l'intégrité de tous les objets sous-jacents.</dd>
+                </div>
+                <div class="glossary-item">
+                    <dt class="glossary-dt">Anti-Corruption Layer (ACL)</dt>
+                    <dd class="glossary-dd">Composant de traduction qui empêche les modèles externes de polluer le domaine métier pur.</dd>
+                </div>
+                <div class="glossary-item">
+                    <dt class="glossary-dt">Invariant</dt>
+                    <dd class="glossary-dd">Règle métier qui doit rester vraie en permanence au cours d'une transaction de domaine.</dd>
+                </div>
+                <div class="glossary-item">
+                    <dt class="glossary-dt">Event-Driven Architecture</dt>
+                    <dd class="glossary-dd">Modèle de communication asynchrone où les services réagissent à des événements publiés par d'autres.</dd>
+                </div>
+            </dl>
+        </section>
+
+        <footer>
+            Dossier d'Architecture ShopFlow - Phase 1 - Par Driss Amine <br>
+            Document produit dans le cadre de la certification Master Expert en Systèmes d'Informations.
+        </footer>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            theme: 'base',
+            startOnLoad: true,
+            themeVariables: {
+                primaryColor: '#f1f5f9',
+                primaryTextColor: '#0f172a',
+                primaryBorderColor: '#0f172a',
+                lineColor: '#10b981',
+                secondaryColor: '#ffffff',
+                tertiaryColor: '#ffffff',
+                fontFamily: 'Montserrat'
+            }
+        });
+    </script>
+</body>
+</html>

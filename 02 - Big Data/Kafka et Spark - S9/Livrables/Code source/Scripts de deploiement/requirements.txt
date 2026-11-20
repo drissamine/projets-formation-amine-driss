@@ -1,0 +1,14 @@
+# --- Producteur Kafka ---
+# >=2.2 requis pour Python 3.12+ (2.0.2 plante sur kafka.vendor.six)
+kafka-python>=2.2.0
+faker==25.0.0
+
+# --- Spark Structured Streaming ---
+# Spark 3.5 nécessite Java 8/11/17 installé sur la machine
+pyspark==3.5.1
+
+# --- Stockage / sorties ---
+# csv, json et sqlite3 sont inclus dans la stdlib Python (pas de dépendance)
+
+# --- Tests ---
+pytest==8.2.0

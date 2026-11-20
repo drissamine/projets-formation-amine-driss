@@ -1,0 +1,81 @@
+<div class="container-fluid dashboard-container">
+
+    <!-- Section 1: Statistiques Générales -->
+    <div class="stats-grid">
+        <!-- Card 1: Valeur Actuelle du Portefeuille -->
+        <p-card class="stat-card modern-card" styleClass="w-full">
+            <ng-template pTemplate="header">
+                <div class="stat-header modern-header">
+                    <div class="icon-container primary-bg">
+                        <i class="pi pi-wallet"></i>
+                    </div>
+                    <div class="card-title">
+                        <h5>Valeur Actuelle</h5>
+                        <span class="subtitle">du Portefeuille</span>
+                    </div>
+                </div>
+            </ng-template>
+            <div class="stat-content">
+                <div class="value-display">
+                    <h2 class="stat-value modern-value">{{ (totalValue$ | async) | currency:'EUR' }}</h2>
+                    <div class="trend-indicator positive">
+                        <i class="pi pi-arrow-up"></i>
+                        <span>+2.5%</span>
+                    </div>
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Card 2: Solde Espèces -->
+        <p-card class="stat-card modern-card" styleClass="w-full">
+            <ng-template pTemplate="header">
+                <div class="stat-header modern-header">
+                    <div class="icon-container info-bg">
+                        <i class="pi pi-dollar"></i>
+                    </div>
+                    <div class="card-title">
+                        <h5>Solde Espèces</h5>
+                        <span class="subtitle">Liquidités disponibles</span>
+                    </div>
+                </div>
+            </ng-template>
+            <div class="stat-content">
+                <div class="value-display">
+                    <h2 class="stat-value modern-value text-info">{{ balance | currency:'EUR' }}</h2>
+                    <div class="trend-indicator neutral">
+                        <i class="pi pi-minus"></i>
+                        <span>Stable</span>
+                    </div>
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Card 3: Valeur Nette Totale -->
+        <p-card class="stat-card modern-card" styleClass="w-full">
+            <ng-template pTemplate="header">
+                <div class="stat-header modern-header">
+                    <div class="icon-container success-bg">
+                        <i class="pi pi-chart-line"></i>
+                    </div>
+                    <div class="card-title">
+                        <h5>Valeur Nette</h5>
+                        <span class="subtitle">Patrimoine total</span>
+                    </div>
+                </div>
+            </ng-template>
+            <div class="stat-content">
+                <div class="value-display">
+                    <h2 class="stat-value modern-value text-success">{{ ((totalValue$ | async) || 0) + balance | currency:'EUR' }}</h2>
+                    <div class="trend-indicator positive">
+                        <i class="pi pi-arrow-up"></i>
+                        <span>+1.8%</span>
+                    </div>
+                </div>
+            </div>
+        </p-card>
+    </div>
+
+    <div class="text-center mt-4">
+        <p class="text-muted">Composants supplémentaires à intégrer depuis backup-components</p>
+    </div>
+</div>

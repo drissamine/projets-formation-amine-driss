@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Appointment Service
+  appointment-service:
+    build: ./appointment-service
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - MONGO_URI=mongodb://mongodb:27017/appointments
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - JWT_SECRET=medicare-secret-key
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  # Notification Service
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "3006:3006"
+    environment:
+      - PORT=3006
+      - MONGO_URI=mongodb://mongodb:27017/notifications
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  # MongoDB
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  mongodb_data:
+  rabbitmq_data:

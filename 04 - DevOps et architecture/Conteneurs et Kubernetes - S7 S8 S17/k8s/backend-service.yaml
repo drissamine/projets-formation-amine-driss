@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mon-app-service
+spec:
+  selector:
+    app: calculatrice
+  ports:
+    - name: web
+      protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer

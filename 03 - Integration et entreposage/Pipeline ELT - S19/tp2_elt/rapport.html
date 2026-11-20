@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport TP2 - Pipeline ELT</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --secondary: #475569;
+            --success: #16a34a;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        header p {
+            margin: 0.5rem 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            border: 1px solid var(--border);
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h3 {
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+
+        .step-badge {
+            background-color: var(--primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        pre {
+            background-color: #1e293b;
+            color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        .highlight {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--bg-body);
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        tr:hover {
+            background-color: var(--bg-body);
+        }
+
+        .flex-cols {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .success {
+            color: var(--success);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Rapport TP2 : Approche moderne ELT</h1>
+        <p>Intégration des données, orchestration et reporting avec SQLite, Python et Power BI</p>
+    </header>
+
+    <div class="card">
+        <h2><span class="step-badge">0</span> Contexte & Architecture</h2>
+        <div class="highlight">
+            <strong>Rappel du cours (Chapitre 3) :</strong> L'approche <strong>ELT</strong> (Extract, Load, Transform) consiste à charger d'abord les données brutes telles quelles dans le Data Warehouse cible, puis à utiliser la puissance de calcul de ce dernier pour effectuer les transformations (nettoyage, agrégation, enrichissement).
+        </div>
+        
+        <h3>Outils utilisés :</h3>
+        <ul>
+            <li><strong>Langage & Librairies :</strong> Python 3, <code>pandas</code>, <code>sqlite3</code></li>
+            <li><strong>Data Warehouse :</strong> SQLite (fichier local <code>data_warehouse.db</code>)</li>
+            <li><strong>Orchestration :</strong> Script Python autonome avec logging simulé (Option Task Scheduler)</li>
+            <li><strong>Reporting :</strong> Microsoft Power BI Desktop</li>
+        </ul>
+
+        <h3>Schéma des couches de données :</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Table SQLite</th>
+                    <th>Rôle dans le pipeline</th>
+                    <th>Contenu</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>ventes_brutes</code></td>
+                    <td>Couche Raw (Brute)</td>
+                    <td>Copie exacte du CSV, avec ses doublons et valeurs nulles.</td>
+                </tr>
+                <tr>
+                    <td><code>ventes_clean</code></td>
+                    <td>Couche Métier (Nettoyée)</td>
+                    <td>Données immitées (NaN -> 0), dédupliquées, et enrichies avec la colonne <code>total</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>ventes_par_produit</code></td>
+                    <td>Couche Agrégée</td>
+                    <td>Chiffre d'affaires total et nombre de ventes regroupés par produit.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2><span class="step-badge">1</span> Étape 1 : Extract & Load</h2>
+        <p>L'objectif de cette étape est de lire le fichier source (<code>ventes.csv</code>) et de le charger tel quel dans la base de données. C'est l'essence même de l'ELT : repousser la transformation après le chargement.</p>
+        
+        <pre><code>import pandas as pd
+import sqlite3
+
+def extract_load():
+    # 1. EXTRACT
+    df = pd.read_csv("ventes.csv")
+    
+    # 2. LOAD
+    conn = sqlite3.connect("data_warehouse.db")
+    df.to_sql("ventes_brutes", conn, if_exists="replace", index=False)
+    conn.close()</code></pre>
+        <p><strong>Résultat :</strong> Les 20 lignes initiales, comprenant 2 doublons intentionnels et 1 valeur de quantité manquante, sont chargées sans altération dans <code>ventes_brutes</code>.</p>
+    </div>
+
+    <div class="card">
+        <h2><span class="step-badge">2</span> Étape 2 : Transform</h2>
+        <p>Maintenant que les données sont dans la base (couche brute), nous effectuons les transformations en Python (via pandas) puis stockons les résultats dans de nouvelles tables cibles (couche métier).</p>
+        
+        <pre><code>def transform():
+    conn = sqlite3.connect("data_warehouse.db")
+    df = pd.read_sql("SELECT * FROM ventes_brutes", conn)
+    
+    # Nettoyage
+    df['quantite'] = df['quantite'].fillna(0).astype(int) # NaN traités
+    df = df.drop_duplicates(subset=['id']) # Doublons supprimés
+    
+    # Enrichissement
+    df['total'] = df['quantite'] * df['prix']
+    df['date_vente'] = pd.to_datetime(df['date_vente'])
+    df['mois'] = df['date_vente'].dt.to_period('M').astype(str)
+    
+    # Agrégation et Stockage final
+    df.to_sql("ventes_clean", conn, if_exists="replace", index=False)
+    conn.close()</code></pre>
+    </div>
+
+    <div class="card">
+        <h2><span class="step-badge">3</span> Étape 3 : Orchestration</h2>
+        <p>Pour assurer la reproductibilité et l'automatisation de ce pipeline batch, un script d'orchestration a été mis en place. Plutôt que de lancer chaque fichier manuellement, le fichier <code>pipeline_elt_complet.py</code> exécute les tâches dans le bon ordre (Dépendance : <strong>T1 &rarr; T2 &rarr; T3</strong>).</p>
+
+        <ul>
+            <li><strong>Tolérance aux pannes :</strong> Le script incorpore une boucle de <em>retry</em>. En cas d'erreur de base de données, l'étape est relancée.</li>
+            <li><strong>Traçabilité :</strong> Chaque exécution génère un log dans le dossier <code>logs/</code> avec le temps d'exécution.</li>
+        </ul>
+
+        <div class="highlight">
+            <span class="success">✓ Succès</span> - Le pipeline automatisé s'exécute de bout en bout en <code>0.11 secondes</code>.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2><span class="step-badge">4</span> Étape 4 : Reporting (Power BI)</h2>
+        <p>Pour l'analyse finale, les tables métier ont été exportées sous la forme de fichiers CSV séparés par des virgules afin d'être importées facilement dans Microsoft Power BI.</p>
+        
+        <div class="flex-cols">
+            <div>
+                <h3>Fichiers générés :</h3>
+                <ul>
+                    <li><code>ventes_clean.csv</code></li>
+                    <li><code>ventes_par_produit.csv</code></li>
+                    <li><code>ventes_par_mois.csv</code></li>
+                </ul>
+            </div>
+            <div>
+                <h3>Visualisations créées dans Power BI :</h3>
+                <ul>
+                    <li>📊 <strong>Graphique en barres :</strong> CA par produit</li>
+                    <li>📈 <strong>Graphique linéaire :</strong> Évolution du CA mensuel</li>
+                    <li>💳 <strong>Carte KPI :</strong> Chiffre d'affaires global</li>
+                    <li>🎛️ <strong>Slicers interactifs :</strong> Filtrage par date et produit</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Conclusion</h2>
+        <p>Ce TP démontre avec succès la supériorité et la simplicité de l'approche ELT combinée au Python et SQL. La création d'un Data Warehouse local (SQLite) organisé en couches permet une gouvernance forte, tandis que l'orchestration assure l'industrialisation du traitement.</p>
+    </div>
+
+</div>
+
+</body>
+</html>

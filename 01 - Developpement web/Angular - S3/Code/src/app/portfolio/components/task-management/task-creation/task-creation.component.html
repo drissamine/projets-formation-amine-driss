@@ -1,0 +1,74 @@
+<div class="task-creation-container">
+  <p-card class="task-creation-card">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <h2>
+          <i class="pi pi-plus"></i>
+          Nouvelle Tâche
+        </h2>
+      </div>
+    </ng-template>
+
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+      <div class="form-field">
+        <label for="title">Titre *</label>
+        <input
+          pInputText
+          id="title"
+          formControlName="title"
+          placeholder="Entrez le titre de la tâche"
+          class="w-full"
+          [class.ng-invalid]="title?.invalid && title?.touched">
+        <small class="text-red-500" *ngIf="title?.invalid && title?.touched">
+          Le titre est requis et doit contenir au moins 3 caractères
+        </small>
+      </div>
+
+      <div class="form-field">
+        <label for="description">Description *</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          placeholder="Entrez la description de la tâche"
+          rows="4"
+          class="w-full p-2 border border-gray-300 rounded"
+          [class.ng-invalid]="description?.invalid && description?.touched">
+        </textarea>
+        <small class="text-red-500" *ngIf="description?.invalid && description?.touched">
+          La description est requise
+        </small>
+      </div>
+
+      <div class="form-field">
+        <label for="priority">Priorité</label>
+        <p-select
+          id="priority"
+          formControlName="priority"
+          [options]="priorityOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Sélectionnez une priorité">
+        </p-select>
+      </div>
+
+      <div class="form-actions">
+        <p-button
+          label="Annuler"
+          icon="pi pi-times"
+          styleClass="p-button-secondary"
+          type="button"
+          (onClick)="onCancel()">
+        </p-button>
+        <p-button
+          label="Créer"
+          icon="pi pi-check"
+          styleClass="p-button-primary"
+          type="submit"
+          [disabled]="taskForm.invalid">
+        </p-button>
+      </div>
+    </form>
+  </p-card>
+</div>
+
+<p-toast></p-toast>

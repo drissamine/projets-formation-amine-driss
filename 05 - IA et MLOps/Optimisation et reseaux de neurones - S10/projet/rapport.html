@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport TP Deep Learning - Optimisation From Scratch</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f6f9;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+            border-left: 5px solid #3498db;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 25px;
+        }
+        .question {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .answer {
+            background-color: #fff;
+            border: 1px solid #e1e4e8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        .code, pre {
+            background-color: #2d3436;
+            color: #dfe6e9;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            overflow-x: auto;
+        }
+        strong {
+            color: #e74c3c;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Rapport TP : Optimisation RN From Scratch</h1>
+    <p style="text-align: center; font-size: 1.1em;">
+        <strong>Étudiant :</strong> DRISS Amine<br>
+        <strong>Sujet :</strong> Classification de Cancer du Sein (Breast Cancer Wisconsin)<br>
+        <strong>Objectif :</strong> Atteindre > 95% d'accuracy avec un réseau implémenté à la main.
+    </p>
+
+    <!-- PARTIE 1 -->
+    <h2>Partie 1 : Analyse Initiale des Données</h2>
+    
+    <div class="question">
+        ❓ Question 1.1 : Le dataset est-il équilibré ? Pourquoi est-ce important ?
+    </div>
+    <div class="answer">
+        <p><strong>Analyse :</strong></p>
+        <ul>
+            <li>Classe 0 (Maligne) : ~212 exemples (37%)</li>
+            <li>Classe 1 (Bénigne) : ~357 exemples (63%)</li>
+        </ul>
+        <p><strong>Réponse :</strong> Le dataset est <strong>légèrement déséquilibré</strong> (plus de cas bénins que malins).</p>
+        <p><strong>Importance :</strong> Si le déséquilibre était extrême (ex: 99% vs 1%), le modèle pourrait simplement prédire toujours la classe majoritaire et obtenir 99% de précision sans rien apprendre (accuracy paradox). Ici, le déséquilibre est modéré, donc l'accuracy reste une métrique pertinente, mais il faut surveiller la <em>Recall</em> (Sensibilité) sur la classe maligne.</p>
+    </div>
+
+    <!-- PARTIE 2 -->
+    <h2>Partie 2 : Analyse du Modèle Baseline</h2>
+
+    <div class="question">
+        ❓ Question 2.1 : Analyse des Faux Positifs et Faux Négatifs
+    </div>
+    <div class="answer">
+        <ul>
+            <li><strong>Faux Positifs (FP) :</strong> Tumeurs bénignes prédites comme malignes.
+                <br><em>Conséquence :</em> Stress inutile pour le patient, biopsie additionnelle.</li>
+            <li><strong>Faux Négatifs (FN) :</strong> Tumeurs malignes prédites comme bénignes.
+                <br><em>Conséquence :</em> Cancer non détecté, retard de traitement, danger de mort.</li>
+        </ul>
+        <p><strong>Conclusion Médicale :</strong> Le <strong>Faux Négatif est beaucoup plus grave</strong>. On préfère avoir quelques Faux Positifs (principe de précaution) plutôt que de rater un cancer.</p>
+    </div>
+
+    <!-- PARTIE 3 -->
+    <h2>Partie 3 : Optimisation de l'Architecture</h2>
+
+    <div class="question">
+        ❓ Question 3.1 : Quelle architecture donne les meilleurs résultats ? Pourquoi ?
+    </div>
+    <div class="answer">
+        <p><strong>Meilleure Architecture :</strong> <code>[30, 20, 10, 1]</code> (2 couches cachées)</p>
+        <p><strong>Pourquoi :</strong></p>
+        <ul>
+            <li>Le problème n'est pas linéairement séparable mais reste de complexité moyenne (30 features).</li>
+            <li>Une seule couche cachée (baseline <code>[30, 10, 1]</code>) peut manquer de capacité d'abstraction.</li>
+            <li>Ajouter une seconde couche permet au réseau d'apprendre des combinaisons de features plus complexes (non-linéarité accrue grâce aux ReLU successifs).</li>
+            <li>Les architectures trop profondes (ex: 4 couches) ou trop larges n'apportent pas de gain significatif et risquent l'overfitting sur ce petit dataset (569 exemples).</li>
+        </ul>
+    </div>
+
+    <!-- PARTIE 4 -->
+    <h2>Partie 4 : Learning Rate</h2>
+
+    <div class="question">
+        ❓ Question 4.1 : Impact du Learning Rate (LR)
+    </div>
+    <div class="answer">
+        <table>
+            <tr>
+                <th>LR</th>
+                <th>Comportement observé</th>
+            </tr>
+            <tr>
+                <td><strong>Trop Grand (ex: 0.5)</strong></td>
+                <td><strong>Divergence ou Oscillations.</strong> Le coût ne diminue pas de manière fluide, il saute par-dessus le minimum. L'accuracy est instable.</td>
+            </tr>
+            <tr>
+                <td><strong>Trop Petit (ex: 0.001)</strong></td>
+                <td><strong>Convergence trop lente.</strong> Le modèle apprend, mais après 1000 itérations, il est encore loin de l'optimum. Nécessiterait 10x plus d'itérations.</td>
+            </tr>
+            <tr>
+                <td><strong>Optimal (ex: 0.01)</strong></td>
+                <td><strong>Convergence rapide et stable.</strong> Le coût diminue régulièrement et atteint un plateau bas.</td>
+            </tr>
+        </table>
+        <p><strong>Meilleur compromis :</strong> LR = 0.01 (ou 0.05 selon l'initialisation).</p>
+    </div>
+
+    <!-- PARTIE 5 -->
+    <h2>Partie 5 : Nombre d'Itérations & Overfitting</h2>
+
+    <div class="question">
+        ❓ Question 5.1 : À partir de quand observe-t-on de l'overfitting ? Détection ?
+    </div>
+    <div class="answer">
+        <p><strong>Observation :</strong> Autour de <strong>3000 - 5000 itérations</strong>.</p>
+        <p><strong>Détection :</strong></p>
+        <ol>
+            <li>Le coût d'entraînement continue de descendre (vers 0).</li>
+            <li>L'accuracy d'entraînement atteint 100%.</li>
+            <li>MAIS l'accuracy de test <strong>stagne ou commence à diminuer</strong>.</li>
+            <li>L'écart (GAP) entre Train et Test grandit.</li>
+        </ol>
+        <p>C'est le signal que le modèle "apprend par cœur" les exemples d'entraînement au lieu de généraliser.</p>
+    </div>
+
+    <!-- PARTIE 6 -->
+    <h2>Partie 6 : Fonctions d'Activation</h2>
+
+    <div class="question">
+        ❓ Question 6.1 : ReLU vs Sigmoid (couches cachées)
+    </div>
+    <div class="answer">
+        <p><strong>Vainqueur :</strong> <strong>ReLU</strong></p>
+        <p><strong>Comparaison :</strong></p>
+        <ul>
+            <li><strong>Convergence :</strong> ReLU converge beaucoup plus vite. Sigmoid sature (dérivée proche de 0) pour les grandes valeurs, ce qui ralentit l'apprentissage (Vanishing Gradient).</li>
+            <li><strong>Accuracy :</strong> ReLU permet d'aller chercher des précisions plus élevées (>96%) là où Sigmoid plafonne souvent vers 92-93% sur ce dataset, surtout avec plusieurs couches.</li>
+            <li><strong>Calcul :</strong> ReLU est moins coûteux en calcul (simple <code>max(0,z)</code>) que Sigmoid (exponentielle).</li>
+        </ul>
+    </div>
+
+    <!-- CONCLUSION -->
+    <h2>Conclusion Générale & Modèle Final</h2>
+    <div class="answer" style="background-color: #f9fff9; border-color: #2ecc71;">
+        <h3>Configuration Retenue</h3>
+        <ul>
+            <li><strong>Architecture :</strong> <code>[30, 20, 10, 1]</code></li>
+            <li><strong>Activation :</strong> ReLU (He Initialization)</li>
+            <li><strong>Learning Rate :</strong> 0.01</li>
+            <li><strong>Itérations :</strong> 3000</li>
+        </ul>
+        <h3>Résultats Obtenus</h3>
+        <p style="font-size: 1.2em;">
+            Accuracy Test Moyenne : <strong>96.5% - 97.4%</strong><br>
+            Objectif (>95%) : <span style="color: green;">✅ ATTEINT</span>
+        </p>
+    </div>
+
+    <div class="footer">
+        <p>Rapport généré par DRISS Amine pour le TP Deep Learning.</p>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="Schema flocon - RetailPlus" id="snow-retailplus">
+    <mxGraphModel dx="900" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Schéma en flocon (Snowflake Schema) — RetailPlus" style="text;html=1;align=center;fontSize=18;fontStyle=1;fontColor=#1B2A4A;" vertex="1" parent="1"><mxGeometry x="280" y="12" width="500" height="30" as="geometry" /></mxCell>
+
+        <mxCell id="fact" value="&lt;b&gt;FactVente&lt;/b&gt;&lt;br&gt;6 clés étrangères (FK)&lt;br&gt;&lt;b&gt;CA · Bénéfice · Quantité · Remise&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="445" y="65" width="160" height="80" as="geometry" /></mxCell>
+
+        <!-- niveau 1 -->
+        <mxCell id="dt" value="&lt;b&gt;DimTemps&lt;/b&gt;&lt;br&gt;DateKey · Jour · Mois" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="40" y="185" width="140" height="55" as="geometry" /></mxCell>
+        <mxCell id="dp" value="&lt;b&gt;DimProduit&lt;/b&gt;&lt;br&gt;ProduitKey · Nom → CategorieKey" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="204" y="185" width="140" height="55" as="geometry" /></mxCell>
+        <mxCell id="dm" value="&lt;b&gt;DimMagasin&lt;/b&gt;&lt;br&gt;MagasinKey → VilleKey" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="368" y="185" width="140" height="55" as="geometry" /></mxCell>
+        <mxCell id="dcl" value="&lt;b&gt;DimClient&lt;/b&gt;&lt;br&gt;ClientKey · Nom&lt;br&gt;(non normalisée)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1FA;strokeColor=#9bb6d6;" vertex="1" parent="1"><mxGeometry x="532" y="185" width="140" height="55" as="geometry" /></mxCell>
+        <mxCell id="dca" value="&lt;b&gt;DimCanal&lt;/b&gt;&lt;br&gt;CanalKey · Type&lt;br&gt;(non normalisée)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1FA;strokeColor=#9bb6d6;" vertex="1" parent="1"><mxGeometry x="696" y="185" width="140" height="55" as="geometry" /></mxCell>
+        <mxCell id="dpr" value="&lt;b&gt;DimPromotion&lt;/b&gt;&lt;br&gt;PromoKey · Type&lt;br&gt;(non normalisée)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1FA;strokeColor=#9bb6d6;" vertex="1" parent="1"><mxGeometry x="860" y="185" width="140" height="55" as="geometry" /></mxCell>
+
+        <!-- niveau 2/3 -->
+        <mxCell id="dtri" value="&lt;b&gt;DimTrimestre&lt;/b&gt;&lt;br&gt;TrimestreKey" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="40" y="285" width="140" height="50" as="geometry" /></mxCell>
+        <mxCell id="dan" value="&lt;b&gt;DimAnnee&lt;/b&gt;&lt;br&gt;AnneeKey" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="40" y="380" width="140" height="50" as="geometry" /></mxCell>
+        <mxCell id="dcat" value="&lt;b&gt;DimCategorie&lt;/b&gt;&lt;br&gt;CategorieKey · Nom" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="204" y="285" width="140" height="50" as="geometry" /></mxCell>
+        <mxCell id="dmar" value="&lt;b&gt;DimMarque&lt;/b&gt;&lt;br&gt;MarqueKey · Nom" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="204" y="380" width="140" height="50" as="geometry" /></mxCell>
+        <mxCell id="dvil" value="&lt;b&gt;DimVille&lt;/b&gt;&lt;br&gt;VilleKey → RegionKey" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="368" y="285" width="140" height="50" as="geometry" /></mxCell>
+        <mxCell id="dreg" value="&lt;b&gt;DimRegion&lt;/b&gt;&lt;br&gt;RegionKey → PaysKey" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="368" y="380" width="140" height="50" as="geometry" /></mxCell>
+        <mxCell id="dpay" value="&lt;b&gt;DimPays&lt;/b&gt;&lt;br&gt;PaysKey · Nom" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="368" y="475" width="140" height="50" as="geometry" /></mxCell>
+
+        <!-- liens fact->dims -->
+        <mxCell id="f1" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="fact" target="dt"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="fact" target="dp"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="fact" target="dm"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f4" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="fact" target="dcl"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f5" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="fact" target="dca"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f6" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="fact" target="dpr"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <!-- chaines -->
+        <mxCell id="c1" style="endArrow=none;html=1;strokeColor=#82B366;" edge="1" parent="1" source="dt" target="dtri"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="c2" style="endArrow=none;html=1;strokeColor=#82B366;" edge="1" parent="1" source="dtri" target="dan"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="c3" style="endArrow=none;html=1;strokeColor=#82B366;" edge="1" parent="1" source="dp" target="dcat"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="c4" style="endArrow=none;html=1;strokeColor=#82B366;" edge="1" parent="1" source="dcat" target="dmar"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="c5" style="endArrow=none;html=1;strokeColor=#82B366;" edge="1" parent="1" source="dm" target="dvil"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="c6" style="endArrow=none;html=1;strokeColor=#82B366;" edge="1" parent="1" source="dvil" target="dreg"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="c7" style="endArrow=none;html=1;strokeColor=#82B366;" edge="1" parent="1" source="dreg" target="dpay"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="note" value="Les dimensions hiérarchiques sont normalisées en sous-dimensions (moins de redondance, plus de jointures)." style="text;html=1;align=left;fontSize=11;fontStyle=2;fontColor=#777777;" vertex="1" parent="1"><mxGeometry x="600" y="290" width="300" height="60" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

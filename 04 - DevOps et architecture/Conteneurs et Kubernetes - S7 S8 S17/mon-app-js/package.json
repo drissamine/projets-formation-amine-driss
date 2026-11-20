@@ -1,0 +1,22 @@
+{
+  "name": "mon-app-js",
+  "version": "1.0.0",
+  "description": "Application JavaScript pour TP DevOps",
+  "author": "DRISS Amine",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest",
+    "build": "npm run copy-files",
+    "copy-files": "mkdir -p dist && cp -r src/* dist/",
+    "clean": "rm -rf dist node_modules"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "prom-client": "^15.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "supertest": "^6.3.0"
+  }
+}

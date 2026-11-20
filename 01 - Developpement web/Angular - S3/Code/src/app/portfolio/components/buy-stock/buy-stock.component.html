@@ -1,0 +1,198 @@
+<div class="buy-container">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Acheter des Actions</h1>
+      <p class="subtitle">Enrichissez votre portefeuille avec de nouveaux actifs</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="refreshPrices()">
+        <i class="fas fa-sync-alt"></i>
+        <span>Actualiser les prix</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="content-grid">
+    <!-- Main Form Section -->
+    <div class="main-section">
+      <div class="card form-card">
+        <div class="card-header">
+          <h3><i class="fas fa-shopping-cart text-primary"></i> Ordre d'achat</h3>
+        </div>
+
+        <div class="card-body">
+          <!-- Messages -->
+          <div *ngIf="successMessage" class="feedback-message success">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ successMessage }}</span>
+          </div>
+
+          <div *ngIf="errorMessage" class="feedback-message error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ errorMessage }}</span>
+          </div>
+
+          <form [formGroup]="buyForm" (ngSubmit)="onSubmit()" class="buy-form">
+            <!-- Symbol Input -->
+            <div class="form-group">
+              <label for="symbol">Symbole de l'action</label>
+              <div class="input-wrapper">
+                <i class="fas fa-search input-icon"></i>
+                <input type="text" id="symbol" formControlName="symbol" placeholder="EX: AAPL" class="form-input"
+                  [class.error]="buyForm.get('symbol')?.invalid && buyForm.get('symbol')?.touched">
+              </div>
+              <div class="field-feedback" *ngIf="buyForm.get('symbol')?.invalid && buyForm.get('symbol')?.touched">
+                {{ getFieldError('symbol') }}
+              </div>
+              <div class="tags-container">
+                <span *ngFor="let sym of availableSymbols" class="tag" (click)="buyForm.patchValue({symbol: sym})">
+                  {{ sym }}
+                </span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <!-- Shares Input -->
+              <div class="form-group">
+                <label for="shares">Nombre de parts</label>
+                <div class="input-wrapper">
+                  <i class="fas fa-hashtag input-icon"></i>
+                  <input type="number" id="shares" formControlName="shares" placeholder="0" min="1" class="form-input"
+                    [class.error]="buyForm.get('shares')?.invalid && buyForm.get('shares')?.touched">
+                </div>
+                <div class="field-feedback" *ngIf="buyForm.get('shares')?.invalid && buyForm.get('shares')?.touched">
+                  {{ getFieldError('shares') }}
+                </div>
+              </div>
+
+              <!-- Price Input -->
+              <div class="form-group">
+                <label for="pricePerShare">Prix par action (€)</label>
+                <div class="input-wrapper">
+                  <i class="fas fa-euro-sign input-icon"></i>
+                  <input type="number" id="pricePerShare" formControlName="pricePerShare" placeholder="0.00" step="0.01"
+                    class="form-input"
+                    [class.error]="buyForm.get('pricePerShare')?.invalid && buyForm.get('pricePerShare')?.touched">
+                </div>
+                <div class="field-feedback"
+                  *ngIf="buyForm.get('pricePerShare')?.invalid && buyForm.get('pricePerShare')?.touched">
+                  {{ getFieldError('pricePerShare') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Date Input -->
+            <div class="form-group">
+              <label for="date">Date d'exécution</label>
+              <div class="input-wrapper">
+                <i class="fas fa-calendar-alt input-icon"></i>
+                <input type="date" id="date" formControlName="date" class="form-input">
+              </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="order-summary" *ngIf="buyForm.value.shares && buyForm.value.pricePerShare">
+              <div class="summary-item">
+                <span>Total estimé</span>
+                <span class="total-price">
+                  {{ formatCurrency(buyForm.value.shares * buyForm.value.pricePerShare) }}
+                </span>
+              </div>
+              <div class="summary-item" *ngIf="user$ | async as user">
+                <span>Budget après achat</span>
+                <span class="budget-preview"
+                  [class.negative]="user.currentBudget - (buyForm.value.shares * buyForm.value.pricePerShare) < 0">
+                  {{ formatCurrency(user.currentBudget - (buyForm.value.shares * buyForm.value.pricePerShare)) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-ghost" (click)="resetForm()">
+                Réinitialiser
+              </button>
+              <button type="submit" class="btn-primary-lg" [disabled]="buyForm.invalid || isSubmitting">
+                <i class="fas" [ngClass]="isSubmitting ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                {{ isSubmitting ? 'Traitement...' : 'Confirmer l\'achat' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Info -->
+    <div class="sidebar">
+      <!-- Market Data Card -->
+      <div class="card market-card" *ngIf="currentPrice > 0">
+        <div class="card-header">
+          <h4>Données de marché</h4>
+        </div>
+        <div class="card-body">
+          <div class="market-stat main">
+            <span class="label">Prix Actuel</span>
+            <span class="value">{{ formatCurrency(currentPrice) }}</span>
+          </div>
+          <div class="market-stat">
+            <span class="label">Variation (24h)</span>
+            <div class="variation" [ngClass]="getChangeClass(priceChange)">
+              <span class="amount">{{ priceChange > 0 ? '+' : '' }}{{ formatCurrency(priceChange) }}</span>
+              <span class="badge" [ngClass]="getChangeClass(priceChange)">
+                {{ priceChangePercent > 0 ? '+' : '' }}{{ formatPercentage(priceChangePercent) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Selection Placeholder -->
+      <div class="card placeholder-card" *ngIf="currentPrice <= 0">
+        <div class="icon-placeholder">
+          <i class="fas fa-search-dollar"></i>
+        </div>
+        <p>Entrez un symbole (ex: AAPL) pour voir les données de marché en temps réel.</p>
+      </div>
+
+      <!-- User Budget Card -->
+      <div class="card budget-card">
+        <div class="card-header">
+          <h4>Votre Portefeuille</h4>
+        </div>
+        <div class="card-body" *ngIf="user$ | async as user">
+          <div class="budget-display">
+            <span class="label">Budget Disponible</span>
+            <span class="amount">{{ formatCurrency(user.currentBudget) }}</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" [style.width.%]="(user.currentBudget / user.initialBudget) * 100"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tips Card -->
+      <div class="card tips-card">
+        <div class="card-header">
+          <h4><i class="fas fa-lightbulb text-warning"></i> Conseils</h4>
+        </div>
+        <div class="card-body">
+          <ul class="tips-list">
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <span>Diversifiez vos investissements pour réduire les risques.</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <span>Visez le long terme plutôt que la spéculation immédiate.</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle"></i>
+              <span>N'investissez que ce que vous pouvez vous permettre de perdre.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

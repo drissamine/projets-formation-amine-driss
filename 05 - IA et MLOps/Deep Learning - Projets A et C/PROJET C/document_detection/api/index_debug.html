@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document OCR v2.0 - DEBUG</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+font-family: 'Segoe UI', system-ui, sans-serif;
+background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+color: #e0e0e0;
+min-height: 100vh;
+padding: 20px;
+}
+.container { max-width: 1200px; margin: 0 auto; }
+h1 {
+text-align: center;
+background: linear-gradient(90deg, #00d4ff, #7c3aed);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+margin-bottom: 20px;
+}
+.panel {
+background: rgba(26, 26, 46, 0.8);
+border-radius: 16px;
+padding: 20px;
+border: 1px solid #2a2a4a;
+margin-bottom: 20px;
+}
+.upload-area {
+border: 2px dashed #3a3a5a;
+border-radius: 12px;
+padding: 40px;
+text-align: center;
+cursor: pointer;
+transition: all 0.3s;
+}
+.upload-area:hover { border-color: #00d4ff; background: rgba(0, 212, 255, 0.05); }
+.file-input { display: none; }
+.btn {
+width: 100%;
+padding: 15px;
+background: linear-gradient(90deg, #00d4ff, #7c3aed);
+border: none;
+border-radius: 10px;
+color: white;
+font-size: 1rem;
+font-weight: 600;
+cursor: pointer;
+margin-top: 10px;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.preview {
+margin-top: 20px;
+text-align: center;
+}
+.preview img { max-width: 100%; max-height: 300px; border-radius: 8px; }
+.results {
+margin-top: 20px;
+padding: 15px;
+background: #252540;
+border-radius: 8px;
+}
+.log {
+font-family: monospace;
+font-size: 12px;
+background: #0f0f0f;
+padding: 10px;
+border-radius: 4px;
+margin-top: 10px;
+max-height: 200px;
+overflow-y: auto;
+}
+.log-entry { margin: 2px 0; }
+.log-error { color: #ef4444; }
+.log-success { color: #22c55e; }
+.log-info { color: #00d4ff; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>📄 Document OCR v2.0 - DEBUG MODE</h1>
+
+<div class="panel">
+<h3>1. Select Image</h3>
+<div class="upload-area" id="uploadArea">
+<div style="font-size: 3rem; margin-bottom: 10px;">📁</div>
+<div>Click to select file OR Drag & Drop</div>
+</div>
+<input type="file" id="fileInput" class="file-input" accept="image/*">
+
+<button class="btn" id="processBtn" disabled>Process Image</button>
+
+<div class="preview" id="preview">
+<div style="color: #666; padding: 20px;">No image selected</div>
+</div>
+</div>
+
+<div class="panel">
+<h3>2. Results</h3>
+<div class="results" id="results">
+<div style="color: #666;">Results will appear here</div>
+</div>
+</div>
+
+<div class="panel">
+<h3>3. Debug Log</h3>
+<div class="log" id="log"></div>
+<button class="btn" onclick="clearLog()" style="margin-top: 10px;">Clear Log</button>
+</div>
+</div>
+
+<script>
+const API_URL = 'http://localhost:8000';
+let currentFile = null;
+
+function log(msg, type = 'info') {
+const logDiv = document.getElementById('log');
+const entry = document.createElement('div');
+entry.className = `log-entry log-${type}`;
+entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+logDiv.appendChild(entry);
+logDiv.scrollTop = logDiv.scrollHeight;
+console.log(`[${type}] ${msg}`);
+}
+
+function clearLog() {
+document.getElementById('log').innerHTML = '';
+}
+
+// Initialize
+log('Page loaded', 'info');
+log(`API URL: ${API_URL}`, 'info');
+
+// Check API
+fetch(`${API_URL}/health`)
+.then(r => r.json())
+.then(data => {
+log('API Health: ' + JSON.stringify(data), 'success');
+})
+.catch(e => {
+log('API Error: ' + e.message, 'error');
+});
+
+// Elements
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+const processBtn = document.getElementById('processBtn');
+const preview = document.getElementById('preview');
+const results = document.getElementById('results');
+
+// Event listeners
+uploadArea.addEventListener('click', () => {
+log('Upload area clicked');
+fileInput.click();
+});
+
+uploadArea.addEventListener('dragover', (e) => {
+e.preventDefault();
+log('Drag over');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+e.preventDefault();
+log('File dropped');
+const file = e.dataTransfer.files[0];
+if (file) handleFile(file);
+});
+
+fileInput.addEventListener('change', (e) => {
+log('File input changed');
+const file = e.target.files[0];
+if (file) handleFile(file);
+});
+
+processBtn.addEventListener('click', () => {
+log('Process button clicked');
+processFile();
+});
+
+function handleFile(file) {
+log(`File selected: ${file.name} (${file.size} bytes)`);
+log(`File type: ${file.type}`);
+
+currentFile = file;
+
+// Show preview
+const reader = new FileReader();
+reader.onload = (e) => {
+preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+processBtn.disabled = false;
+log('Image preview loaded');
+};
+reader.onerror = (e) => {
+log('FileReader error: ' + e.message, 'error');
+};
+reader.readAsDataURL(file);
+}
+
+async function processFile() {
+if (!currentFile) {
+log('No file to process', 'error');
+return;
+}
+
+log('Starting OCR process...');
+processBtn.disabled = true;
+results.innerHTML = '<div style="color: #00d4ff;">Processing...</div>';
+
+// Try both endpoints
+try {
+// First try /ocr-smart
+log('Trying /ocr-smart endpoint...');
+const formData = new FormData();
+formData.append('file', currentFile);
+
+const response = await fetch(`${API_URL}/ocr-smart`, {
+method: 'POST',
+body: formData
+});
+
+log(`Response status: ${response.status}`);
+
+if (!response.ok) {
+const errorText = await response.text();
+log(`Error response: ${errorText}`, 'error');
+throw new Error(`HTTP ${response.status}: ${errorText}`);
+}
+
+const data = await response.json();
+log('Response received: ' + JSON.stringify(data).substring(0, 500), 'success');
+
+displayResults(data);
+} catch (err) {
+log('Error: ' + err.message, 'error');
+results.innerHTML = `<div style="color: #ef4444;">Error: ${err.message}</div>`;
+} finally {
+processBtn.disabled = false;
+}
+}
+
+function displayResults(data) {
+if (!data.document) {
+results.innerHTML = '<div style="color: #ef4444;">Invalid response</div>';
+return;
+}
+
+const doc = data.document;
+let html = `
+<div style="margin-bottom: 15px;">
+<strong>Document Type:</strong> ${doc.document_type || 'unknown'}<br>
+<strong>Confidence:</strong> ${(doc.confidence * 100).toFixed(1)}%
+</div>
+`;
+
+if (doc.fields && Object.keys(doc.fields).length > 0) {
+html += '<strong>Extracted Fields:</strong><ul>';
+for (const [key, value] of Object.entries(doc.fields)) {
+html += `<li><strong>${key}:</strong> ${value}</li>`;
+}
+html += '</ul>';
+}
+
+if (doc.raw_text) {
+html += `<strong>Raw Text:</strong><pre style="background: #1a1a2e; padding: 10px; border-radius: 4px; margin-top: 10px; overflow: auto;">${doc.raw_text.substring(0, 500)}${doc.raw_text.length > 500 ? '...' : ''}</pre>`;
+}
+
+results.innerHTML = html;
+}
+</script>
+</body>
+</html>

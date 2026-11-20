@@ -1,0 +1,10 @@
+path: dataset
+train: images/train
+val: images/val
+
+nc: 4
+names:
+  0: id_card
+  1: driver_license
+  2: residence_permit
+  3: passport

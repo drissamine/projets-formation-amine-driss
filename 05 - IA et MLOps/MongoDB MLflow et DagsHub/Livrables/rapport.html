@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport de Projet MLOps - MLflow & DagsHub</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f7f9;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #2980b9; margin-top: 30px; }
+        .question { font-weight: bold; color: #d35400; margin-top: 20px; }
+        .answer { margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-left: 4px solid #3498db; }
+        .metrics-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .metrics-table th, .metrics-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .metrics-table th { background-color: #3498db; color: white; }
+        .best-model { background-color: #e8f6f3; border: 2px solid #27ae60; padding: 20px; border-radius: 5px; margin-top: 20px; }
+        .screenshots { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+        .screenshot-placeholder { width: 30%; height: 150px; background: #eee; border: 1px dashed #999; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.8em; }
+        
+        /* Modal for zooming images */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            cursor: pointer;
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 85%;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+        .screenshot-container img {
+            cursor: zoom-in;
+            transition: 0.3s;
+        }
+        .screenshot-container img:hover {
+            opacity: 0.8;
+        }
+    </style>
+    <script>
+        function openModal(img) {
+            var modal = document.getElementById("myModal");
+            var modalImg = document.getElementById("img01");
+            modal.style.display = "block";
+            modalImg.src = img.src;
+        }
+        function closeModal() {
+            document.getElementById("myModal").style.display = "none";
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Rapport de Projet MLOps : Tracking avec MLflow</h1>
+        <p style="color: #7f8c8d; font-style: italic;">Créé par <strong>DRISS Amine</strong> le 04 mai 2026</p>
+        
+        <h2>1. Sécurité et Gestion des Configurations</h2>
+        
+        <div class="question">Pourquoi les tokens ne doivent jamais être écrits en dur dans un notebook ?</div>
+        <div class="answer">
+            L'écriture en dur de tokens ou de mots de passe expose des informations sensibles si le notebook est partagé ou versionné sur un dépôt public (GitHub, DagsHub). Cela facilite les accès non autorisés et compromet la sécurité de l'infrastructure de données.
+        </div>
+        
+        <div class="question">Pourquoi le fichier .env ne doit pas être versionné ?</div>
+        <div class="answer">
+            Le fichier <code>.env</code> contient des configurations spécifiques à l'environnement local et des secrets (clés API, identifiants). Le versionner reviendrait à publier ces secrets. On utilise généralement un fichier <code>.env.example</code> non sensible pour indiquer les variables nécessaires sans révéler leurs valeurs.
+        </div>
+
+        <h2>2. Concepts MLflow</h2>
+        
+        <div class="question">Rôle du tracking_uri</div>
+        <div class="answer">
+            Le <code>tracking_uri</code> définit l'emplacement du serveur de tracking MLflow (local ou distant via DagsHub). Il indique à la bibliothèque où envoyer les paramètres, métriques et artéfacts générés lors des expérimentations.
+        </div>
+        
+        <div class="question">Rôle de l’experiment</div>
+        <div class="answer">
+            L'<code>experiment</code> permet de regrouper logiquement plusieurs exécutions (runs) liées à une même tâche ou un même projet. Cela facilite la comparaison des performances entre différents modèles ou hyperparamètres au sein d'un même contexte.
+        </div>
+
+        <h2>3. MLOps et Reproductibilité</h2>
+        
+        <div class="question">Pourquoi cette étape est une préfiguration du déploiement ?</div>
+        <div class="answer">
+            Le tracking et le packaging des modèles (via <code>log_model</code>) permettent de standardiser le format de sortie. Avoir un modèle enregistré avec ses dépendances exactes (<code>conda.yaml</code>, <code>requirements.txt</code>) est indispensable pour le charger ultérieurement dans une API de production de manière fiable.
+        </div>
+        
+        <div class="question">En quoi MLflow facilite la reproductibilité ?</div>
+        <div class="answer">
+            MLflow enregistre non seulement le code, mais aussi l'environnement exact, les versions des données (via les paramètres de versioning) et les hyperparamètres. N'importe quel membre de l'équipe peut ainsi recréer l'environnement et obtenir les mêmes résultats.
+        </div>
+
+        <h2>4. Résultats et Livrables</h2>
+        
+        <h3>Historique des Runs (Dernières exécutions)</h3>
+        <table class="metrics-table">
+            <thead>
+                <tr>
+                    <th>Run ID</th>
+                    <th>Modèle</th>
+                    <th>F1 Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ff991eacdd48475984501d9c08990838</td>
+                    <td>XGBClassifier</td>
+                    <td>1.0</td>
+                </tr>
+                <tr>
+                    <td>7fc5b5bda1324e0c9ff1a1e7d79f1e5f</td>
+                    <td>RandomForest</td>
+                    <td>1.0</td>
+                </tr>
+                <tr>
+                    <td>564f54bd6dec429e9303bfad435c5069</td>
+                    <td>LogisticRegression</td>
+                    <td>1.0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="best-model">
+            <h3>Modèle Sélectionné</h3>
+            <p><strong>Nom :</strong> XGBClassifier</p>
+            <p><strong>Run ID :</strong> ff991eacdd48475984501d9c08990838</p>
+            <p><strong>Métrique F1 :</strong> 1.0</p>
+            <p><strong>Synthèse (Justification) :</strong><br>
+            Bien que tous les modèles testés aient atteint un score F1 de 1.0 sur ce jeu de données (Iris), l'XGBClassifier a été sélectionné pour sa robustesse supérieure et sa capacité à gérer des relations non-linéaires complexes. Dans un scénario réel de fraude ou de classification complexe, XGBoost offre généralement une meilleure généralisation grâce à son mécanisme de boosting et sa gestion intégrée des valeurs manquantes.
+            </p>
+        </div>
+
+        <h3>Captures d'écran MLflow (DagsHub)</h3>
+        <div class="screenshots">
+            <div class="screenshot-container">
+                <p>Vue d'ensemble des runs :</p>
+                <img src="mlflow_runs.png" alt="Runs Overview" style="width: 100%; border: 1px solid #ddd; margin-bottom: 20px;" onclick="openModal(this)">
+            </div>
+            <div class="screenshot-container">
+                <p>Détails des paramètres et métriques (XGBoost) :</p>
+                <img src="mlflow_details.png" alt="Run Details" style="width: 100%; border: 1px solid #ddd; margin-bottom: 20px;" onclick="openModal(this)">
+            </div>
+            <div class="screenshot-container">
+                <p>Artéfacts du modèle :</p>
+                <img src="mlflow_artifacts.png" alt="Model Artifacts" style="width: 100%; border: 1px solid #ddd;" onclick="openModal(this)">
+            </div>
+        </div>
+        <div class="synthesis-final" style="margin-top: 30px; border-top: 2px solid #3498db; padding-top: 20px;">
+            <h2>Synthèse Finale</h2>
+            <p>
+                Le choix final s'est porté sur l'<strong>XGBClassifier</strong>. Bien que la Régression Logistique et la Forêt Aléatoire aient également atteint un score F1 de 1.0, XGBoost se distingue par sa performance constante sur des volumes de données plus importants et sa robustesse face aux données déséquilibrées (grâce au gradient boosting). 
+                L'intégration avec MLflow a permis de confirmer que ce modèle est non seulement le plus performant techniquement, mais aussi le plus facile à versionner avec ses métriques détaillées. Sa capacité à gérer nativement les valeurs manquantes et sa rapidité d'exécution en font le candidat idéal pour un déploiement industriel à grande échelle.
+            </p>
+        </div>
+    </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal" onclick="closeModal()">
+        <img class="modal-content" id="img01">
+        <div style="color: white; text-align: center; margin-top: 10px;">Cliquez n'importe où pour fermer</div>
+    </div>
+</body>
+</html>

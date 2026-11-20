@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résumé du TP : Optimisation Réseau de Neurones From Scratch</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 20px;
+        }
+        h2 {
+            color: #2980b9;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+            margin-top: 30px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 0 5px 5px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 20px;
+        }
+        .section-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .code-block {
+            background-color: #f1f3f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            color: #c7254e;
+        }
+        .question-block {
+            background-color: #e8f4f8;
+            border-left: 4px solid #1abc9c;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .question-title {
+            font-weight: bold;
+            color: #16a085;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .metadata {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>TP : Optimisation d'un Réseau de Neurones FROM SCRATCH</h1>
+    <div class="metadata">
+        Résumé du notebook <code>TP_FromScratch_Optimisation_Etudiants.ipynb</code><br>
+        Objectif : Classification binaire de cancer du sein avec > 95% d'accuracy
+    </div>
+
+    <!-- PARTIE 0 -->
+    <h2>Partie 0 : Rappel des Fonctions</h2>
+    <div class="section-content">
+        <p>Récupération des fonctions implémentées dans le cours précédent (le "moteur" du réseau) :</p>
+        <ul>
+            <li><strong>Activation :</strong> <code>sigmoid</code>, <code>relu</code> (et leurs dérivées)</li>
+            <li><strong>Initialisation :</strong> <code>initialize_parameters</code> (W, b)</li>
+            <li><strong>Propagation :</strong> <code>forward_propagation</code>, <code>backward_propagation</code></li>
+            <li><strong>Optimisation :</strong> <code>compute_cost</code>, <code>update_parameters</code></li>
+            <li><strong>Modèle :</strong> <code>train_neural_network</code>, <code>predict</code>, <code>compute_accuracy</code></li>
+        </ul>
+    </div>
+
+    <!-- PARTIE 1 -->
+    <h2>Partie 1 : Chargement et Exploration</h2>
+    <div class="section-content">
+        <h3>Dataset : Breast Cancer Wisconsin</h3>
+        <ul>
+            <li><strong>Problème :</strong> Classification binaire (Maligne = 0 vs Bénigne = 1)</li>
+            <li><strong>Données :</strong> 569 exemples, 30 features (rayon, texture, etc.)</li>
+        </ul>
+        <h3>Préparation</h3>
+        <ul>
+            <li><strong>Split :</strong> 80% Train, 20% Test (random_state=42)</li>
+            <li><strong>Normalisation :</strong> <code>StandardScaler</code> (Indispensable pour la convergence)</li>
+        </ul>
+        <div class="question-block">
+            <span class="question-title">❓ Question 1.1 :</span> Le dataset est-il équilibré ? Pourquoi est-ce important ?
+        </div>
+    </div>
+
+    <!-- PARTIE 2 -->
+    <h2>Partie 2 : Modèle Baseline</h2>
+    <div class="section-content">
+        <p>Premier entraînement pour avoir une référence.</p>
+        <ul>
+            <li><strong>Architecture :</strong> <code>[30, 10, 1]</code> (1 couche cachée)</li>
+            <li><strong>Hyperparamètres :</strong> LR=0.01, 1000 itérations, ReLU</li>
+        </ul>
+        <h3>Analyse</h3>
+        <p>Utilisation de la matrice de confusion et du rapport de classification.</p>
+        <div class="question-block">
+            <span class="question-title">❓ Question 2.1 :</span> Analyse des Faux Positifs vs Faux Négatifs (enjeu médical).
+        </div>
+    </div>
+
+    <!-- PARTIE 3 -->
+    <h2>Partie 3 : Optimisation Architecture</h2>
+    <div class="section-content">
+        <p>Test de différentes topologies pour trouver la structure optimale.</p>
+        <p class="code-block">
+            Exemples testés :<br>
+            [30, 20, 1]<br>
+            [30, 20, 10, 1] (2 couches cachées)<br>
+            [30, 50, 25, 1] (Large)<br>
+        </p>
+        <div class="question-block">
+            <span class="question-title">❓ Question 3.1 :</span> Quelle architecture donne les meilleurs résultats ?
+        </div>
+    </div>
+
+    <!-- PARTIE 4 -->
+    <h2>Partie 4 : Learning Rate</h2>
+    <div class="section-content">
+        <p>Recherche du pas d'apprentissage idéal.</p>
+        <p class="code-block">Plage testée : [0.001, 0.005, 0.01, 0.05, 0.1, 0.5]</p>
+        <div class="question-block">
+            <span class="question-title">❓ Question 4.1 :</span> Impact d'un LR trop grand (divergence) ou trop petit (lenteur).
+        </div>
+    </div>
+
+    <!-- PARTIE 5 -->
+    <h2>Partie 5 : Nombre d'Itérations</h2>
+    <div class="section-content">
+        <p>Étude de la convergence et de l'overfitting.</p>
+        <p class="code-block">Tests : 500 à 5000 itérations</p>
+        <div class="question-block">
+            <span class="question-title">❓ Question 5.1 :</span> À partir de quand observe-t-on de l'overfitting ? (Écart Train/Test)
+        </div>
+    </div>
+
+    <!-- PARTIE 6 -->
+    <h2>Partie 6 : Fonctions d'Activation</h2>
+    <div class="section-content">
+        <p>Comparaison de l'efficacité de ReLU vs Sigmoid dans les couches cachées.</p>
+        <div class="question-block">
+            <span class="question-title">❓ Question 6.1 :</span> Quelle activation converge le plus vite ? (Problème du Vanishing Gradient)
+        </div>
+    </div>
+
+    <!-- PARTIE 7 -->
+    <h2>Partie 7 : Modèle Final</h2>
+    <div class="section-content">
+        <p>Assemblage de tous les meilleurs hyperparamètres pour atteindre l'objectif.</p>
+        <p><strong>Challenge :</strong> Atteindre 95% d'accuracy sur le test set.</p>
+    </div>
+
+    <footer style="text-align: center; margin-top: 40px; color: #888;">
+        Généré par DRISS Amine pour le TP Deep Learning
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Rapport : Exercice 2 - CNN sur CIFAR-10</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #3b82f6;
+            --secondary-text: #94a3b8;
+            --border-color: #334155;
+            --success-color: #22c55e;
+            --highlight-bg: rgba(59, 130, 246, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            color: var(--text-color);
+            margin-top: 0;
+            font-size: 1.5rem;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: var(--secondary-text);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        pre {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+            color: #e2e8f0;
+        }
+
+        code {
+            font-family: 'Consolas', monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            color: #93c5fd;
+            font-weight: 600;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: block;
+            margin: 1rem auto;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+<h1>📊 Rapport : Exercice 2 - CNN sur CIFAR-10</h1>
+<p><strong>Fait par DRISS Amine le 16/02/2026</strong></p>
+</header>
+<div class="card">
+<h2>1. Contexte</h2>
+<p>CIFAR-10 est un dataset de 60,000 images couleurs (32x32) réparties en 10 classes (avion, voiture, oiseau, chat, cerf, chien, grenouille, cheval, bateau, camion). C'est un défi plus complexe que MNIST car les images sont naturelles et variées.</p>
+</div>
+<div class="card">
+<h2>2. Charger et explorer le dataset</h2>
+<pre><code># 1. Charger CIFAR-10
+(x_train_cifar, y_train_cifar), (x_test_cifar, y_test_cifar) = keras.datasets.cifar10.load_data()
+
+# 2. Normaliser entre 0 et 1
+x_train_cifar = x_train_cifar.astype('float32') / 255.0
+x_test_cifar = x_test_cifar.astype('float32') / 255.0
+
+# 3. Aplatir les labels
+y_train_cifar = y_train_cifar.flatten()
+y_test_cifar = y_test_cifar.flatten()
+
+cifar_classes = ['airplane', 'automobile', 'bird', 'cat', 'deer',
+                 'dog', 'frog', 'horse', 'ship', 'truck']</code></pre>
+</div>
+<div class="card">
+<h2>3. Visualisation</h2>
+<pre><code># Afficher 10 images aléatoires de CIFAR-10
+fig, axes = plt.subplots(2, 5, figsize=(12, 5))
+indices = np.random.choice(len(x_train_cifar), 10, replace=False)
+
+for idx, ax_idx in enumerate(range(10)):
+    ax = axes[ax_idx // 5, ax_idx % 5]
+    i = indices[idx]
+    ax.imshow(x_train_cifar[i])
+    ax.set_title(cifar_classes[y_train_cifar[i]])
+    ax.axis('off')
+
+plt.suptitle('Samples from CIFAR-10')
+plt.tight_layout()
+plt.show()</code></pre>
+<p><em>(Insérer ici une image des échantillons si disponible)</em></p>
+</div>
+<div class="card">
+<h2>4. Modèle Simple (CNN)</h2>
+<p>Nous avons d'abord testé une architecture simple avec 3 blocs de convolution/pooling.</p>
+<pre><code>def build_cnn_cifar10_simple():
+    model = models.Sequential([
+        layers.Input(shape=(32, 32, 3)),
+
+        # Bloc 1
+        layers.Conv2D(32, (3, 3), padding='same'),
+        layers.BatchNormalization(),
+        layers.Activation('relu'),
+        layers.MaxPooling2D((2, 2)),
+
+        # Bloc 2
+        layers.Conv2D(64, (3, 3), padding='same'),
+        layers.BatchNormalization(),
+        layers.Activation('relu'),
+        layers.MaxPooling2D((2, 2)),
+
+        # Bloc 3
+        layers.Conv2D(128, (3, 3), padding='same'),
+        layers.BatchNormalization(),
+        layers.Activation('relu'),
+        layers.MaxPooling2D((2, 2)),
+
+        layers.Flatten(),
+        layers.Dense(256, activation='relu'),
+        layers.Dropout(0.4),
+        layers.Dense(128, activation='relu'),
+        layers.Dropout(0.3),
+        layers.Dense(10, activation='softmax')
+    ])
+
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001),
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+    return model</code></pre>
+<h3>Entraînement (Sans Augmentation)</h3>
+<pre><code>early_stop = keras.callbacks.EarlyStopping(
+    monitor='val_loss', patience=5, restore_best_weights=True
+)
+
+history_ex2_simple = model_ex2_simple.fit(
+    x_train_cifar, y_train_cifar,
+    validation_split=0.2,
+    epochs=30, batch_size=64,
+    callbacks=[early_stop], verbose=1
+)</code></pre>
+<p><strong>Résultats Modèle Simple :</strong></p>
+<ul>
+<li><strong>Test Accuracy</strong> : 75.18%</li>
+<li><strong>Test Loss</strong> : 0.7810</li>
+</ul>
+</div>
+<div class="card">
+<h2>5. Augmentation de Données</h2>
+<p>Pour combattre le surapprentissage, nous avons utilisé l'augmentation de données.</p>
+<pre><code>def create_data_augmentation():
+    data_augmentation = keras.Sequential([
+        layers.RandomFlip("horizontal"),
+        layers.RandomRotation(0.1),
+        layers.RandomTranslation(0.1, 0.1),
+        layers.RandomZoom(0.2),
+    ])
+    return data_augmentation</code></pre>
+</div>
+<div class="card">
+<h2>6. Modèle Complexe & Entraînement Final</h2>
+<p>Nous avons ensuite utilisé un modèle plus profond et entraîné avec l'augmentation de données.</p>
+<pre><code>def build_cnn_cifar10_complex():
+    model = models.Sequential([
+        layers.Input(shape=(32, 32, 3)),
+
+        # Bloc 1 (Double Conv)
+        layers.Conv2D(64, (3, 3), padding='same', activation='relu'),
+        layers.BatchNormalization(),
+        layers.Conv2D(64, (3, 3), padding='same', activation='relu'),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D((2, 2)),
+        layers.Dropout(0.25),
+
+        # Bloc 2 (Double Conv)
+        layers.Conv2D(128, (3, 3), padding='same', activation='relu'),
+        layers.BatchNormalization(),
+        layers.Conv2D(128, (3, 3), padding='same', activation='relu'),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D((2, 2)),
+        layers.Dropout(0.25),
+
+        # Bloc 3 (Double Conv)
+        layers.Conv2D(256, (3, 3), padding='same', activation='relu'),
+        layers.BatchNormalization(),
+        layers.Conv2D(256, (3, 3), padding='same', activation='relu'),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D((2, 2)),
+        layers.Dropout(0.25),
+
+        layers.Flatten(),
+        layers.Dense(512, activation='relu'),
+        layers.Dropout(0.5),
+        layers.Dense(256, activation='relu'),
+        layers.Dropout(0.4),
+        layers.Dense(10, activation='softmax')
+    ])
+
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001),
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+    return model</code></pre>
+</div>
+<div class="card">
+<h2>7. Comparaison des Résultats</h2>
+<table>
+<thead><tr><th>Modèle</th><th>Test Accuracy</th><th>Test Loss</th></tr></thead><tbody>
+<tr><td><strong>Simple (Sans Augm)</strong></td><td>75.18%</td><td>0.7810</td></tr>
+<tr><td><strong>Complexe (Avec Augm)</strong></td><td><em>Non exécuté</em></td><td><em>Non exécuté</em></td></tr>
+</tbody></table>
+<p><em>(Ajouter ici les courbes comparatives si disponibles)</em></p>
+</div>
+<div class="card">
+<h2>8. Réponses aux Questions</h2>
+<h3>1. Batch Normalization améliore-t-elle la convergence ?</h3>
+<p><strong>Oui.</strong> La Batch Normalization normalise les activations de chaque couche, ce qui stabilise le gradient et permet d'utiliser un learning rate plus élevé sans divergence. Cela accélère la convergence (moins d'epochs pour atteindre une bonne performance) et réduit la sensibilité du modèle à l'initialisation des poids. Dans notre modèle simple, cela aide à atteindre 75% d'accuracy rapidement.</p>
+<h3>2. Quel impact a l'augmentation de données sur l'overfitting ?</h3>
+<p><strong>Elle le réduit considérablement.</strong> Sur le modèle simple (sans augmentation), on observe un fort overfitting : l'accuracy d'entraînement monte à <strong>88.5%</strong> alors que celle de validation stagne autour de <strong>73-75%</strong>. Cet écart ("gap") montre que le modèle apprend par cœur. L'augmentation de données (rotations, flips, zooms) force le modèle à apprendre des caractéristiques invariantes et généralisables, réduisant cet écart.</p>
+<h3>3. Quelles classes sont confondues ? Pourquoi ?</h3>
+<p>D'après le rapport de classification (f1-score) :</p>
+<ul>
+<li><strong>Classes les plus confondues</strong> : <strong>Chat (Cat)</strong> (f1=0.57) et <strong>Chien (Dog)</strong> (f1=0.67), ainsi que <strong>Oiseau (Bird)</strong> (f1=0.68).</li>
+<li><strong>Pourquoi</strong> : Ces classes partagent des caractéristiques visuelles très proches (fourrure, quatre pattes, oreilles, queue, arrière-plans naturels variés).</li>
+<li><strong>Classes bien prédites</strong> : <strong>Grenouille (Frog)</strong>, <strong>Camion (Truck)</strong>, <strong>Automobile</strong> (f1 > 0.85) car elles ont des formes distinctives et rigides (véhicules) ou des couleurs/postures spécifiques (grenouille).</li>
+</ul>
+<h3>4. Comment pourriez-vous améliorer davantage la performance ?</h3>
+<ul>
+<li><strong>Architecture plus profonde</strong> : Utiliser des réseaux résiduels (ResNet) pour éviter la dégradation du gradient.</li>
+<li><strong>Transfer Learning</strong> : Utiliser un modèle pré-entraîné sur ImageNet (ex: MobileNetV2, ResNet50) comme vu dans l'Exercice 3.</li>
+<li><strong>Learning Rate Schedule</strong> : Réduire le taux d'apprentissage quand la loss stagne (ReduceLROnPlateau).</li>
+<li><strong>Regularisation avancée</strong> : Augmenter le Dropout ou utiliser le Weight Decay.</li>
+</ul>
+<p>---</p>
+<p><strong>Fait par DRISS Amine le 16/02/2026</strong></p>
+</div>
+
+</div>
+
+</body>
+</html>

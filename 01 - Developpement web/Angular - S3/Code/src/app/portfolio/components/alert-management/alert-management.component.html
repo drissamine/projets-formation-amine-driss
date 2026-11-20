@@ -1,0 +1,125 @@
+<div class="alerts-container">
+    <header class="page-header">
+        <div class="header-content">
+            <h1>Gestion des Alertes</h1>
+            <p class="subtitle">Définissez des seuils pour être notifié automatiquement</p>
+        </div>
+    </header>
+
+    <div class="content-grid">
+        <!-- Form Section -->
+        <div class="alert-form-card">
+            <div class="card-header">
+                <h3><i class="fas fa-bell"></i> Nouvelle Alerte</h3>
+            </div>
+            <div class="card-body">
+                <form [formGroup]="alertForm" (ngSubmit)="onSubmit()">
+
+                    <div *ngIf="successMessage" class="feedback success">
+                        <i class="fas fa-check-circle"></i> {{ successMessage }}
+                    </div>
+                    <div *ngIf="errorMessage" class="feedback error">
+                        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stockSymbol">Action (Symbole)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-search input-icon"></i>
+                            <input type="text" id="stockSymbol" formControlName="stockSymbol" placeholder="EX: AAPL"
+                                class="form-input">
+                        </div>
+                        <div class="tags-container">
+                            <span *ngFor="let sym of availableSymbols" class="tag"
+                                (click)="alertForm.patchValue({stockSymbol: sym})">
+                                {{ sym }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alertType">Type d'alerte</label>
+                        <select id="alertType" formControlName="alertType" class="form-select">
+                            <option *ngFor="let type of alertTypes" [value]="type">
+                                {{ getLabelForAlertType(type) }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="threshold">Seuil</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-bullseye input-icon"></i>
+                            <input type="number" id="threshold" formControlName="threshold" placeholder="0.00"
+                                step="0.01" class="form-input">
+                        </div>
+                        <small class="hint"
+                            *ngIf="alertForm.get('alertType')?.value === 'GAIN_TARGET' || alertForm.get('alertType')?.value === 'LOSS_LIMIT'">
+                            En pourcentage (%)
+                        </small>
+                        <small class="hint"
+                            *ngIf="alertForm.get('alertType')?.value === 'PRICE_DROP' || alertForm.get('alertType')?.value === 'PRICE_RISE'">
+                            En valeur monétaire (€)
+                        </small>
+                    </div>
+
+                    <button type="submit" class="btn-primary" [disabled]="alertForm.invalid || isSubmitting">
+                        <i class="fas fa-plus"></i> Ajouter l'alerte
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lists Section -->
+        <div class="lists-column">
+
+            <!-- Active Alerts -->
+            <div class="alerts-list-card">
+                <div class="card-header">
+                    <h3>Alertes Actives</h3>
+                </div>
+                <div class="card-body scrollable">
+                    <div *ngIf="(activeAlerts$ | async)?.length === 0" class="empty-state">
+                        Aucune alerte active
+                    </div>
+                    <div *ngFor="let alert of activeAlerts$ | async" class="alert-item active">
+                        <div class="alert-info">
+                            <span class="symbol">{{ alert.stockSymbol }}</span>
+                            <span class="desc">{{ getLabelForAlertType(alert.alertType) }} {{ alert.threshold }}</span>
+                        </div>
+                        <button class="btn-icon delete" (click)="deleteAlert(alert.id)" title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Triggered Alerts -->
+            <div class="alerts-list-card">
+                <div class="card-header">
+                    <h3>Historique (Déclenchées)</h3>
+                </div>
+                <div class="card-body scrollable">
+                    <div *ngIf="(triggeredAlerts$ | async)?.length === 0" class="empty-state">
+                        Aucune alerte récente
+                    </div>
+                    <div *ngFor="let alert of triggeredAlerts$ | async" class="alert-item triggered">
+                        <div class="alert-info">
+                            <div class="top-row">
+                                <span class="symbol">{{ alert.stockSymbol }}</span>
+                                <span class="date">{{ formatDate(alert.triggeredAt!) }}</span>
+                            </div>
+                            <p class="message">{{ alert.message }}</p>
+                        </div>
+                        <div class="actions">
+                            <button class="btn-icon delete" (click)="deleteAlert(alert.id)" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

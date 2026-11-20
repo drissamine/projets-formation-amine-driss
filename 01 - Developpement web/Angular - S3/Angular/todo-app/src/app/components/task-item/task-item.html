@@ -1,0 +1,92 @@
+<li class="task-item" [class.completed]="task.completed" [class.editing]="isEditing()">
+    <div class="task-content">
+        <!-- Mode visualisation -->
+        @if (!isEditing()) {
+            <input 
+                type="checkbox" 
+                [checked]="task.completed" 
+                (change)="onToggle()"
+                class="task-checkbox"
+                [disabled]="isEditing()"
+                [attr.aria-label]="task.completed ? 'Marquer comme non terminée: ' + task.title : 'Marquer comme terminée: ' + task.title"
+            />
+            
+            <span 
+                class="task-title" 
+                [class.completed]="task.completed"
+                [attr.aria-label]="'Tâche: ' + task.title"
+                (dblclick)="startEdit()"
+                (click)="!task.completed && startEdit()"
+                tabindex="0"
+                (keydown.enter)="startEdit()"
+                (keydown.space)="startEdit()"
+            >
+                {{ task.title }}
+            </span>
+        } @else {
+            <!-- Mode édition -->
+            <div class="edit-mode">
+                <input 
+                    id="edit-{{ task.id }}"
+                    [(ngModel)]="editTitle"
+                    (keydown)="onKeyDown($event)"
+                    class="edit-input"
+                    placeholder="Nouveau titre..."
+                    maxlength="100"
+                    [attr.aria-label]="'Éditer la tâche: ' + task.title"
+                />
+                <div class="edit-actions">
+                    <button 
+                        type="button"
+                        class="save-btn"
+                        (click)="saveEdit()"
+                        [disabled]="!editTitle().trim() || editTitle().trim() === task.title"
+                        aria-label="Sauvegarder les modifications"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20,6 9,17 4,12"></polyline>
+                        </svg>
+                        <span class="sr-only">Sauvegarder</span>
+                    </button>
+                    <button 
+                        type="button"
+                        class="cancel-btn"
+                        (click)="cancelEdit()"
+                        aria-label="Annuler les modifications"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        <span class="sr-only">Annuler</span>
+                    </button>
+                </div>
+            </div>
+        }
+        
+        <!-- Boutons d'action (masqués en mode édition) -->
+        @if (!isEditing()) {
+            <button 
+                class="delete-btn" 
+                (click)="onRemove()"
+                [attr.aria-label]="'Supprimer la tâche: ' + task.title"
+                title="Supprimer cette tâche"
+            >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3,6 5,6 21,6"></polyline>
+                    <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                <span class="sr-only">Supprimer</span>
+            </button>
+        }
+    </div>
+    
+    <!-- Indication d'édition pour l'accessibilité -->
+    @if (isEditing()) {
+        <div class="editing-indicator" role="status" aria-live="polite">
+            Édition en cours... Appuyez sur Entrée pour sauvegarder ou Échap pour annuler
+        </div>
+    }
+</li>

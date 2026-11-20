@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 520" width="2080" height="1040" font-family="'Segoe UI', Arial, sans-serif">
+  <rect x="0" y="0" width="1040" height="520" fill="#ffffff"/>
+  <text x="520" y="32" text-anchor="middle" font-size="19" font-weight="700" fill="#1B2A4A">Modèle multi-faits — Constellation de faits — RetailPlus</text>
+
+  <!-- liens faits -> dimensions conformes -->
+  <g stroke="#82B366" stroke-width="1.4" opacity="0.85">
+    <line x1="200" y1="150" x2="320" y2="218"/>
+    <line x1="220" y1="150" x2="510" y2="218"/>
+    <line x1="240" y1="150" x2="700" y2="218"/>
+    <line x1="850" y1="150" x2="720" y2="218"/>
+    <line x1="830" y1="150" x2="530" y2="218"/>
+    <line x1="810" y1="150" x2="340" y2="218"/>
+    <line x1="200" y1="380" x2="320" y2="272"/>
+    <line x1="220" y1="380" x2="510" y2="272"/>
+    <line x1="240" y1="380" x2="700" y2="272"/>
+    <line x1="850" y1="380" x2="720" y2="272"/>
+    <line x1="830" y1="380" x2="530" y2="272"/>
+    <line x1="810" y1="380" x2="340" y2="272"/>
+  </g>
+
+  <!-- FACTS (4 coins) -->
+  <g font-size="9.5">
+    <!-- FactVente -->
+    <rect x="120" y="60" width="170" height="92" rx="4" fill="#FFE6CC" stroke="#D79B00" stroke-width="1.8"/>
+    <rect x="120" y="60" width="170" height="20" rx="4" fill="#D79B00"/>
+    <text x="205" y="74" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">FactVente</text>
+    <text x="130" y="96" font-weight="700" fill="#9a6f00">CA · Bénéfice · Qté · Remise</text>
+    <text x="130" y="112" fill="#7d5e10">grain : 1 ligne = 1 vente</text>
+    <text x="130" y="128" fill="#7d5e10">+ privées : Client, Canal,</text>
+    <text x="130" y="141" fill="#7d5e10">Promotion</text>
+    <!-- FactRetour -->
+    <rect x="770" y="60" width="170" height="92" rx="4" fill="#FFE6CC" stroke="#D79B00" stroke-width="1.8"/>
+    <rect x="770" y="60" width="170" height="20" rx="4" fill="#D79B00"/>
+    <text x="855" y="74" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">FactRetour</text>
+    <text x="780" y="96" font-weight="700" fill="#9a6f00">Montant remb. · Qté · Motif</text>
+    <text x="780" y="112" fill="#7d5e10">grain : 1 ligne = 1 retour</text>
+    <text x="780" y="128" fill="#7d5e10">+ privées : Client, Canal</text>
+    <!-- FactLivraison -->
+    <rect x="120" y="380" width="170" height="92" rx="4" fill="#FFE6CC" stroke="#D79B00" stroke-width="1.8"/>
+    <rect x="120" y="380" width="170" height="20" rx="4" fill="#D79B00"/>
+    <text x="205" y="394" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">FactLivraison</text>
+    <text x="130" y="416" font-weight="700" fill="#9a6f00">Coût livr. · Délai (j) · Qté</text>
+    <text x="130" y="432" fill="#7d5e10">grain : 1 ligne = 1 livraison</text>
+    <!-- FactStock -->
+    <rect x="770" y="380" width="170" height="92" rx="4" fill="#FFE6CC" stroke="#D79B00" stroke-width="1.8"/>
+    <rect x="770" y="380" width="170" height="20" rx="4" fill="#D79B00"/>
+    <text x="855" y="394" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">FactStock</text>
+    <text x="780" y="416" font-weight="700" fill="#9a6f00">Stock init./final · Variation</text>
+    <text x="780" y="432" fill="#7d5e10">Valeur stock — snapshot</text>
+    <text x="780" y="448" fill="#7d5e10">grain : 1 ligne = 1 état/jour</text>
+  </g>
+
+  <!-- DIMENSIONS CONFORMES (centre) -->
+  <rect x="245" y="200" width="550" height="90" rx="8" fill="none" stroke="#5a9c3a" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="520" y="196" text-anchor="middle" font-size="11" font-weight="700" fill="#2e5020">Dimensions conformes (partagées par les 4 faits)</text>
+  <g font-size="10">
+    <rect x="255" y="213" width="150" height="64" rx="4" fill="#D5E8D4" stroke="#82B366" stroke-width="1.5"/>
+    <rect x="255" y="213" width="150" height="20" rx="4" fill="#82B366"/>
+    <text x="330" y="227" text-anchor="middle" font-weight="700" fill="#fff">DimTemps</text>
+    <text x="330" y="250" text-anchor="middle" fill="#2e5020">DateKey (PK)</text>
+    <text x="330" y="265" text-anchor="middle" fill="#2e5020">Jour·Mois·Trim.·Année</text>
+    <rect x="445" y="213" width="150" height="64" rx="4" fill="#D5E8D4" stroke="#82B366" stroke-width="1.5"/>
+    <rect x="445" y="213" width="150" height="20" rx="4" fill="#82B366"/>
+    <text x="520" y="227" text-anchor="middle" font-weight="700" fill="#fff">DimProduit</text>
+    <text x="520" y="250" text-anchor="middle" fill="#2e5020">ProduitKey (PK)</text>
+    <text x="520" y="265" text-anchor="middle" fill="#2e5020">Catégorie·Marque</text>
+    <rect x="635" y="213" width="150" height="64" rx="4" fill="#D5E8D4" stroke="#82B366" stroke-width="1.5"/>
+    <rect x="635" y="213" width="150" height="20" rx="4" fill="#82B366"/>
+    <text x="710" y="227" text-anchor="middle" font-weight="700" fill="#fff">DimMagasin</text>
+    <text x="710" y="250" text-anchor="middle" fill="#2e5020">MagasinKey (PK)</text>
+    <text x="710" y="265" text-anchor="middle" fill="#2e5020">Ville·Région·Pays</text>
+  </g>
+
+  <text x="520" y="505" text-anchor="middle" font-size="10.5" font-style="italic" fill="#777">Plusieurs tables de faits partagent les mêmes dimensions conformes → analyses croisées (ex. ventes vs retours par produit et période).</text>
+</svg>

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tp-devops-calculatrice
+  labels:
+    name: tp-devops-calculatrice
+    environment: dev
+    app: calculatrice
+  annotations:
+    description: "Namespace dedie a l'application calculatrice pour le TP DevOps"
+    owner: "DevOpsTeam"
+    contact: "admin@example.com"

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Rapport : Exercice 3 - Transfer Learning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #3b82f6;
+            --secondary-text: #94a3b8;
+            --border-color: #334155;
+            --success-color: #22c55e;
+            --highlight-bg: rgba(59, 130, 246, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            color: var(--text-color);
+            margin-top: 0;
+            font-size: 1.5rem;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: var(--secondary-text);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        pre {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+            color: #e2e8f0;
+        }
+
+        code {
+            font-family: 'Consolas', monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            color: #93c5fd;
+            font-weight: 600;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: block;
+            margin: 1rem auto;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+<h1>📊 Rapport : Exercice 3 - Transfer Learning</h1>
+<p><strong>Fait par DRISS Amine le 16/02/2026</strong></p>
+</header>
+<div class="card">
+<h2>1. Contexte</h2>
+<p>Le Transfer Learning consiste à utiliser un modèle pré-entraîné sur un très grand dataset (ImageNet) pour résoudre une nouvelle tâche. Nous utilisons ici <strong>MobileNetV2</strong>.</p>
+</div>
+<div class="card">
+<h2>2. Architecture du Modèle</h2>
+<pre><code>def build_transfer_learning_model(freeze_base=True):
+    # Charger MobileNetV2 (sans la tête de classification)
+    base_model = keras.applications.MobileNetV2(
+        input_shape=(32, 32, 3),
+        include_top=False,
+        weights='imagenet'
+    )
+
+    if freeze_base:
+        base_model.trainable = False
+
+    # Ajouter notre propre tête de classification
+    model = models.Sequential([
+        base_model,
+        layers.GlobalAveragePooling2D(),
+        layers.Dense(256, activation='relu'),
+        layers.Dropout(0.3),
+        layers.Dense(10, activation='softmax')
+    ])
+
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001),
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    return model, base_model</code></pre>
+</div>
+<div class="card">
+<h2>3. Phase 1 : Entraînement de la tête (Feature Extraction)</h2>
+<p>Dans cette phase, nous gelons les poids de MobileNetV2 et entraînons uniquement nos nouvelles couches denses.</p>
+<pre><code>history_ex3_phase1 = model_ex3.fit(
+    x_train_cifar, y_train_cifar,
+    validation_split=0.2,
+    epochs=10,
+    batch_size=32,
+    callbacks=[early_stop],
+    verbose=1
+)</code></pre>
+<p><strong>Résultat Phase 1 :</strong></p>
+<ul>
+<li>Accuracy : <strong>35.46%</strong></li>
+<li><em>Note : La précision est faible car les images (32x32) sont très petites pour MobileNetV2 (conçu pour 224x224). Les caractéristiques extraites sont moins pertinentes sans fine-tuning ou redimensionnement.</em></li>
+</ul>
+</div>
+<div class="card">
+<h2>4. Phase 2 : Fine-tuning</h2>
+<p>Nous dégelons les dernières couches de MobileNetV2 pour ajuster finement les poids à notre dataset spécifique.</p>
+<pre><code>base_model_ex3.trainable = True
+
+# Geler les N premières couches
+num_to_freeze = len(base_model_ex3.layers) - 20
+for i, layer in enumerate(base_model_ex3.layers[:num_to_freeze]):
+    layer.trainable = False
+
+# Recompiler avec un learning rate faible (1e-4)
+model_ex3.compile(
+    optimizer=keras.optimizers.Adam(learning_rate=1e-4),
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+history_ex3_phase2 = model_ex3.fit(...)</code></pre>
+<p><strong>Résultat Phase 2 :</strong></p>
+<ul>
+<li>Accuracy : <em>Non exécuté</em></li>
+</ul>
+</div>
+<div class="card">
+<h2>5. Comparaison Finale</h2>
+<table>
+<thead><tr><th>Approche</th><th>Test Accuracy</th><th>Paramètres</th></tr></thead><tbody>
+<tr><td><strong>CNN from Scratch</strong></td><td><em>Non exécuté</em></td><td><em>Non exécuté</em></td></tr>
+<tr><td><strong>Transfer Learning</strong></td><td><em>Non exécuté</em></td><td><em>Non exécuté</em></td></tr>
+</tbody></table>
+<h3>Conclusion</h3>
+<p>Le Transfer Learning permet généralement de converger beaucoup plus vite et d'obtenir de bons résultats même avec moins de données, car le modèle "sait" déjà extraire des caractéristiques visuelles complexes (bords, textures, formes).</p>
+<p>---</p>
+</div>
+<div class="card">
+<h2>6. Réponses aux Questions</h2>
+<h3>1. Pourquoi le transfer learning converge-t-il plus rapidement ?</h3>
+<p>Le modèle (ici MobileNetV2) a déjà appris des <strong>extracteurs de caractéristiques</strong> robustes (bords, textures, formes complexes) sur un jeu de données massif (ImageNet). Au lieu de partir de poids aléatoires qui ne "savent" rien voir, on part d'un réseau qui sait déjà "voir". On n'a plus qu'à entraîner la dernière couche pour associer ces caractéristiques aux nouvelles classes, ce qui est une tâche d'optimisation beaucoup plus simple et rapide.</p>
+<h3>2. Qu'apprend le réseau dans les couches profondes d'ImageNet ?</h3>
+<p>Dans les CNNs, les premières couches apprennent des <strong>caractéristiques de bas niveau</strong> (lignes, coins, dégradés). Les <strong>couches profondes</strong>, elles, combinent ces éléments pour reconnaître des <strong>concepts sémantiques complexes</strong> et abstraits (ex: "œil", "roue", "texture de fourrure", "motif géométrique"). Ce sont ces concepts riches qui sont réutilisés pour classifier nos nouvelles images.</p>
+<h3>3. Quel est l'impact du fine-tuning progressif sur la performance ?</h3>
+<p>Le fine-tuning (dégeler les dernières couches du modèle de base) permet d'adapter légèrement les <strong>caractéristiques de haut niveau</strong> aux spécificités de notre nouveau dataset (CIFAR-10). Cela améliore généralement la précision finale car le modèle ne se contente plus de caractéristiques génériques ImageNet, mais affine sa perception pour différencier spécifiquement nos classes (ex: différencier un "camion" CIFAR-10 d'une "voiture" CIFAR-10).</p>
+<h3>4. Vaut-il toujours la peine d'utiliser transfer learning ?</h3>
+<p><strong>Presque toujours</strong>, surtout si le dataset cible est petit ou moyen (< 1 million d'images). Cela économise énormément de ressources de calcul et de temps.</p>
+<p><strong>Exceptions</strong> :</p>
+<ul>
+<li>Si le dataset cible est <strong>très différent</strong> visuellement (ex: imagerie médicale, images satellite infrarouge) vs images naturelles (ImageNet), les caractéristiques apprises peuvent être inutiles voire nuisibles.</li>
+<li>Si on a un <strong>dataset immense</strong> et beaucoup de temps, un modèle entraîné "from scratch" peut parfois être plus optimisé pour la tâche spécifique.</li>
+</ul>
+<p>---</p>
+<p><strong>Fait par DRISS Amine le 16/02/2026</strong></p>
+</div>
+
+</div>
+
+</body>
+</html>

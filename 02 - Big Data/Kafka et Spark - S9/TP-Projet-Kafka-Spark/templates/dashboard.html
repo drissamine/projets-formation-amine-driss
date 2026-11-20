@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streaming Analytics Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .stat-card.success { border-left-color: var(--success-color); }
+        .stat-card.warning { border-left-color: var(--warning-color); }
+        .stat-card.danger { border-left-color: var(--danger-color); }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 400px;
+        }
+        
+        .table-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: #f1f3f4;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .badge.success { background-color: var(--success-color); }
+        .badge.warning { background-color: var(--warning-color); }
+        .badge.danger { background-color: var(--danger-color); }
+        
+        .refresh-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        .refresh-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success-color);
+            margin-right: 0.5rem;
+        }
+        
+        .status-indicator.offline {
+            background-color: var(--danger-color);
+            box-shadow: 0 0 5px var(--danger-color);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🚀 Streaming Analytics Dashboard</h1>
+    </header>
+    
+    <div class="container">
+        <!-- Status and Stats -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div style="display: flex; align-items: center;">
+                <span class="status-indicator" id="status-indicator"></span>
+                <span id="status-text">System Online</span>
+            </div>
+            <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
+        </div>
+        
+        <!-- Key Metrics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="total-events">-</div>
+                <div class="stat-label">Total Events</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-value" id="throughput">-</div>
+                <div class="stat-label">Throughput (events/sec)</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-value" id="avg-latency">-</div>
+                <div class="stat-label">Avg Latency (seconds)</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-value" id="anomaly-count">-</div>
+                <div class="stat-label">Recent Anomalies</div>
+            </div>
+        </div>
+        
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">📈 Video Popularity Over Time</div>
+                <div id="chart-video-popularity" class="chart-container"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">🎬 Genre Analysis</div>
+                <div id="chart-genre-analysis" class="chart-container"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">👥 User Engagement</div>
+                <div id="chart-user-engagement" class="chart-container"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">⚠️ Anomalies Timeline</div>
+                <div id="chart-anomalies" class="chart-container"></div>
+            </div>
+        </div>
+        
+        <!-- Recent Anomalies Table -->
+        <div class="table-card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary-color);">🚨 Recent Anomalies</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>User ID</th>
+                        <th>Video ID</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="anomalies-table-body">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Dashboard JavaScript
+        let refreshInterval;
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            startAutoRefresh();
+            refreshData();
+        });
+        
+        function startAutoRefresh() {
+            refreshInterval = setInterval(refreshData, 30000); // Refresh every 30 seconds
+        }
+        
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        }
+        
+        async function refreshData() {
+            try {
+                // Update status
+                updateStatus(true);
+                
+                // Fetch and update stats
+                const stats = await fetch('/api/stats').then(r => r.json());
+                updateStats(stats);
+                
+                // Fetch and update charts
+                await updateCharts();
+                
+                // Fetch and update anomalies table
+                const anomalies = await fetch('/api/anomalies').then(r => r.json());
+                updateAnomaliesTable(anomalies);
+                
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                updateStatus(false);
+            }
+        }
+        
+        function updateStatus(online) {
+            const indicator = document.getElementById('status-indicator');
+            const text = document.getElementById('status-text');
+            
+            if (online) {
+                indicator.classList.remove('offline');
+                text.textContent = 'System Online';
+            } else {
+                indicator.classList.add('offline');
+                text.textContent = 'System Offline - Retrying...';
+            }
+        }
+        
+        function updateStats(stats) {
+            if (stats.throughput) {
+                document.getElementById('total-events').textContent = stats.throughput.total_events || '-';
+                document.getElementById('throughput').textContent = stats.throughput.recent_throughput || '-';
+            }
+            
+            if (stats.latency) {
+                document.getElementById('avg-latency').textContent = stats.latency.avg_latency || '-';
+            }
+            
+            // Update anomaly count (placeholder - would need separate API call)
+            document.getElementById('anomaly-count').textContent = 'Calculating...';
+        }
+        
+        async function updateCharts() {
+            // Update video popularity chart
+            try {
+                const videoData = await fetch('/api/charts/video-popularity').then(r => r.json());
+                Plotly.newPlot('chart-video-popularity', videoData.data, videoData.layout, {responsive: true});
+            } catch (error) {
+                console.error('Error updating video popularity chart:', error);
+            }
+            
+            // Update genre analysis chart
+            try {
+                const genreData = await fetch('/api/charts/genre-analysis').then(r => r.json());
+                Plotly.newPlot('chart-genre-analysis', genreData.data, genreData.layout, {responsive: true});
+            } catch (error) {
+                console.error('Error updating genre analysis chart:', error);
+            }
+            
+            // Update user engagement chart
+            try {
+                const engagementData = await fetch('/api/charts/user-engagement').then(r => r.json());
+                Plotly.newPlot('chart-user-engagement', engagementData.data, engagementData.layout, {responsive: true});
+            } catch (error) {
+                console.error('Error updating user engagement chart:', error);
+            }
+            
+            // Update anomalies timeline chart
+            try {
+                const anomaliesData = await fetch('/api/charts/anomalies-timeline').then(r => r.json());
+                Plotly.newPlot('chart-anomalies', anomaliesData.data, anomaliesData.layout, {responsive: true});
+            } catch (error) {
+                console.error('Error updating anomalies timeline chart:', error);
+            }
+        }
+        
+        function updateAnomaliesTable(anomalies) {
+            const tbody = document.getElementById('anomalies-table-body');
+            tbody.innerHTML = '';
+            
+            if (!anomalies || anomalies.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No recent anomalies</td></tr>';
+                return;
+            }
+            
+            anomalies.slice(0, 10).forEach(anomaly => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${anomaly.alert_time || '-'}</td>
+                    <td><span class="badge danger">${anomaly.alert_type || '-'}</span></td>
+                    <td>${anomaly.user_id || '-'}</td>
+                    <td>${anomaly.video_id || '-'}</td>
+                    <td>Current Time: ${anomaly.current_time || '-'}s</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
+    

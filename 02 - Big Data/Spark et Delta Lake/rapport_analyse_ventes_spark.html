@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projet Spark & Delta Lake - Analyse des Ventes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    line-height: 1.6;
+  }
+  .header {
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: #fff;
+    padding: 60px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+    animation: pulse 8s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  .header h1 {
+    font-size: 2.8em;
+    font-weight: 800;
+    letter-spacing: -1px;
+    position: relative;
+    z-index: 1;
+  }
+  .header .subtitle {
+    font-size: 1.2em;
+    opacity: 0.85;
+    margin-top: 10px;
+    position: relative;
+    z-index: 1;
+    font-weight: 300;
+  }
+  .header .student {
+    margin-top: 25px;
+    padding: 20px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .header .student .name { font-size: 1.4em; font-weight: 700; }
+  .header .student .title { font-size: 0.9em; opacity: 0.8; margin-top: 4px; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+  .part {
+    background: #fff;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+  .part:hover { transform: translateY(-2px); box-shadow: 0 4px 30px rgba(0,0,0,0.1); }
+  .part-header {
+    padding: 24px 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .part-header h2 {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: #302b63;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .part-header .badge {
+    background: #302b63;
+    color: #fff;
+    font-size: 0.7em;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .part-body { padding: 30px; }
+  .part-body h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #444;
+    margin: 25px 0 12px 0;
+    padding-left: 12px;
+    border-left: 3px solid #302b63;
+  }
+  .part-body h3:first-child { margin-top: 0; }
+  .part-body p, .part-body li { color: #555; margin-bottom: 8px; line-height: 1.7; }
+  .part-body ul { padding-left: 20px; }
+  .part-body code {
+    font-family: 'JetBrains Mono', monospace;
+    background: #f4f4f8;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #e74c3c;
+  }
+  .code-block {
+    font-family: 'JetBrains Mono', monospace;
+    background: #1a1a2e;
+    color: #e8e8e8;
+    padding: 20px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 0.85em;
+    line-height: 1.5;
+    margin: 15px 0;
+    position: relative;
+  }
+  .code-block .lang-tag {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 0.7em;
+    background: rgba(255,255,255,0.1);
+    padding: 2px 10px;
+    border-radius: 4px;
+    color: #999;
+    font-family: 'Inter', sans-serif;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 0.9em;
+  }
+  thead th {
+    background: #302b63;
+    color: #fff;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child { border-radius: 0 8px 0 0; }
+  tbody td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #eee;
+    color: #444;
+  }
+  tbody tr:hover { background: #f8f8ff; }
+  tbody tr:nth-child(even) { background: #fafafa; }
+  .highlight-box {
+    background: linear-gradient(135deg, #667eea22, #764ba222);
+    border-left: 4px solid #302b63;
+    padding: 18px 22px;
+    border-radius: 0 8px 8px 0;
+    margin: 15px 0;
+  }
+  .highlight-box p { margin: 0; color: #333; font-size: 0.95em; }
+  .footer {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-size: 0.9em;
+  }
+  .footer strong { color: #302b63; }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, #667eea08, #764ba208);
+    border: 1px solid #e8e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-card .number {
+    font-size: 2em;
+    font-weight: 800;
+    color: #302b63;
+  }
+  .stat-card .label {
+    font-size: 0.85em;
+    color: #888;
+    margin-top: 4px;
+  }
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #302b63;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding: 15px 20px;
+    background: #f8f8ff;
+    border-radius: 8px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 20px;
+    width: 12px;
+    height: 12px;
+    background: #302b63;
+    border-radius: 50%;
+  }
+  .timeline-item .version { font-weight: 700; color: #302b63; }
+  .timeline-item .desc { color: #666; font-size: 0.9em; margin-top: 4px; }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .summary-item {
+    background: #f8f8ff;
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+    border: 1px solid #e8e8f0;
+  }
+  .summary-item .check { color: #27ae60; font-size: 1.5em; }
+  .summary-item .task { font-weight: 600; color: #333; margin-top: 6px; font-size: 0.9em; }
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.8em; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .part-body { padding: 20px; }
+    .header { padding: 40px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚡ Système de Gestion &amp; Analyse des Ventes</h1>
+  <p class="subtitle">Apache Spark &amp; Delta Lake — Mini-projet Big Data</p>
+  <div class="student">
+    <div class="name">DRISS Amine</div>
+    <div class="title">Expert en Systèmes d'Information et Sécurité<br>Spécialisation : Ingénierie Logiciel &amp; Data</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============ PARTIE 1 ============ -->
+<div class="part">
+  <div class="part-header">
+    <h2><span>📦</span> Partie 1 — Préparation des données</h2>
+    <span class="badge">99 ventes final</span>
+  </div>
+  <div class="part-body">
+    <h3>1.1 Fichier CSV généré</h3>
+    <p>Fichier <code>sales_data.csv</code> contenant <strong>105 lignes</strong> de ventes avec les colonnes : <code>SaleID</code>, <code>Date</code>, <code>Product</code>, <code>Category</code>, <code>UnitPrice</code>, <code>Quantity</code>, <code>City</code>, <code>Customer</code>.</p>
+    <p class="highlight-box" style="margin-top:10px;"><strong>Exécution :</strong> Notebook exécuté sur <strong>Azure Databricks</strong> (Unity Catalog, Serverless) — <strong>99 ventes</strong> après manipulations.</p>
+
+    <div class="summary-grid">
+      <div class="summary-item"><div class="check">✓</div><div class="task">105 ventes initiales</div></div>
+      <div class="summary-item"><div class="check">✓</div><div class="task">6 catégories</div></div>
+      <div class="summary-item"><div class="check">✓</div><div class="task">10 villes</div></div>
+      <div class="summary-item"><div class="check">✓</div><div class="task">99 finales</div></div>
+    </div>
+
+    <h3>1.2 Schéma du DataFrame</h3>
+    <div class="code-block">
+      <span class="lang-tag">Schema</span>
+      root
+       |-- SaleID: integer (nullable = true)
+       |-- Date: string (nullable = true)
+       |-- Product: string (nullable = true)
+       |-- Category: string (nullable = true)
+       |-- UnitPrice: double (nullable = true)
+       |-- Quantity: integer (nullable = true)
+       |-- City: string (nullable = true)
+       |-- Customer: string (nullable = true)
+    </div>
+
+    <h3>1.3 Premières lignes</h3>
+    <table>
+      <thead><tr><th>SaleID</th><th>Date</th><th>Product</th><th>Category</th><th>UnitPrice</th><th>Qty</th><th>City</th><th>Customer</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>2024-01-05</td><td>MacBook Pro</td><td>Électronique</td><td>2499.99</td><td>1</td><td>Paris</td><td>Dupont</td></tr>
+        <tr><td>2</td><td>2024-01-05</td><td>iPhone 15</td><td>Électronique</td><td>1299.99</td><td>2</td><td>Lyon</td><td>Martin</td></tr>
+        <tr><td>3</td><td>2024-01-06</td><td>T-Shirt Coton</td><td>Vêtements</td><td>29.99</td><td>5</td><td>Marseille</td><td>Bernard</td></tr>
+        <tr><td>4</td><td>2024-01-06</td><td>Table en Chêne</td><td>Maison</td><td>349.99</td><td>1</td><td>Toulouse</td><td>Petit</td></tr>
+        <tr><td>5</td><td>2024-01-07</td><td>Café Bio</td><td>Alimentation</td><td>12.99</td><td>10</td><td>Paris</td><td>Robert</td></tr>
+        <tr><td>6</td><td>2024-01-07</td><td>Vélo de Course</td><td>Sports</td><td>899.99</td><td>1</td><td>Lyon</td><td>Richard</td></tr>
+        <tr><td>7</td><td>2024-01-08</td><td>Python pour les Nuls</td><td>Livres</td><td>39.99</td><td>3</td><td>Marseille</td><td>Moreau</td></tr>
+        <tr><td>8</td><td>2024-01-08</td><td>MacBook Pro</td><td>Électronique</td><td>2499.99</td><td>1</td><td>Bordeaux</td><td>Simon</td></tr>
+        <tr><td>9</td><td>2024-01-09</td><td>Jean Slim</td><td>Vêtements</td><td>79.99</td><td>2</td><td>Lille</td><td>Laurent</td></tr>
+        <tr><td>10</td><td>2024-01-09</td><td>Canapé Angle</td><td>Maison</td><td>1299.99</td><td>1</td><td>Nice</td><td>Michel</td></tr>
+      </tbody>
+    </table>
+
+    <h3>1.4 Colonne calculée Total</h3>
+    <p>Ajout de la colonne <code>Total = UnitPrice × Quantity</code></p>
+    <div class="code-block">
+      <span class="lang-tag">Spark</span>
+      df = df.withColumn("Total", col("UnitPrice") * col("Quantity"))
+    </div>
+    <p><strong>Nombre total de ventes :</strong> 105</p>
+  </div>
+</div>
+
+<!-- ============ PARTIE 2 ============ -->
+<div class="part">
+  <div class="part-header">
+    <h2><span>🗃️</span> Partie 2 — Création d'une table Delta</h2>
+    <span class="badge">Delta Lake</span>
+  </div>
+  <div class="part-body">
+    <h3>2.1 Enregistrement dans Delta</h3>
+    <div class="code-block">
+      <span class="lang-tag">Spark</span>
+      df.write.mode("overwrite").format("delta").saveAsTable("sales_delta")
+    </div>
+
+    <h3>2.2 Table externe vs Table gérée</h3>
+    <div class="grid-2">
+      <div>
+        <div class="stat-card">
+          <div class="number">📁 Table externe</div>
+          <div class="label"><code>sales_external</code> — Chemin explicite</div>
+        </div>
+        <div class="highlight-box">
+          <p><strong>Caractéristique :</strong> Les données sont stockées à un emplacement spécifié (<code>/user/hive/warehouse/sales_external</code>). La suppression de la table ne supprime pas les données physiques.</p>
+        </div>
+      </div>
+      <div>
+        <div class="stat-card">
+          <div class="number">📦 Table gérée</div>
+          <div class="label"><code>sales_managed</code> — Warehouse par défaut</div>
+        </div>
+        <div class="highlight-box">
+          <p><strong>Caractéristique :</strong> Spark gère le cycle de vie complet. La suppression de la table supprime définitivement les données.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>2.3 Comparaison</h3>
+    <table>
+      <thead><tr><th>Critère</th><th>Table externe</th><th>Table gérée</th></tr></thead>
+      <tbody>
+        <tr><td>Emplacement</td><td>Défini par l'utilisateur</td><td>Warehouse par défaut</td></tr>
+        <tr><td>Suppression de la table</td><td>Ne supprime pas les données</td><td>Supprime données + métadonnées</td></tr>
+        <tr><td>Cas d'usage</td><td>Données partagées entre services</td><td>Données propres à l'application</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ PARTIE 3 ============ -->
+<div class="part">
+  <div class="part-header">
+    <h2><span>✏️</span> Partie 3 — Manipulation des données</h2>
+    <span class="badge">UPDATE / DELETE / INSERT</span>
+  </div>
+  <div class="part-body">
+    <h3>3.1 Augmentation de 10% — Catégorie Électronique</h3>
+    <div class="code-block">
+      <span class="lang-tag">SQL</span>
+      UPDATE sales_delta
+      SET UnitPrice = ROUND(UnitPrice * 1.10, 2),
+          Total = ROUND(UnitPrice * 1.10 * Quantity, 2)
+      WHERE Category = 'Électronique'
+    </div>
+    <table>
+      <thead><tr><th>Métrique</th><th>Avant</th><th>Après</th></tr></thead>
+      <tbody>
+        <tr><td>Prix moyen Électronique</td><td>862.06 €</td><td>948.27 €</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.2 Suppression des ventes de Lyon</h3>
+    <div class="code-block">
+      <span class="lang-tag">SQL</span>
+      DELETE FROM sales_delta WHERE City = 'Lyon'
+    </div>
+    <p>Opération effectuée : toutes les ventes de la ville de Lyon ont été supprimées de la table (<strong>6 ventes supprimées</strong>).</p>
+
+    <h3>3.3 Ajout de 5 nouvelles ventes</h3>
+    <table>
+      <thead><tr><th>SaleID</th><th>Date</th><th>Product</th><th>Category</th><th>Price</th><th>Qty</th><th>City</th><th>Customer</th></tr></thead>
+      <tbody>
+        <tr><td>106</td><td>2024-03-01</td><td>Drone DJI</td><td>Électronique</td><td>999.99</td><td>1</td><td>Paris</td><td>Moreau</td></tr>
+        <tr><td>107</td><td>2024-03-02</td><td>Montre Connectée</td><td>Électronique</td><td>349.99</td><td>2</td><td>Marseille</td><td>Dupont</td></tr>
+        <tr><td>108</td><td>2024-03-03</td><td>Sac à Dos Randonnée</td><td>Sports</td><td>79.99</td><td>3</td><td>Bordeaux</td><td>Petit</td></tr>
+        <tr><td>109</td><td>2024-03-04</td><td>Romans Policiers</td><td>Livres</td><td>24.99</td><td>5</td><td>Toulouse</td><td>Martin</td></tr>
+        <tr><td>110</td><td>2024-03-05</td><td>Grille-Pain</td><td>Maison</td><td>49.99</td><td>2</td><td>Lille</td><td>Bernard</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.4 Correction de nom produit</h3>
+    <div class="code-block">
+      <span class="lang-tag">SQL</span>
+      UPDATE sales_delta SET Product = 'Table Basse' WHERE Product = 'Table basse'
+    </div>
+    <p>Le produit <code>Table basse</code> a été corrigé en <code>Table Basse</code> (majuscule).</p>
+
+    <div class="highlight-box">
+      <p><strong>Résumé des modifications :</strong> Après ces 4 opérations, la table contient les données mises à jour avec historique complet conservé par Delta Lake.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ PARTIE 4 ============ -->
+<div class="part">
+  <div class="part-header">
+    <h2><span>🕰️</span> Partie 4 — Historique et Time Travel</h2>
+    <span class="badge">Versioning</span>
+  </div>
+  <div class="part-body">
+    <h3>4.1 Historique des modifications</h3>
+    <div class="code-block">
+      <span class="lang-tag">SQL</span>
+      DESCRIBE HISTORY sales_delta
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="version">Version 0</div>
+        <div class="desc">Écriture initiale — 105 ventes chargées depuis le CSV</div>
+      </div>
+      <div class="timeline-item">
+        <div class="version">Version 1</div>
+        <div class="desc">UPDATE — Augmentation de 10% des prix Électronique</div>
+      </div>
+      <div class="timeline-item">
+        <div class="version">Version 2</div>
+        <div class="desc">DELETE — Suppression des ventes de Lyon</div>
+      </div>
+      <div class="timeline-item">
+        <div class="version">Version 3</div>
+        <div class="desc">INSERT — Ajout de 5 nouvelles ventes</div>
+      </div>
+      <div class="timeline-item">
+        <div class="version">Version 4</div>
+        <div class="desc">UPDATE — Correction du nom 'Table basse' → 'Table Basse'</div>
+      </div>
+    </div>
+
+    <h3>4.2 Revenir à une version antérieure</h3>
+    <div class="code-block">
+      <span class="lang-tag">Spark</span>
+      df_version_0 = spark.read.format("delta").option("versionAsOf", "0").table("sales_delta")
+    </div>
+
+    <h3>4.3 Comparaison v0 vs actuelle</h3>
+    <table>
+      <thead><tr><th>Métrique</th><th>Version 0</th><th>Version actuelle</th></tr></thead>
+      <tbody>
+        <tr><td>Nombre de ventes</td><td>105</td><td>99 (105 − Lyon + 5 nouvelles)</td></tr>
+        <tr><td>Prix moyen Électronique</td><td>862.06 €</td><td>948.27 € (+10%)</td></tr>
+        <tr><td>Ville "Lyon" présente</td><td>Oui</td><td>Non</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4.4 Intérêt du Time Travel</h3>
+    <div class="highlight-box">
+      <p>
+        <strong>Le Time Travel dans Delta Lake permet :</strong><br><br>
+        <strong>1. Audit et traçabilité :</strong> Chaque modification est versionnée. On peut retracer qui a fait quoi et quand.<br>
+        <strong>2. Reprise après erreur :</strong> Si une mise à jour ou suppression accidentelle se produit, on peut revenir à une version antérieure facilement avec <code>versionAsOf</code> ou <code>timestampAsOf</code>.<br>
+        <strong>3. Reproductibilité :</strong> Pour des analyses ou des modèles ML, on peut garantir l'utilisation exactement des mêmes données.<br>
+        <strong>4. Comparaison temporelle :</strong> On peut comparer l'état des données entre différentes versions pour analyser l'impact des changements.<br>
+        <strong>5. Conformité réglementaire :</strong> Conservation de l'historique complet pour satisfaire aux exigences d'audit (RGPD, SOX, etc.).<br>
+        <strong>6. Data Testing :</strong> Tester des transformations sur une version passée sans affecter les données courantes.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PARTIE 5 ============ -->
+<div class="part">
+  <div class="part-header">
+    <h2><span>📊</span> Partie 5 — Analyses avec Spark SQL</h2>
+    <span class="badge">10 requêtes</span>
+  </div>
+  <div class="part-body">
+    <h3>5.1 Chiffre d'affaires total</h3>
+    <div class="code-block">
+      <span class="lang-tag">SQL</span>
+      SELECT ROUND(SUM(Total), 2) AS Chiffre_Affaires_Total FROM sales_delta
+    </div>
+    <table>
+      <thead><tr><th>Chiffre d'affaires total</th></tr></thead>
+      <tbody><tr><td><strong>40 811.53 €</strong></td></tr></tbody>
+    </table>
+
+    <h3>5.2 Chiffre d'affaires par ville</h3>
+    <table>
+      <thead><tr><th>Ville</th><th>CA (€)</th><th>Ventes</th></tr></thead>
+      <tbody>
+        <tr><td>Paris</td><td>8 305.04</td><td>21</td></tr>
+        <tr><td>Bordeaux</td><td>5 284.77</td><td>10</td></tr>
+        <tr><td>Nantes</td><td>4 394.70</td><td>9</td></tr>
+        <tr><td>Lille</td><td>4 329.73</td><td>10</td></tr>
+        <tr><td>Montpellier</td><td>4 320.75</td><td>9</td></tr>
+        <tr><td>Nice</td><td>4 282.71</td><td>9</td></tr>
+        <tr><td>Strasbourg</td><td>3 735.69</td><td>9</td></tr>
+        <tr><td>Marseille</td><td>3 141.55</td><td>11</td></tr>
+        <tr><td>Toulouse</td><td>3 016.59</td><td>11</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.3 Chiffre d'affaires par catégorie</h3>
+    <table>
+      <thead><tr><th>Catégorie</th><th>CA (€)</th><th>Ventes</th></tr></thead>
+      <tbody>
+        <tr><td>Électronique</td><td>23 325.51</td><td>18</td></tr>
+        <tr><td>Maison</td><td>7 399.61</td><td>17</td></tr>
+        <tr><td>Sports</td><td>3 999.58</td><td>16</td></tr>
+        <tr><td>Vêtements</td><td>3 369.49</td><td>17</td></tr>
+        <tr><td>Livres</td><td>1 574.66</td><td>16</td></tr>
+        <tr><td>Alimentation</td><td>1 142.68</td><td>15</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.4 Produit le plus vendu (par quantité)</h3>
+    <table>
+      <thead><tr><th>Produit</th><th>Quantité vendue</th><th>CA (€)</th></tr></thead>
+      <tbody>
+        <tr><td>Thé Vert</td><td>27</td><td>242.73</td></tr>
+        <tr><td>Biscuits Bio</td><td>22</td><td>109.78</td></tr>
+        <tr><td>Chargeur USB-C</td><td>18</td><td>593.80</td></tr>
+        <tr><td>Café Bio</td><td>16</td><td>207.84</td></tr>
+        <tr><td>Chocolat Noir</td><td>15</td><td>89.85</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.5 Client le plus actif</h3>
+    <table>
+      <thead><tr><th>Client</th><th>Achats</th><th>Montant total (€)</th></tr></thead>
+      <tbody>
+        <tr><td>Bernard</td><td>7</td><td>2 759.73</td></tr>
+        <tr><td>Dupont</td><td>6</td><td>4 599.87</td></tr>
+        <tr><td>Petit</td><td>6</td><td>1 299.75</td></tr>
+        <tr><td>Robert</td><td>6</td><td>1 952.79</td></tr>
+        <tr><td>Moreau</td><td>6</td><td>2 267.75</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.6 Top 5 des villes</h3>
+    <table>
+      <thead><tr><th>#</th><th>Ville</th><th>CA (€)</th><th>Panier moyen (€)</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Paris</td><td>8 305.04</td><td>395.48</td></tr>
+        <tr><td>2</td><td>Bordeaux</td><td>5 284.77</td><td>528.48</td></tr>
+        <tr><td>3</td><td>Nantes</td><td>4 394.70</td><td>488.30</td></tr>
+        <tr><td>4</td><td>Lille</td><td>4 329.73</td><td>432.97</td></tr>
+        <tr><td>5</td><td>Montpellier</td><td>4 320.75</td><td>480.08</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.7 Ventes par mois</h3>
+    <table>
+      <thead><tr><th>Mois</th><th>Ventes</th><th>CA (€)</th></tr></thead>
+      <tbody>
+        <tr><td>2024-01</td><td>44</td><td>21 189.65</td></tr>
+        <tr><td>2024-02</td><td>50</td><td>17 457.01</td></tr>
+        <tr><td>2024-03</td><td>5</td><td>2 164.87</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.8 Moyenne des prix par catégorie</h3>
+    <table>
+      <thead><tr><th>Catégorie</th><th>Prix moyen (€)</th><th>Prix min (€)</th><th>Prix max (€)</th></tr></thead>
+      <tbody>
+        <tr><td>Électronique</td><td>948.27</td><td>32.99</td><td>2 749.99</td></tr>
+        <tr><td>Maison</td><td>327.05</td><td>29.99</td><td>1 299.99</td></tr>
+        <tr><td>Sports</td><td>177.49</td><td>19.99</td><td>899.99</td></tr>
+        <tr><td>Vêtements</td><td>89.40</td><td>29.99</td><td>199.99</td></tr>
+        <tr><td>Livres</td><td>49.37</td><td>24.99</td><td>64.99</td></tr>
+        <tr><td>Alimentation</td><td>9.39</td><td>3.99</td><td>14.99</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.9 Produit le plus cher</h3>
+    <table>
+      <thead><tr><th>Produit</th><th>Prix (€)</th><th>Catégorie</th></tr></thead>
+      <tbody>
+        <tr><td>MacBook Pro</td><td>2 749.99</td><td>Électronique</td></tr>
+        <tr><td>iPhone 15</td><td>1 429.99</td><td>Électronique</td></tr>
+        <tr><td>iPad Air</td><td>824.99</td><td>Électronique</td></tr>
+        <tr><td>Samsung Galaxy S24</td><td>989.99</td><td>Électronique</td></tr>
+        <tr><td>Vélo de Course</td><td>899.99</td><td>Sports</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.10 Nombre de ventes par catégorie</h3>
+    <table>
+      <thead><tr><th>Catégorie</th><th>Ventes</th><th>Qté totale</th><th>CA (€)</th></tr></thead>
+      <tbody>
+        <tr><td>Électronique</td><td>18</td><td>47</td><td>23 325.51</td></tr>
+        <tr><td>Vêtements</td><td>17</td><td>51</td><td>3 369.49</td></tr>
+        <tr><td>Maison</td><td>17</td><td>39</td><td>7 399.61</td></tr>
+        <tr><td>Livres</td><td>16</td><td>34</td><td>1 574.66</td></tr>
+        <tr><td>Sports</td><td>16</td><td>42</td><td>3 999.58</td></tr>
+        <tr><td>Alimentation</td><td>15</td><td>132</td><td>1 142.68</td></tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box">
+      <p><strong>Total 10 requêtes + bonus :</strong> Répartition du chiffre d'affaires par client avec pourcentage.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PARTIE 6 ============ -->
+<div class="part">
+  <div class="part-header">
+    <h2><span>⚙️</span> Partie 6 — Optimisation</h2>
+    <span class="badge">OPTIMIZE / VACUUM</span>
+  </div>
+  <div class="part-body">
+    <h3>6.1 Commande OPTIMIZE</h3>
+    <div class="code-block">
+      <span class="lang-tag">SQL</span>
+      OPTIMIZE sales_delta
+    </div>
+    <p>Compacte les petits fichiers en fichiers plus grands et optimisés pour améliorer les performances de lecture.</p>
+
+    <h3>6.2 Commande VACUUM</h3>
+    <div class="code-block">
+      <span class="lang-tag">SQL</span>
+      VACUUM sales_delta RETAIN 24 HOURS
+    </div>
+    <p>Supprime physiquement les fichiers de données qui ne sont plus référencés par la dernière version de la table.</p>
+
+    <h3>6.3 Explication détaillée</h3>
+    <div class="grid-2">
+      <div class="highlight-box" style="border-left-color: #27ae60;">
+        <p>
+          <strong>OPTIMIZE</strong><br><br>
+          • Compacte les petits fichiers en fichiers plus grands<br>
+          • Réorganise les données (Z-Ordering optionnel)<br>
+          • Réduit le nombre de fichiers à scanner<br>
+          • Améliore les performances de <strong>lecture</strong>
+        </p>
+      </div>
+      <div class="highlight-box" style="border-left-color: #e74c3c;">
+        <p>
+          <strong>VACUUM</strong><br><br>
+          • Supprime les fichiers obsolètes<br>
+          • Libère de l'espace disque<br>
+          • Paramètre RETAIN pour garder l'historique<br>
+          • Après VACUUM : plus de Time Travel possible avant la rétention
+        </p>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top: 15px;">
+      <p><strong>Différence clé :</strong> OPTIMIZE améliore les performances de <strong>lecture</strong>, VACUUM <strong>libère de l'espace disque</strong>. Les deux sont essentiels pour la maintenance des tables Delta en production.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PARTIE 7 ============ -->
+<div class="part">
+  <div class="part-header">
+    <h2><span>📋</span> Partie 7 — Fichier final (99 lignes)</h2>
+    <span class="badge">sales_delta_results.csv</span>
+  </div>
+  <div class="part-body">
+    <p>Extrait du fichier <code>sales_delta_results.csv</code> — Résultat final après toutes les manipulations (suppression Lyon, +10% Électronique, 5 nouvelles ventes, correction Table Basse) :</p>
+    <table>
+      <thead><tr><th>SaleID</th><th>Date</th><th>Product</th><th>Category</th><th>UnitPrice</th><th>Qty</th><th>City</th><th>Customer</th><th>Total</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>2024-01-05</td><td>MacBook Pro</td><td>Électronique</td><td>2749.99</td><td>1</td><td>Paris</td><td>Dupont</td><td>2749.99</td></tr>
+        <tr><td>3</td><td>2024-01-06</td><td>T-Shirt Coton</td><td>Vêtements</td><td>29.99</td><td>5</td><td>Marseille</td><td>Bernard</td><td>149.95</td></tr>
+        <tr><td>4</td><td>2024-01-06</td><td>Table en Chêne</td><td>Maison</td><td>349.99</td><td>1</td><td>Toulouse</td><td>Petit</td><td>349.99</td></tr>
+        <tr><td>5</td><td>2024-01-07</td><td>Café Bio</td><td>Alimentation</td><td>12.99</td><td>10</td><td>Paris</td><td>Robert</td><td>129.90</td></tr>
+        <tr><td>7</td><td>2024-01-08</td><td>Python pour les Nuls</td><td>Livres</td><td>39.99</td><td>3</td><td>Marseille</td><td>Moreau</td><td>119.97</td></tr>
+        <tr><td>8</td><td>2024-01-08</td><td>MacBook Pro</td><td>Électronique</td><td>2749.99</td><td>1</td><td>Bordeaux</td><td>Simon</td><td>2749.99</td></tr>
+        <tr><td>9</td><td>2024-01-09</td><td>Jean Slim</td><td>Vêtements</td><td>79.99</td><td>2</td><td>Lille</td><td>Laurent</td><td>159.98</td></tr>
+        <tr><td>10</td><td>2024-01-09</td><td>Canapé Angle</td><td>Maison</td><td>1299.99</td><td>1</td><td>Nice</td><td>Michel</td><td>1299.99</td></tr>
+        <tr><td>11</td><td>2024-01-10</td><td>Thé Vert</td><td>Alimentation</td><td>8.99</td><td>15</td><td>Paris</td><td>Lefebvre</td><td>134.85</td></tr>
+        <tr><td>12</td><td>2024-01-10</td><td>Tapis de Course</td><td>Sports</td><td>599.99</td><td>1</td><td>Nantes</td><td>Garcia</td><td>599.99</td></tr>
+        <tr><td colspan="9" style="text-align:center; color:#999; font-style:italic;">... 79 lignes intermédiaires (voir fichier complet) ...</td></tr>
+        <tr><td>100</td><td>2024-02-25</td><td>Rideaux Occultants</td><td>Maison</td><td>39.99</td><td>6</td><td>Paris</td><td>Petit</td><td>239.94</td></tr>
+        <tr><td>101</td><td>2024-02-26</td><td>Miel Artisanal</td><td>Alimentation</td><td>11.99</td><td>4</td><td>Strasbourg</td><td>Robert</td><td>47.96</td></tr>
+        <tr><td>102</td><td>2024-02-26</td><td>Gourde Isotherme</td><td>Sports</td><td>19.99</td><td>6</td><td>Montpellier</td><td>Richard</td><td>119.94</td></tr>
+        <tr><td>104</td><td>2024-02-27</td><td>Chargeur USB-C</td><td>Électronique</td><td>32.99</td><td>8</td><td>Toulouse</td><td>Simon</td><td>263.91</td></tr>
+        <tr><td>105</td><td>2024-02-28</td><td>Basket Premium</td><td>Vêtements</td><td>119.99</td><td>2</td><td>Paris</td><td>Laurent</td><td>239.98</td></tr>
+        <tr><td>106</td><td>2024-03-01</td><td>Drone DJI</td><td>Électronique</td><td>999.99</td><td>1</td><td>Paris</td><td>Moreau</td><td>999.99</td></tr>
+        <tr><td>107</td><td>2024-03-02</td><td>Montre Connectée</td><td>Électronique</td><td>349.99</td><td>2</td><td>Marseille</td><td>Dupont</td><td>699.98</td></tr>
+        <tr><td>108</td><td>2024-03-03</td><td>Sac à Dos Randonnée</td><td>Sports</td><td>79.99</td><td>3</td><td>Bordeaux</td><td>Petit</td><td>239.97</td></tr>
+        <tr><td>109</td><td>2024-03-04</td><td>Romans Policiers</td><td>Livres</td><td>24.99</td><td>5</td><td>Toulouse</td><td>Martin</td><td>124.95</td></tr>
+        <tr><td>110</td><td>2024-03-05</td><td>Grille-Pain</td><td>Maison</td><td>49.99</td><td>2</td><td>Lille</td><td>Bernard</td><td>99.98</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.85em; color:#888;">Affichage des 10 premières et 10 dernières lignes. Le fichier complet (99 lignes) est disponible dans <code>sales_delta_results.csv</code>.</p>
+  </div>
+</div>
+
+<!-- ============ CONCLUSION ============ -->
+<div class="part">
+  <div class="part-header">
+    <h2><span>✅</span> Conclusion</h2>
+    <span class="badge">Récapitulatif</span>
+  </div>
+  <div class="part-body">
+    <div class="summary-grid">
+      <div class="summary-item"><div class="check">✓</div><div class="task">CSV 105 ventes généré</div></div>
+      <div class="summary-item"><div class="check">✓</div><div class="task">DataFrame + Schéma</div></div>
+      <div class="summary-item"><div class="check">✓</div><div class="task">Table Delta créée</div></div>
+      <div class="summary-item"><div class="check">✓</div><div class="task">Tables externe & gérée</div></div>
+      <div class="summary-item"><div class="check">✓</div><div class="task">4 manipulations</div></div>
+      <div class="summary-item"><div class="check">✓</div><div class="task">Time Travel exploité</div></div>
+      <div class="summary-item"><div class="check">✓</div><div class="task">10 requêtes SQL</div></div>
+      <div class="summary-item"><div class="check">✓</div><div class="task">OPTIMIZE & VACUUM</div></div>
+    </div>
+
+    <h3>Livrables</h3>
+    <table>
+      <thead><tr><th>Fichier</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Sales_Analysis_DeltaLake.py</code></td><td>Notebook Databricks complet (format .py avec cellules)</td></tr>
+        <tr><td><code>sales_data.csv</code></td><td>Fichier de données initial — 105 ventes sur 6 catégories et 10 villes</td></tr>
+        <tr><td><code>sales_delta_results.csv</code></td><td>Fichier final — 99 ventes après toutes les manipulations Delta Lake</td></tr>
+        <tr><td><code>rapport_analyse_ventes_spark.html</code></td><td>Rapport détaillé au format HTML</td></tr>
+      </tbody>
+    </table>
+
+    <p style="text-align: center; margin-top: 30px; color: #888;">
+      Projet réalisé avec Apache Spark &amp; Delta Lake &mdash; Analyse de ventes &amp; Big Data
+    </p>
+  </div>
+</div>
+
+<!-- ============ PARTIE 7 ============ -->
+<div class="part">
+  <div class="part-header">
+    <h2><span>📋</span> Partie 7 — Fichier final (99 lignes)</h2>
+    <span class="badge">sales_delta_results.csv</span>
+  </div>
+  <div class="part-body">
+    <p>Extrait du fichier <code>sales_delta_results.csv</code> — Résultat final après toutes les manipulations (suppression Lyon, +10% Électronique, 5 nouvelles ventes, correction Table Basse) :</p>
+    <table>
+      <thead><tr><th>SaleID</th><th>Date</th><th>Product</th><th>Category</th><th>UnitPrice</th><th>Qty</th><th>City</th><th>Customer</th><th>Total</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>2024-01-05</td><td>MacBook Pro</td><td>Électronique</td><td>2749.99</td><td>1</td><td>Paris</td><td>Dupont</td><td>2749.99</td></tr>
+        <tr><td>3</td><td>2024-01-06</td><td>T-Shirt Coton</td><td>Vêtements</td><td>29.99</td><td>5</td><td>Marseille</td><td>Bernard</td><td>149.95</td></tr>
+        <tr><td>4</td><td>2024-01-06</td><td>Table en Chêne</td><td>Maison</td><td>349.99</td><td>1</td><td>Toulouse</td><td>Petit</td><td>349.99</td></tr>
+        <tr><td>5</td><td>2024-01-07</td><td>Café Bio</td><td>Alimentation</td><td>12.99</td><td>10</td><td>Paris</td><td>Robert</td><td>129.90</td></tr>
+        <tr><td>7</td><td>2024-01-08</td><td>Python pour les Nuls</td><td>Livres</td><td>39.99</td><td>3</td><td>Marseille</td><td>Moreau</td><td>119.97</td></tr>
+        <tr><td>8</td><td>2024-01-08</td><td>MacBook Pro</td><td>Électronique</td><td>2749.99</td><td>1</td><td>Bordeaux</td><td>Simon</td><td>2749.99</td></tr>
+        <tr><td>9</td><td>2024-01-09</td><td>Jean Slim</td><td>Vêtements</td><td>79.99</td><td>2</td><td>Lille</td><td>Laurent</td><td>159.98</td></tr>
+        <tr><td>10</td><td>2024-01-09</td><td>Canapé Angle</td><td>Maison</td><td>1299.99</td><td>1</td><td>Nice</td><td>Michel</td><td>1299.99</td></tr>
+        <tr><td>11</td><td>2024-01-10</td><td>Thé Vert</td><td>Alimentation</td><td>8.99</td><td>15</td><td>Paris</td><td>Lefebvre</td><td>134.85</td></tr>
+        <tr><td>12</td><td>2024-01-10</td><td>Tapis de Course</td><td>Sports</td><td>599.99</td><td>1</td><td>Nantes</td><td>Garcia</td><td>599.99</td></tr>
+        <tr><td colspan="9" style="text-align:center; color:#999; font-style:italic;">... 79 lignes intermédiaires (voir fichier complet) ...</td></tr>
+        <tr><td>100</td><td>2024-02-25</td><td>Rideaux Occultants</td><td>Maison</td><td>39.99</td><td>6</td><td>Paris</td><td>Petit</td><td>239.94</td></tr>
+        <tr><td>101</td><td>2024-02-26</td><td>Miel Artisanal</td><td>Alimentation</td><td>11.99</td><td>4</td><td>Strasbourg</td><td>Robert</td><td>47.96</td></tr>
+        <tr><td>102</td><td>2024-02-26</td><td>Gourde Isotherme</td><td>Sports</td><td>19.99</td><td>6</td><td>Montpellier</td><td>Richard</td><td>119.94</td></tr>
+        <tr><td>104</td><td>2024-02-27</td><td>Chargeur USB-C</td><td>Électronique</td><td>32.99</td><td>8</td><td>Toulouse</td><td>Simon</td><td>263.91</td></tr>
+        <tr><td>105</td><td>2024-02-28</td><td>Basket Premium</td><td>Vêtements</td><td>119.99</td><td>2</td><td>Paris</td><td>Laurent</td><td>239.98</td></tr>
+        <tr><td>106</td><td>2024-03-01</td><td>Drone DJI</td><td>Électronique</td><td>999.99</td><td>1</td><td>Paris</td><td>Moreau</td><td>999.99</td></tr>
+        <tr><td>107</td><td>2024-03-02</td><td>Montre Connectée</td><td>Électronique</td><td>349.99</td><td>2</td><td>Marseille</td><td>Dupont</td><td>699.98</td></tr>
+        <tr><td>108</td><td>2024-03-03</td><td>Sac à Dos Randonnée</td><td>Sports</td><td>79.99</td><td>3</td><td>Bordeaux</td><td>Petit</td><td>239.97</td></tr>
+        <tr><td>109</td><td>2024-03-04</td><td>Romans Policiers</td><td>Livres</td><td>24.99</td><td>5</td><td>Toulouse</td><td>Martin</td><td>124.95</td></tr>
+        <tr><td>110</td><td>2024-03-05</td><td>Grille-Pain</td><td>Maison</td><td>49.99</td><td>2</td><td>Lille</td><td>Bernard</td><td>99.98</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.85em; color:#888;">Affichage des 10 premières et 10 dernières lignes. Le fichier complet (99 lignes) est disponible dans <code>sales_delta_results.csv</code>.</p>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <p><strong>DRISS Amine</strong><br>
+  Expert en Systèmes d'Information et Sécurité<br>
+  Spécialisation : Ingénierie Logiciel &amp; Data</p>
+  <p style="margin-top:12px; font-size:0.85em; opacity:0.7;">Projet Spark &amp; Delta Lake &mdash; 2025/2026</p>
+</div>
+
+</body>
+</html>

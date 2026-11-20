@@ -1,0 +1,100 @@
+produit_id,nom_produit,categorie,prix_unitaire
+201,Ordinateur portable,Informatique,500
+202,Smartphone,Informatique,300
+203,Tablette,Informatique,200
+204,Écran LCD,Informatique,150
+205,Clavier,Informatique,100
+206,Souris,Informatique,400
+207,Imprimante,Informatique,250
+208,Disque dur,Informatique,600
+209,Clé USB,Informatique,80
+210,Webcam,Informatique,350
+211,Écouteurs,Informatique,120
+212,Enceinte Bluetooth,Informatique,450
+213,Routeur WiFi,Informatique,180
+214,Switch réseau,Informatique,280
+215,Câble HDMI,Informatique,90
+216,Adaptateur USB,Informatique,520
+217,Chargeur,Informatique,160
+218,Support d'ordinateur,Informatique,380
+219,Clavier mécanique,Informatique,140
+220,Tablette graphique,Informatique,420
+221,Disque SSD,Informatique,110
+222,Clé USB 64GB,Informatique,330
+223,Webcam HD,Informatique,190
+224,Imprimante laser,Informatique,260
+225,Écran 27 pouces,Informatique,170
+226,Ordinateur de bureau,Informatique,390
+227,Disque dur externe,Informatique,130
+228,Clavier sans fil,Informatique,470
+229,Souris gaming,Informatique,150
+230,Écouteurs Bluetooth,Informatique,310
+231,Enceinte portable,Informatique,220
+232,Routeur 5G,Informatique,290
+233,Switch 8 ports,Informatique,120
+234,Câble USB-C,Informatique,440
+235,Adaptateur HDMI,Informatique,180
+236,Chargeur rapide,Informatique,360
+237,Support pour tablette,Informatique,140
+238,Webcam 4K,Informatique,510
+239,Clavier gaming,Informatique,95
+240,Disque dur 1TB,Informatique,270
+241,Écouteurs sans fil,Informatique,210
+242,Enceinte Bluetooth,Informatique,340
+243,Routeur WiFi 6,Informatique,165
+244,Switch 16 ports,Informatique,480
+245,Câble DisplayPort,Informatique,125
+246,Adaptateur VGA,Informatique,320
+247,Chargeur USB-C,Informatique,195
+248,Support pour écran,Informatique,250
+249,Webcam Full HD,Informatique,175
+250,Clavier ergonomique,Informatique,410
+251,Disque SSD 500GB,Informatique,135
+252,Écouteurs intra-auriculaires,Informatique,370
+253,Enceinte Bluetooth portable,Informatique,200
+254,Routeur WiFi 6E,Informatique,280
+255,Switch 24 ports,Informatique,155
+256,Câble Thunderbolt,Informatique,430
+257,Adaptateur USB-C,Informatique,115
+258,Chargeur sans fil,Informatique,350
+259,Support pour ordinateur portable,Informatique,185
+260,Webcam 1080p,Informatique,295
+261,Clavier mécanique RGB,Informatique,160
+262,Disque dur 2TB,Informatique,460
+263,Écouteurs circum-auriculaires,Informatique,140
+264,Enceinte Bluetooth 360°,Informatique,380
+265,Routeur WiFi 6 AX,Informatique,170
+266,Switch 48 ports,Informatique,330
+267,Câble USB 3.0,Informatique,190
+268,Adaptateur DisplayPort,Informatique,270
+269,Chargeur USB-A,Informatique,145
+270,Support pour clavier,Informatique,480
+271,Webcam 720p,Informatique,150
+272,Clavier gaming mécanique,Informatique,340
+273,Disque SSD NVMe,Informatique,180
+274,Écouteurs Bluetooth 5.0,Informatique,290
+275,Enceinte Bluetooth 360°,Informatique,130
+276,Routeur WiFi 6E AX,Informatique,440
+277,Switch 8 ports 10GbE,Informatique,165
+278,Câble HDMI 4K,Informatique,320
+279,Adaptateur USB-C vers HDMI,Informatique,195
+280,Chargeur USB-C 65W,Informatique,250
+281,Support pour souris,Informatique,175
+282,Webcam 4K 60fps,Informatique,410
+283,Clavier mécanique 60%,Informatique,135
+284,Disque dur externe 4TB,Informatique,370
+285,Écouteurs Bluetooth 5.1,Informatique,175
+286,Enceinte Bluetooth 360° 10W,Informatique,410
+287,Routeur WiFi 6E AX3000,Informatique,125
+288,Switch 16 ports 10GbE,Informatique,390
+289,Câble HDMI 8K,Informatique,180
+290,Adaptateur USB-C vers Ethernet,Informatique,260
+291,Chargeur USB-C 100W,Informatique,160
+292,Support pour écran 27",Informatique,450
+293,Webcam 4K 30fps,Informatique,135
+294,Clavier mécanique 75%,Informatique,320
+295,Disque SSD 1TB NVMe,Informatique,190
+296,Écouteurs Bluetooth 5.2,Informatique,270
+297,Enceinte Bluetooth 360° 20W,Informatique,145
+298,Routeur WiFi 6E AX6000,Informatique,480
+299,Switch 24 ports 10GbE,Informatique,150

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mon-app-js-service
+  namespace: tp-devops-calculatrice
+  labels:
+    app: mon-app-js
+  annotations:
+    description: "Service ClusterIP pour l'application calculatrice"
+spec:
+  selector:
+    app: mon-app-js
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

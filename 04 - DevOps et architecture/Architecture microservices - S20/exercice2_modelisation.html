@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercice 2 - Modélisation des Agrégats et Entités | MediCare</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --primary-light: #38bdf8;
+            --secondary: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --agregat-color: #0ea5e9;
+            --entity-color: #6366f1;
+            --valueobject-color: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .nav {
+            position: fixed;
+            left: 0; top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 2rem 0;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-logo i { font-size: 2rem; color: var(--primary); }
+
+        .nav-logo span {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-section { padding: 0 1rem; margin-bottom: 1.5rem; }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            padding: 0 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(99, 102, 241, 0.2));
+            border-left: 3px solid var(--primary);
+        }
+
+        .main { margin-left: 280px; min-height: 100vh; }
+
+        .header {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 100%);
+            backdrop-filter: blur(12px);
+            padding: 2rem 3rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .breadcrumb a { color: var(--primary); text-decoration: none; }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-meta { display: flex; gap: 1rem; margin-top: 0.5rem; }
+
+        .meta-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.75rem;
+            background: var(--bg-card);
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .content { padding: 2rem 3rem 4rem; }
+
+        section { margin-bottom: 3rem; }
+
+        section h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        section h2 i { color: var(--primary); }
+
+        .bc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .bc-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
+        }
+
+        .bc-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            border-radius: 0.75rem 0.75rem 0 0;
+        }
+
+        .bc-card.patient::before { background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+        .bc-card.hospitalization::before { background: linear-gradient(90deg, var(--success), #06b6d4); }
+        .bc-card.billing::before { background: linear-gradient(90deg, var(--warning), var(--danger)); }
+
+        .bc-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .bc-icon {
+            width: 48px; height: 48px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .bc-title { font-size: 1.25rem; font-weight: 600; }
+
+        .diagram-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .diagram-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .concept-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .concept-card.agregat {
+            border-left: 4px solid var(--agregat-color);
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(14, 165, 233, 0.08) 100%);
+        }
+
+        .concept-card.entity {
+            border-left: 4px solid var(--entity-color);
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(99, 102, 241, 0.08) 100%);
+        }
+
+        .concept-card.value-object { border-left: 4px solid var(--valueobject-color); }
+
+        .concept-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 0.75rem;
+        }
+
+        .concept-card.agregat .concept-badge { background: rgba(14, 165, 233, 0.2); color: var(--primary-light); }
+        .concept-card.entity .concept-badge { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
+        .concept-card.value-object .concept-badge { background: var(--bg-hover); color: var(--text-secondary); }
+
+        .concept-title { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+
+        .concept-section { margin-bottom: 0.75rem; }
+
+        .concept-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .concept-list { list-style: none; }
+
+        .concept-list li {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding: 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .concept-list li::before {
+            content: '';
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+        }
+
+        .agregat .concept-list li::before { background: var(--agregat-color); }
+        .entity .concept-list li::before { background: var(--entity-color); }
+
+        .invariants-section { margin-top: 2rem; }
+
+        .invariants-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .invariants-title i { color: var(--warning); }
+
+        .invariants-list { display: grid; gap: 0.75rem; }
+
+        .invariant-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            background: var(--bg-card);
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--warning);
+        }
+
+        .invariant-icon {
+            width: 24px; height: 24px;
+            background: rgba(245, 158, 11, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            color: #fcd34d;
+        }
+
+        .invariant-text { font-size: 0.85rem; color: var(--text-secondary); }
+        .invariant-text strong { color: var(--text-primary); }
+
+        .associations-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+        }
+
+        .associations-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .asso-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .asso-item:last-child { border-bottom: none; }
+
+        .asso-from {
+            background: rgba(14, 165, 233, 0.2);
+            color: var(--primary-light);
+            padding: 0.3rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .asso-arrow { color: var(--text-secondary); font-size: 1rem; }
+
+        .asso-to {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            padding: 0.3rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .asso-cardinality {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            margin-left: auto;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+
+        footer p { color: var(--text-secondary); font-size: 0.9rem; }
+        footer .author { color: var(--primary); font-weight: 600; margin-top: 0.5rem; }
+
+        @media (max-width: 1024px) {
+            .nav { width: 80px; padding: 1rem 0; }
+            .nav-logo span, .nav-section-title, .nav-link span { display: none; }
+            .nav-logo { justify-content: center; padding: 0 0.5rem 1rem; }
+            .nav-link { justify-content: center; padding: 0.75rem; }
+            .main { margin-left: 80px; }
+            .content { padding: 1.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            .nav { display: none; }
+            .main { margin-left: 0; }
+            .header { padding: 1.5rem; }
+            .content { padding: 1rem; }
+            .concepts-grid { grid-template-columns: 1fr; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bc-card, .concept-card, .invariant-item { animation: fadeIn 0.4s ease forwards; }
+        .bc-card:nth-child(2) { animation-delay: 0.1s; }
+        .bc-card:nth-child(3) { animation-delay: 0.2s; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-logo">
+            <i class="fas fa-hospital-user"></i>
+            <span>MediCare</span>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Exercice</div>
+            <a href="#introduction" class="nav-link"><i class="fas fa-info-circle"></i><span>Introduction</span></a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Bounded Contexts</div>
+            <a href="#patient" class="nav-link"><i class="fas fa-user-injured"></i><span>Patient</span></a>
+            <a href="#hospitalization" class="nav-link"><i class="fas fa-procedures"></i><span>Hospitalization</span></a>
+            <a href="#billing" class="nav-link"><i class="fas fa-file-invoice-dollar"></i><span>Billing</span></a>
+        </div>
+    </nav>
+
+    <main class="main">
+        <header class="header">
+            <div class="breadcrumb">
+                <a href="#">MediCare</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Exercice 2</span>
+            </div>
+            <h1>Modélisation des Agrégats et Entités</h1>
+            <div class="header-meta">
+                <span class="meta-tag"><i class="fas fa-cubes"></i> DDD & Microservices</span>
+                <span class="meta-tag"><i class="fas fa-user"></i> Driss Amine</span>
+            </div>
+        </header>
+
+        <div class="content">
+            <section id="introduction">
+                <h2><i class="fas fa-stethoscope"></i> Contexte de l'Exercice</h2>
+                <p style="color: var(--text-secondary);">Ce document présente la modélisation détaillée des agrégats, entités et value objects pour 3 bounded contexts du système MediCare, conformément aux principes du Domain-Driven Design (DDD). Chaque bounded context est analysé avec ses concepts clés, ses diagrammes UML et ses invariants métier.</p>
+            </section>
+
+            <!-- Patient Management -->
+            <section id="patient">
+                <div class="bc-card patient">
+                    <div class="bc-header">
+                        <div class="bc-icon"><i class="fas fa-user-injured"></i></div>
+                        <div class="bc-title">Patient Management</div>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Ce bounded context gère le cycle de vie complet des patients, de l'enregistrement à la gestion de leur dossier médical.</p>
+
+                    <div class="diagram-container">
+                        <div class="diagram-title"><i class="fas fa-sitemap"></i> Diagramme UML - Patient Management</div>
+                        <svg viewBox="0 0 950 500" style="width: 100%; min-width: 850px;">
+                            <defs>
+                                <marker id="arrow-p" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/></marker>
+                                <filter id="shadow-p" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/></filter>
+                            </defs>
+                            
+                            <!-- Agregat Root Patient - Centre en haut -->
+                            <g transform="translate(345,20)" filter="url(#shadow-p)">
+                                <rect x="0" y="0" width="260" height="180" rx="10" fill="#1e293b" stroke="#0ea5e9" stroke-width="2.5"/>
+                                <rect x="0" y="0" width="260" height="28" rx="10" fill="#0ea5e9" fill-opacity="0.15"/>
+                                <text x="130" y="18" text-anchor="middle" fill="#0ea5e9" font-size="10" font-weight="700" font-family="Inter">RACINE D'AGRÉGAT</text>
+                                <line x1="15" y1="32" x2="245" y2="32" stroke="#0ea5e9" stroke-width="1.5"/>
+                                <text x="130" y="54" text-anchor="middle" font-weight="700" font-size="15" fill="#f1f5f9">Patient</text>
+                                <line x1="15" y1="68" x2="245" y2="68" stroke="#334155"/>
+                                <text x="22" y="88" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ id: UUID</text>
+                                <text x="22" y="104" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ numeroSecuriteSociale</text>
+                                <text x="22" y="120" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ nom, prenom, dateDeNaissance</text>
+                                <text x="22" y="136" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ genre, telephone, email</text>
+                                <text x="22" y="152" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ adresse, contactUrgence</text>
+                                <text x="22" y="168" fill="#0ea5e9" font-size="9" font-family="JetBrains Mono">+ creerPatient(), ajouterAllergie()</text>
+                            </g>
+
+                            <!-- Entités en dessous de l'agrégat -->
+                            <g transform="translate(50,230)" filter="url(#shadow-p)">
+                                <rect x="0" y="0" width="180" height="85" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="180" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="90" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="12" y1="28" x2="168" y2="28" stroke="#6366f1"/>
+                                <text x="90" y="48" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">DossierMedical</text>
+                                <text x="12" y="66" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- patientId, dateCreation</text>
+                                <text x="12" y="80" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- notes, historique</text>
+                            </g>
+
+                            <g transform="translate(260,230)" filter="url(#shadow-p)">
+                                <rect x="0" y="0" width="150" height="70" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="150" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="75" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="10" y1="28" x2="140" y2="28" stroke="#6366f1"/>
+                                <text x="75" y="46" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">Allergie</text>
+                                <text x="10" y="62" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- nom, severite, dateDetectee</text>
+                            </g>
+
+                            <g transform="translate(440,230)" filter="url(#shadow-p)">
+                                <rect x="0" y="0" width="150" height="70" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="150" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="75" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="10" y1="28" x2="140" y2="28" stroke="#6366f1"/>
+                                <text x="75" y="46" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">Antecedent</text>
+                                <text x="10" y="62" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- type, description, date</text>
+                            </g>
+
+                            <g transform="translate(620,230)" filter="url(#shadow-p)">
+                                <rect x="0" y="0" width="150" height="70" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="150" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="75" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="10" y1="28" x2="140" y2="28" stroke="#6366f1"/>
+                                <text x="75" y="46" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">ContactUrgence</text>
+                                <text x="10" y="62" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- nom, telephone, relation</text>
+                            </g>
+
+                            <!-- Relations depuis l'agrégat vers les entités -->
+                            <path d="M475 200 L140 230" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-p)"/>
+                            <text x="300" y="220" fill="#64748b" font-size="9" font-weight="600">1..1</text>
+                            
+                            <path d="M475 210 L350 230" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-p)"/>
+                            <text x="410" y="225" fill="#64748b" font-size="9" font-weight="600">0..*</text>
+                            
+                            <path d="M475 220 L530 230" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-p)"/>
+                            
+                            <path d="M475 230 L710 230" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-p)"/>
+                            <text x="600" y="225" fill="#64748b" font-size="9" font-weight="600">1..*</text>
+
+                            <!-- Value Objects en bas -->
+                            <g transform="translate(50,330)" filter="url(#shadow-p)">
+                                <rect x="0" y="0" width="720" height="55" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="1.5" stroke-dasharray="6 3"/>
+                                <rect x="0" y="0" width="720" height="22" rx="6" fill="#64748b" fill-opacity="0.1"/>
+                                <text x="360" y="15" text-anchor="middle" fill="#64748b" font-size="9" font-weight="700" font-family="Inter">VALUE OBJECTS</text>
+                                <line x1="15" y1="26" x2="705" y2="26" stroke="#64748b" stroke-width="1"/>
+                                <text x="30" y="45" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">NumeroSecuriteSociale</text>
+                                <text x="180" y="45" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">Nom</text>
+                                <text x="250" y="45" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">Prenom</text>
+                                <text x="330" y="45" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">DateDeNaiss.</text>
+                                <text x="430" y="45" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">Adresse</text>
+                                <text x="530" y="45" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">Genre</text>
+                                <text x="610" y="45" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">Telephone</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <h3 style="font-size: 1.1rem; margin: 1.5rem 0 1rem;"><i class="fas fa-cubes"></i> Concepts Identifiés</h3>
+                    <div class="concepts-grid">
+                        <div class="concept-card agregat">
+                            <span class="concept-badge"><i class="fas fa-cube"></i> Racine d'Agrégat</span>
+                            <h4 class="concept-title">Patient</h4>
+                            <div class="concept-section">
+                                <div class="concept-section-title">Attributs</div>
+                                <ul class="concept-list">
+                                    <li>id (UUID)</li>
+                                    <li>numeroSecuriteSociale</li>
+                                    <li>nom, prenom, dateDeenaissance</li>
+                                    <li>genre, telephone, email</li>
+                                    <li>adresse, contactUrgence</li>
+                                </ul>
+                            </div>
+                            <div class="concept-section">
+                                <div class="concept-section-title">Méthodes</div>
+                                <ul class="concept-list">
+                                    <li>creerPatient()</li>
+                                    <li>mettreAJourInformations()</li>
+                                    <li>ajouterAllergie()</li>
+                                    <li>definirContactUrgence()</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="concept-card entity">
+                            <span class="concept-badge"><i class="fas fa-box"></i> Entité</span>
+                            <h4 class="concept-title">DossierMedical</h4>
+                            <div class="concept-section">
+                                <div class="concept-section-title">Attributs</div>
+                                <ul class="concept-list">
+                                    <li>id, patientId</li>
+                                    <li>dateCreation</li>
+                                    <li>historique complet</li>
+                                </ul>
+                            </div>
+                            <div class="concept-section">
+                                <div class="concept-section-title">Méthodes</div>
+                                <ul class="concept-list">
+                                    <li>ajouterNote()</li>
+                                    <li>mettreAJour()</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="concept-card entity">
+                            <span class="concept-badge"><i class="fas fa-box"></i> Entité</span>
+                            <h4 class="concept-title">Allergie</h4>
+                            <div class="concept-section">
+                                <div class="concept-section-title">Attributs</div>
+                                <ul class="concept-list">
+                                    <li>id, nom</li>
+                                    <li>severite</li>
+                                    <li>dateDetectee</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="concept-card entity">
+                            <span class="concept-badge"><i class="fas fa-box"></i> Entité</span>
+                            <h4 class="concept-title">Antecedent</h4>
+                            <div class="concept-section">
+                                <div class="concept-section-title">Attributs</div>
+                                <ul class="concept-list">
+                                    <li>id, type</li>
+                                    <li>description</li>
+                                    <li>date</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="concept-card entity">
+                            <span class="concept-badge"><i class="fas fa-box"></i> Entité</span>
+                            <h4 class="concept-title">ContactUrgence</h4>
+                            <div class="concept-section">
+                                <div class="concept-section-title">Attributs</div>
+                                <ul class="concept-list">
+                                    <li>id, nom</li>
+                                    <li>telephone</li>
+                                    <li>relation</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="concept-card value-object">
+                            <span class="concept-badge"><i class="fas fa-gem"></i> Value Object</span>
+                            <h4 class="concept-title">Value Objects</h4>
+                            <div class="concept-section">
+                                <div class="concept-section-title">Types</div>
+                                <ul class="concept-list">
+                                    <li>NumeroSecuriteSociale</li>
+                                    <li>Nom, Prenom</li>
+                                    <li>DateDenaissance</li>
+                                    <li>Adresse</li>
+                                    <li>Genre, StatutPatient</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="invariants-section">
+                        <h3 class="invariants-title"><i class="fas fa-exclamation-triangle"></i> Invariants Métier</h3>
+                        <div class="invariants-list">
+                            <div class="invariant-item"><div class="invariant-icon">1</div><p class="invariant-text"><strong>Numéro SS unique :</strong> Un patient doit avoir un numéro de sécurité sociale unique. Le système refuse la création si le numéro existe déjà.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">2</div><p class="invariant-text"><strong>Contact d'urgence obligatoire :</strong> Avant toute hospitalisation, un contact d'urgence doit être défini pour le patient.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">3</div><p class="invariant-text"><strong>Immutabilité des infos d'identité :</strong> Le nom, prénom et date de naissance ne peuvent pas être modifiés après la création du patient.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">4</div><p class="invariant-text"><strong>Pas d'allergies en double :</strong> Le système refuse l'ajout d'une allergie portant le même nom pour un patient.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">5</div><p class="invariant-text"><strong>Cycle de vie lié :</strong> Le dossier médical est créé simultanément au patient et ne peut pas être séparé.</p></div>
+                        </div>
+                    </div>
+
+                    <div class="associations-section">
+                        <h3 class="associations-title"><i class="fas fa-project-diagram"></i> Associations entre Concepts</h3>
+                        <div class="asso-item"><span class="asso-from">Patient</span><span class="asso-arrow">──1:1──</span><span class="asso-to">DossierMedical</span><span class="asso-cardinality">1:1</span></div>
+                        <div class="asso-item"><span class="asso-from">Patient</span><span class="asso-arrow">──0..*──</span><span class="asso-to">Allergie</span><span class="asso-cardinality">0..*:0..*</span></div>
+                        <div class="asso-item"><span class="asso-from">Patient</span><span class="asso-arrow">──0..*──</span><span class="asso-to">Antecedent</span><span class="asso-cardinality">0..*:0..*</span></div>
+                        <div class="asso-item"><span class="asso-from">Patient</span><span class="asso-arrow">──1..*──</span><span class="asso-to">ContactUrgence</span><span class="asso-cardinality">1:0..*</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Hospitalization Management -->
+            <section id="hospitalization">
+                <div class="bc-card hospitalization">
+                    <div class="bc-header">
+                        <div class="bc-icon"><i class="fas fa-procedures"></i></div>
+                        <div class="bc-title">Hospitalization Management</div>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Ce bounded context gère les admissions, chambres, lits et soins des patients hospitalisés.</p>
+
+                    <div class="diagram-container">
+                        <div class="diagram-title"><i class="fas fa-sitemap"></i> Diagramme UML - Hospitalization Management</div>
+                        <svg viewBox="0 0 950 480" style="width: 100%; min-width: 850px;">
+                            <defs>
+                                <marker id="arrow-h" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/></marker>
+                                <filter id="shadow-h" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/></filter>
+                            </defs>
+                            
+                            <!-- Agregat Root Hospitalisation - Centre en haut -->
+                            <g transform="translate(340,20)" filter="url(#shadow-h)">
+                                <rect x="0" y="0" width="270" height="190" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2.5"/>
+                                <rect x="0" y="0" width="270" height="28" rx="10" fill="#10b981" fill-opacity="0.15"/>
+                                <text x="135" y="18" text-anchor="middle" fill="#10b981" font-size="10" font-weight="700" font-family="Inter">RACINE D'AGRÉGAT</text>
+                                <line x1="15" y1="32" x2="255" y2="32" stroke="#10b981" stroke-width="1.5"/>
+                                <text x="135" y="54" text-anchor="middle" font-weight="700" font-size="15" fill="#f1f5f9">Hospitalisation</text>
+                                <line x1="15" y1="68" x2="255" y2="68" stroke="#334155"/>
+                                <text x="22" y="88" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ id, patientId</text>
+                                <text x="22" y="104" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ chambreId, litId</text>
+                                <text x="22" y="120" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ dateAdmission, dateSortiePrevue</text>
+                                <text x="22" y="136" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ motif, diagnosticPrincipal</text>
+                                <text x="22" y="152" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ statut</text>
+                                <text x="22" y="176" fill="#10b981" font-size="9" font-family="JetBrains Mono">+admettrePatient(), sortirPatient()</text>
+                            </g>
+
+                            <!-- Entités en dessous de l'agrégat - 2x2 grid -->
+                            <g transform="translate(50,240)" filter="url(#shadow-h)">
+                                <rect x="0" y="0" width="170" height="80" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="170" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="85" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="10" y1="28" x2="160" y2="28" stroke="#6366f1"/>
+                                <text x="85" y="48" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">Chambre</text>
+                                <text x="10" y="66" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- id, numero, type, etage</text>
+                            </g>
+
+                            <g transform="translate(240,240)" filter="url(#shadow-h)">
+                                <rect x="0" y="0" width="170" height="80" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="170" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="85" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="10" y1="28" x2="160" y2="28" stroke="#6366f1"/>
+                                <text x="85" y="48" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">Lit</text>
+                                <text x="10" y="66" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- id, numero, chambreId, statut</text>
+                            </g>
+
+                            <g transform="translate(430,240)" filter="url(#shadow-h)">
+                                <rect x="0" y="0" width="200" height="80" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="200" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="100" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="10" y1="28" x2="190" y2="28" stroke="#6366f1"/>
+                                <text x="100" y="48" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">AffectationSoignant</text>
+                                <text x="10" y="66" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- id, soignantId, patientId</text>
+                            </g>
+
+                            <g transform="translate(650,240)" filter="url(#shadow-h)">
+                                <rect x="0" y="0" width="200" height="80" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="200" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="100" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="10" y1="28" x2="190" y2="28" stroke="#6366f1"/>
+                                <text x="100" y="48" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">PlanningSoins</text>
+                                <text x="10" y="66" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- id, hospitalisationId, date</text>
+                            </g>
+
+                            <!-- Relations depuis l'agrégat -->
+                            <path d="M475 210 L135 240" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-h)"/>
+                            <text x="300" y="230" fill="#64748b" font-size="9" font-weight="600">1:1</text>
+                            
+                            <path d="M475 210 L325 240" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-h)"/>
+                            <text x="400" y="230" fill="#64748b" font-size="9" font-weight="600">1:1</text>
+                            
+                            <path d="M475 220 L530 240" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-h)"/>
+                            <text x="510" y="230" fill="#64748b" font-size="9" font-weight="600">1..*</text>
+                            
+                            <path d="M475 230 L750 240" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-h)"/>
+                            <text x="620" y="230" fill="#64748b" font-size="9" font-weight="600">1..*</text>
+
+                            <!-- Value Objects en bas -->
+                            <g transform="translate(50,360)" filter="url(#shadow-h)">
+                                <rect x="0" y="0" width="800" height="50" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="1.5" stroke-dasharray="6 3"/>
+                                <rect x="0" y="0" width="800" height="20" rx="6" fill="#64748b" fill-opacity="0.1"/>
+                                <text x="400" y="14" text-anchor="middle" fill="#64748b" font-size="9" font-weight="700" font-family="Inter">VALUE OBJECTS</text>
+                                <line x1="15" y1="24" x2="785" y2="24" stroke="#64748b" stroke-width="1"/>
+                                <text x="30" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">NumeroChambre</text>
+                                <text x="150" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">NumeroLit</text>
+                                <text x="260" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">TypeChambre</text>
+                                <text x="380" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">StatutChambre</text>
+                                <text x="510" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">StatutLit</text>
+                                <text x="640" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">StatutHospitalisation</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <h3 style="font-size: 1.1rem; margin: 1.5rem 0 1rem;"><i class="fas fa-cubes"></i> Concepts Identifiés</h3>
+                    <div class="concepts-grid">
+                        <div class="concept-card agregat">
+                            <span class="concept-badge"><i class="fas fa-cube"></i> Racine d'Agrégat</span>
+                            <h4 class="concept-title">Hospitalisation</h4>
+                            <div class="concept-section"><div class="concept-section-title">Attributs</div><ul class="concept-list"><li>id, patientId</li><li>chambreId, litId</li><li>dateAdmission, dateSortiePrevue</li><li>motif, diagnosticPrincipal</li><li>statut</li></ul></div>
+                            <div class="concept-section"><div class="concept-section-title">Méthodes</div><ul class="concept-list"><li>admettrePatient()</li><li>assignerChambre(), assignerLit()</li><li>sortirPatient()</li><li>prolongerSejour()</li></ul></div>
+                        </div>
+                        <div class="concept-card entity"><span class="concept-badge"><i class="fas fa-box"></i> Entité</span><h4 class="concept-title">Chambre</h4><div class="concept-section"><div class="concept-section-title">Attributs</div><ul class="concept-list"><li>id, numero</li><li>type, etage</li><li>statut</li></ul></div><div class="concept-section"><div class="concept-section-title">Méthodes</div><ul class="concept-list"><li>reserver(), liberer()</li></ul></div></div>
+                        <div class="concept-card entity"><span class="concept-badge"><i class="fas fa-box"></i> Entité</span><h4 class="concept-title">Lit</h4><div class="concept-section"><div class="concept-section-title">Attributs</div><ul class="concept-list"><li>id, numero</li><li>chambreId</li><li>statut</li></ul></div><div class="concept-section"><div class="concept-section-title">Méthodes</div><ul class="concept-list"><li>occupier(), liberer()</li></ul></div></div>
+                        <div class="concept-card entity"><span class="concept-badge"><i class="fas fa-box"></i> Entité</span><h4 class="concept-title">AffectationSoignant</h4><div class="concept-section"><div class="concept-section-title">Attributs</div><ul class="concept-list"><li>id, soignantId</li><li>patientId</li><li>dateDebut, dateFin</li></ul></div></div>
+                        <div class="concept-card entity"><span class="concept-badge"><i class="fas fa-box"></i> Entité</span><h4 class="concept-title">PlanningSoins</h4><div class="concept-section"><div class="concept-section-title">Attributs</div><ul class="concept-list"><li>id, hospitalisationId</li><li>date</li><li>soins[]</li></ul></div><div class="concept-section"><div class="concept-section-title">Méthodes</div><ul class="concept-list"><li>ajouterSoin(), validerSoin()</li></ul></div></div>
+                        <div class="concept-card value-object"><span class="concept-badge"><i class="fas fa-gem"></i> Value Object</span><h4 class="concept-title">Value Objects</h4><div class="concept-section"><div class="concept-section-title">Types</div><ul class="concept-list"><li>NumeroChambre, NumeroLit</li><li>TypeChambre (Standard, Deluxe, Suite)</li><li>StatutChambre, StatutLit</li><li>StatutHospitalisation</li></ul></div></div>
+                    </div>
+
+                    <div class="invariants-section">
+                        <h3 class="invariants-title"><i class="fas fa-exclamation-triangle"></i> Invariants Métier</h3>
+                        <div class="invariants-list">
+                            <div class="invariant-item"><div class="invariant-icon">1</div><p class="invariant-text"><strong>Un lit = un patient :</strong> Un lit ne peut être occupé que par un patient à la fois. Le système refuse l'affectation d'un lit déjà occupé.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">2</div><p class="invariant-text"><strong>Cohérence temporelle :</strong> La date de sortie ne peut pas être antérieure à la date d'admission.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">3</div><p class="invariant-text"><strong>Capacité des chambres :</strong> Une chambre ne peut contenir qu'un nombre limité de lits (respect de la capacité maximale).</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">4</div><p class="invariant-text"><strong>Une hospitalisation active par patient :</strong> Un patient ne peut avoir qu'une hospitalisation active à la fois.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">5</div><p class="invariant-text"><strong>Libération automatique :</strong> La sortie du patient libère automatiquement le lit (statut → "LIBRE").</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">6</div><p class="invariant-text"><strong>Soignant obligatoire :</strong> Au moins un soignant doit être assigné pour la durée du séjour.</p></div>
+                        </div>
+                    </div>
+
+                    <div class="associations-section">
+                        <h3 class="associations-title"><i class="fas fa-project-diagram"></i> Associations</h3>
+                        <div class="asso-item"><span class="asso-from">Hospitalisation</span><span class="asso-arrow">──1:1──</span><span class="asso-to">Chambre</span><span class="asso-cardinality">1:0..1</span></div>
+                        <div class="asso-item"><span class="asso-from">Hospitalisation</span><span class="asso-arrow">──1:1──</span><span class="asso-to">Lit</span><span class="asso-cardinality">1:0..1</span></div>
+                        <div class="asso-item"><span class="asso-from">Hospitalisation</span><span class="asso-arrow">──1..*──</span><span class="asso-to">AffectationSoignant</span><span class="asso-cardinality">1:0..*</span></div>
+                        <div class="asso-item"><span class="asso-from">Hospitalisation</span><span class="asso-arrow">──1..*──</span><span class="asso-to">PlanningSoins</span><span class="asso-cardinality">1:0..*</span></div>
+                        <div class="asso-item"><span class="asso-from">Chambre</span><span class="asso-arrow">──1..*──</span><span class="asso-to">Lit</span><span class="asso-cardinality">1:1..*</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Billing Management -->
+            <section id="billing">
+                <div class="bc-card billing">
+                    <div class="bc-header">
+                        <div class="bc-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                        <div class="bc-title">Billing Management</div>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Ce bounded context gère la facturation, les paiements, les assurances et les remboursements.</p>
+
+                    <div class="diagram-container">
+                        <div class="diagram-title"><i class="fas fa-sitemap"></i> Diagramme UML - Billing Management</div>
+                        <svg viewBox="0 0 950 500" style="width: 100%; min-width: 850px;">
+                            <defs>
+                                <marker id="arrow-b" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/></marker>
+                                <filter id="shadow-b" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/></filter>
+                            </defs>
+                            
+                            <!-- Deux Agrégats côte à côte en haut -->
+                            <g transform="translate(30,20)" filter="url(#shadow-b)">
+                                <rect x="0" y="0" width="240" height="160" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="2.5"/>
+                                <rect x="0" y="0" width="240" height="28" rx="10" fill="#f59e0b" fill-opacity="0.15"/>
+                                <text x="120" y="18" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="700" font-family="Inter">RACINE D'AGRÉGAT</text>
+                                <line x1="15" y1="32" x2="225" y2="32" stroke="#f59e0b" stroke-width="1.5"/>
+                                <text x="120" y="54" text-anchor="middle" font-weight="700" font-size="15" fill="#f1f5f9">Facture</text>
+                                <line x1="15" y1="68" x2="225" y2="68" stroke="#334155"/>
+                                <text x="22" y="88" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ id, reference</text>
+                                <text x="22" y="104" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ patientId</text>
+                                <text x="22" y="120" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ dateFacturation</text>
+                                <text x="22" y="136" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">+ montantTotal, montantPaye</text>
+                                <text x="22" y="152" fill="#f59e0b" font-size="9" font-family="JetBrains Mono">+creerFacture(), ajouterLigne()</text>
+                            </g>
+
+                            <g transform="translate(300,30)" filter="url(#shadow-b)">
+                                <rect x="0" y="0" width="240" height="130" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="2.5"/>
+                                <rect x="0" y="0" width="240" height="28" rx="10" fill="#f59e0b" fill-opacity="0.15"/>
+                                <text x="120" y="18" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="700" font-family="Inter">RACINE D'AGRÉGAT</text>
+                                <line x1="15" y1="32" x2="225" y2="32" stroke="#f59e0b" stroke-width="1.5"/>
+                                <text x="120" y="54" text-anchor="middle" font-weight="700" font-size="14" fill="#f1f5f9">ContratAssurance</text>
+                                <line x1="15" y1="68" x2="225" y2="68" stroke="#334155"/>
+                                <text x="22" y="88" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">+ id, patientId, assureurId</text>
+                                <text x="22" y="104" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">+ dateDebut, dateFin, statut</text>
+                            </g>
+
+                            <!-- Entités en dessous - grid 2x2 -->
+                            <g transform="translate(30,220)" filter="url(#shadow-b)">
+                                <rect x="0" y="0" width="180" height="85" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="180" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="90" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="10" y1="28" x2="170" y2="28" stroke="#6366f1"/>
+                                <text x="90" y="48" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">LigneFacture</text>
+                                <text x="10" y="66" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- description, quantite</text>
+                                <text x="10" y="80" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- prixUnitaire, montant</text>
+                            </g>
+
+                            <g transform="translate(230,220)" filter="url(#shadow-b)">
+                                <rect x="0" y="0" width="160" height="75" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="160" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="80" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="10" y1="28" x2="150" y2="28" stroke="#6366f1"/>
+                                <text x="80" y="48" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">Paiement</text>
+                                <text x="10" y="66" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- montant, date, mode</text>
+                            </g>
+
+                            <g transform="translate(410,220)" filter="url(#shadow-b)">
+                                <rect x="0" y="0" width="170" height="75" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="170" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="85" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="10" y1="28" x2="160" y2="28" stroke="#6366f1"/>
+                                <text x="85" y="48" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">Remboursement</text>
+                                <text x="10" y="66" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- montant, date, statut</text>
+                            </g>
+
+                            <g transform="translate(600,220)" filter="url(#shadow-b)">
+                                <rect x="0" y="0" width="170" height="80" rx="8" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+                                <rect x="0" y="0" width="170" height="24" rx="8" fill="#6366f1" fill-opacity="0.15"/>
+                                <text x="85" y="16" text-anchor="middle" fill="#6366f1" font-size="9" font-weight="700" font-family="Inter">ENTITÉ</text>
+                                <line x1="10" y1="28" x2="160" y2="28" stroke="#6366f1"/>
+                                <text x="85" y="48" text-anchor="middle" font-weight="600" font-size="13" fill="#f1f5f9">Assurance</text>
+                                <text x="10" y="66" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- patientId, nomAssureur</text>
+                                <text x="10" y="80" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">- numeroPolice</text>
+                            </g>
+
+                            <!-- Relations -->
+                            <path d="M150 180 L30 220" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-b)"/>
+                            <text x="85" y="205" fill="#64748b" font-size="9" font-weight="600">1..*</text>
+                            
+                            <path d="M150 180 L230 255" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-b)"/>
+                            
+                            <path d="M270 160 L410 255" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-b)"/>
+                            
+                            <path d="M420 160 L600 255" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-b)"/>
+                            <text x="515" y="210" fill="#64748b" font-size="9" font-weight="600">1:1</text>
+
+                            <!-- Value Objects en bas -->
+                            <g transform="translate(30,330)" filter="url(#shadow-b)">
+                                <rect x="0" y="0" width="740" height="50" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="1.5" stroke-dasharray="6 3"/>
+                                <rect x="0" y="0" width="740" height="20" rx="6" fill="#64748b" fill-opacity="0.1"/>
+                                <text x="370" y="14" text-anchor="middle" fill="#64748b" font-size="9" font-weight="700" font-family="Inter">VALUE OBJECTS</text>
+                                <line x1="15" y1="24" x2="725" y2="24" stroke="#64748b" stroke-width="1"/>
+                                <text x="30" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">Montant</text>
+                                <text x="120" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">ReferenceFacture</text>
+                                <text x="250" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">DateFacturation</text>
+                                <text x="380" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">StatutFacture</text>
+                                <text x="500" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">ModePaiement</text>
+                                <text x="620" y="42" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">TypePrestation</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <h3 style="font-size: 1.1rem; margin: 1.5rem 0 1rem;"><i class="fas fa-cubes"></i> Concepts Identifiés</h3>
+                    <div class="concepts-grid">
+                        <div class="concept-card agregat">
+                            <span class="concept-badge"><i class="fas fa-cube"></i> Racine d'Agrégat</span>
+                            <h4 class="concept-title">Facture</h4>
+                            <div class="concept-section"><div class="concept-section-title">Attributs</div><ul class="concept-list"><li>id, reference</li><li>patientId</li><li>hospitalisationId, consultationId</li><li>montantTotal, montantPaye</li><li>statut, dateEcheance</li></ul></div>
+                            <div class="concept-section"><div class="concept-section-title">Méthodes</div><ul class="concept-list"><li>creerFacture()</li><li>ajouterLigne()</li><li>enregistrerPaiement()</li><li>genererRemboursement()</li></ul></div>
+                        </div>
+                        <div class="concept-card agregat">
+                            <span class="concept-badge"><i class="fas fa-cube"></i> Racine d'Agrégat</span>
+                            <h4 class="concept-title">ContratAssurance</h4>
+                            <div class="concept-section"><div class="concept-section-title">Attributs</div><ul class="concept-list"><li>id, patientId</li><li>assureurId</li><li>dateDebut, dateFin</li><li>statut</li></ul></div>
+                            <div class="concept-section"><div class="concept-section-title">Méthodes</div><ul class="concept-list"><li>estValide()</li><li>calculerRemboursement()</li><li>renew(), resilier()</li></ul></div>
+                        </div>
+                        <div class="concept-card entity"><span class="concept-badge"><i class="fas fa-box"></i> Entité</span><h4 class="concept-title">LigneFacture</h4><div class="concept-section"><div class="concept-section-title">Attributs</div><ul class="concept-list"><li>id, factureId</li><li>description, quantite</li><li>prixUnitaire, montant</li><li>typePrestation</li></ul></div></div>
+                        <div class="concept-card entity"><span class="concept-badge"><i class="fas fa-box"></i> Entité</span><h4 class="concept-title">Paiement</h4><div class="concept-section"><div class="concept-section-title">Attributs</div><ul class="concept-list"><li>id, factureId</li><li>montant</li><li>date, mode</li><li>reference</li></ul></div></div>
+                        <div class="concept-card entity"><span class="concept-badge"><i class="fas fa-box"></i> Entité</span><h4 class="concept-title">Remboursement</h4><div class="concept-section"><div class="concept-section-title">Attributs</div><ul class="concept-list"><li>id, factureId</li><li>montant</li><li>date, statut</li></ul></div></div>
+                        <div class="concept-card value-object"><span class="concept-badge"><i class="fas fa-gem"></i> Value Object</span><h4 class="concept-title">Value Objects</h4><div class="concept-section"><div class="concept-section-title">Types</div><ul class="concept-list"><li>Montant (avec devise)</li><li>ReferenceFacture</li><li>StatutFacture</li><li>ModePaiement</li><li>TypePrestation</li></ul></div></div>
+                    </div>
+
+                    <div class="invariants-section">
+                        <h3 class="invariants-title"><i class="fas fa-exclamation-triangle"></i> Invariants Métier</h3>
+                        <div class="invariants-list">
+                            <div class="invariant-item"><div class="invariant-icon">1</div><p class="invariant-text"><strong>Montant payé ≤ montant total :</strong> Le montant payé ne peut pas dépasser le montant total de la facture.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">2</div><p class="invariant-text"><strong>Immuabilité après paiement :</strong> Une fois payée, la facture ne peut pas être modifiée.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">3</div><p class="invariant-text"><strong>Taux ≤ 100% :</strong> Le montant remboursé ne peut pas être supérieur au montant facturé.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">4</div><p class="invariant-text"><strong>Remboursement après paiement :</strong> Le remboursement n'est possible que si la facture est payée.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">5</div><p class="invariant-text"><strong>Contrat valide requis :</strong> Un contrat d'assurance doit être valide (dates) pour être utilisé.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">6</div><p class="invariant-text"><strong>Cohérence temporelle :</strong> La date d'échéance ne peut pas être antérieure à la date de facturation.</p></div>
+                            <div class="invariant-item"><div class="invariant-icon">7</div><p class="invariant-text"><strong>Au moins une ligne :</strong> Une facture doit avoir au moins une ligne de facturation.</p></div>
+                        </div>
+                    </div>
+
+                    <div class="associations-section">
+                        <h3 class="associations-title"><i class="fas fa-project-diagram"></i> Associations</h3>
+                        <div class="asso-item"><span class="asso-from">Facture</span><span class="asso-arrow">──1..*──</span><span class="asso-to">LigneFacture</span><span class="asso-cardinality">1:1..*</span></div>
+                        <div class="asso-item"><span class="asso-from">Facture</span><span class="asso-arrow">──0..*──</span><span class="asso-to">Paiement</span><span class="asso-cardinality">1:0..*</span></div>
+                        <div class="asso-item"><span class="asso-from">Facture</span><span class="asso-arrow">──0..*──</span><span class="asso-to">Remboursement</span><span class="asso-cardinality">1:0..*</span></div>
+                        <div class="asso-item"><span class="asso-from">Patient</span><span class="asso-arrow">──1..*──</span><span class="asso-to">Assurance</span><span class="asso-cardinality">1:0..*</span></div>
+                        <div class="asso-item"><span class="asso-from">ContratAssurance</span><span class="asso-arrow">──1:1──</span><span class="asso-to">Assurance</span><span class="asso-cardinality">1:1</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <footer>
+                <p><i class="fas fa-graduation-cap"></i> Exercice 2 - TP Microservices MediCare</p>
+                <p class="author"><i class="fas fa-pen-nib"></i> Driss Amine</p>
+            </footer>
+        </div>
+    </main>
+
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

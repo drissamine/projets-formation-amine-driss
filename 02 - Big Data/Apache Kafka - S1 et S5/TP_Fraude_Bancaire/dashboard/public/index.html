@@ -1,0 +1,87 @@
+<!-- Créé par DRISS Amine -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Détection Fraude - Temps Réel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-text">
+                <h1>🛡️ Dashboard Détection de Fraude Bancaire</h1>
+                <p>Surveillance temps réel des alertes de sécurité</p>
+            </div>
+            <div class="header-controls">
+                <button id="notification-toggle" class="notification-toggle" aria-label="Notifications">
+                    <span class="notification-icon">🔔</span>
+                    <span class="notification-text">Notifications</span>
+                </button>
+                <button id="refresh-btn" class="refresh-btn" aria-label="Rafraîchir">
+                    <span class="refresh-icon">🔄</span>
+                    <span class="refresh-text">Rafraîchir</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="counters-section">
+            <h2>Compteurs d'Alertes</h2>
+            <div class="counters-grid">
+                <div class="counter-card high">
+                    <h3>Critique</h3>
+                    <div class="counter-value" id="high-counter">0</div>
+                    <p>Alertes HIGH</p>
+                </div>
+                <div class="counter-card medium">
+                    <h3>Important</h3>
+                    <div class="counter-value" id="medium-counter">0</div>
+                    <p>Alertes MEDIUM</p>
+                </div>
+                <div class="counter-card low">
+                    <h3>Information</h3>
+                    <div class="counter-value" id="low-counter">0</div>
+                    <p>Alertes LOW</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="alerts-section">
+            <div class="alerts-header">
+                <h2>Dernières Alertes</h2>
+                <div class="last-timestamp">
+                    <span>Dernière alerte: </span>
+                    <span id="last-timestamp">Aucune</span>
+                </div>
+            </div>
+
+            <div class="alerts-list" id="alerts-list">
+                <div class="no-alerts">
+                    <p>En attente d'alertes...</p>
+                </div>
+            </div>
+        </section>
+
+
+
+        <section class="status-section">
+            <div class="status-card">
+                <h3>État du Système</h3>
+                <div class="status-indicator">
+                    <div class="status-dot" id="connection-status"></div>
+                    <span id="connection-text">Connexion en cours...</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Conteneur pour les notifications toast -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>Vue d'ensemble</h1>
+      <p class="subtitle">Bienvenue sur votre tableau de bord financier</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" (click)="refreshPrices()" title="Actualiser les prix">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+      <button class="btn-primary" (click)="exportData()">
+        <i class="fas fa-download"></i>
+        <span>Exporter le rapport</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="state-container">
+    <div class="spinner"></div>
+    <p>Chargement de vos données...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="state-container error">
+    <i class="fas fa-exclamation-circle error-icon"></i>
+    <h3>Une erreur est survenue</h3>
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="refreshPrices()">Réessayer</button>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!isLoading && !error" class="dashboard-grid">
+
+    <!-- Key Metrics Cards -->
+    <section class="metrics-section">
+      <div class="metric-card invested">
+        <div class="card-icon">
+          <i class="fas fa-wallet"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Capital Investi</span>
+          <span class="value">{{ formatCurrency((dashboardSummary$ | async)?.totalInvested || 0) }}</span>
+        </div>
+      </div>
+
+      <div class="metric-card value">
+        <div class="card-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Valeur Actuelle</span>
+          <span class="value">{{ formatCurrency((dashboardSummary$ | async)?.currentValue || 0) }}</span>
+        </div>
+      </div>
+
+      <div class="metric-card performance">
+        <div class="card-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Plus/Moins Value</span>
+          <div class="value-group">
+            <span class="value" [ngClass]="getPerformanceClass((dashboardSummary$ | async)?.totalGainLoss || 0)">
+              {{ formatCurrency((dashboardSummary$ | async)?.totalGainLoss || 0) }}
+            </span>
+            <span class="badge" [ngClass]="getPerformanceClass((dashboardSummary$ | async)?.totalGainLoss || 0)">
+              {{ (dashboardSummary$ | async)?.totalGainLossPercent || 0 | number:'1.2-2' }}%
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card budget">
+        <div class="card-icon">
+          <i class="fas fa-piggy-bank"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Liquidités</span>
+          <span class="value">{{ formatCurrency((dashboardSummary$ | async)?.availableBudget || 0) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Charts & Analysis Area -->
+    <div class="main-content-area">
+      <!-- Evolution Chart -->
+      <div class="content-card chart-section">
+        <div class="card-header">
+          <h3>Évolution du Portefeuille</h3>
+          <div class="period-selector">
+            <span [class.active]="selectedPeriod === '30J'" (click)="setPeriod('30J')">30J</span>
+            <span [class.active]="selectedPeriod === '3M'" (click)="setPeriod('3M')">3M</span>
+            <span [class.active]="selectedPeriod === '1A'" (click)="setPeriod('1A')">1A</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart" [xaxis]="chartOptions.xaxis"
+              [stroke]="chartOptions.stroke" [tooltip]="chartOptions.tooltip" [dataLabels]="chartOptions.dataLabels"
+              [grid]="chartOptions.grid" [yaxis]="chartOptions.yaxis" [fill]="chartOptions.fill"
+              [colors]="chartOptions.colors" [theme]="chartOptions.theme"></apx-chart>
+          </div>
+        </div>
+
+        <!-- Risk & Diversification -->
+        <div class="content-card analysis-section">
+          <div class="card-header">
+            <h3>Analyse</h3>
+          </div>
+          <div class="card-body">
+            <div class="analysis-item">
+              <div class="analysis-label">
+                <span>Score de diversification</span>
+                <span class="score-val">{{ (dashboardSummary$ | async)?.diversificationScore || 0 }}/100</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="(dashboardSummary$ | async)?.diversificationScore || 0">
+                </div>
+              </div>
+            </div>
+
+            <!-- Market Comparison -->
+            <div class="analysis-item" *ngIf="(dashboardSummary$ | async)?.marketComparison as comparison">
+              <div class="analysis-label">
+                <span>Vs Marché (SPX500)</span>
+                <span class="score-val" [ngClass]="getPerformanceClass(comparison.outperformance)">
+                  {{ comparison.outperformance > 0 ? '+' : '' }}{{ comparison.outperformance | number:'1.2-2' }}%
+                </span>
+              </div>
+              <div class="recommendation-text">
+                {{ comparison.recommendation }}
+              </div>
+            </div>
+
+            <div class="analysis-item">
+              <div class="analysis-label">
+                <span>Niveau de risque</span>
+              </div>
+              <div class="risk-badge" [ngClass]="getRiskLevelClass((dashboardSummary$ | async)?.riskLevel || 'LOW')">
+                {{ getRiskLevelLabel((dashboardSummary$ | async)?.riskLevel || 'LOW') }}
+              </div>
+            </div>
+
+            <div class="analysis-stat">
+              <span class="stat-value">{{ (dashboardSummary$ | async)?.stocksCount || 0 }}</span>
+              <span class="stat-label">Positions ouvertes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top & Flop List -->
+      <div class="performers-grid">
+        <!-- Top Performers -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3><i class="fas fa-arrow-trend-up text-success"></i> Top Performances</h3>
+          </div>
+          <div class="stock-list">
+            <div *ngIf="(dashboardSummary$ | async)?.bestPerformers?.length === 0" class="empty-state">
+              Aucune donnée
+            </div>
+            <div *ngFor="let stock of (dashboardSummary$ | async)?.bestPerformers" class="stock-row">
+              <div class="stock-id">
+                <span class="symbol">{{ stock.symbol }}</span>
+                <span class="shares">{{ stock.shares }} parts</span>
+              </div>
+              <div class="stock-val text-success">
+                <span class="amount">+{{ formatCurrency(stock.totalGainLoss) }}</span>
+                <span class="percent">+{{ stock.totalGainLossPercent | number:'1.2-2' }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Worst Performers -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3><i class="fas fa-arrow-trend-down text-danger"></i> Moindres Performances</h3>
+          </div>
+          <div class="stock-list">
+            <div *ngIf="(dashboardSummary$ | async)?.worstPerformers?.length === 0" class="empty-state">
+              Aucune donnée
+            </div>
+            <div *ngFor="let stock of (dashboardSummary$ | async)?.worstPerformers" class="stock-row">
+              <div class="stock-id">
+                <span class="symbol">{{ stock.symbol }}</span>
+                <span class="shares">{{ stock.shares }} parts</span>
+              </div>
+              <div class="stock-val text-danger">
+                <span class="amount">{{ formatCurrency(stock.totalGainLoss) }}</span>
+                <span class="percent">{{ stock.totalGainLossPercent | number:'1.2-2' }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <section class="actions-section">
+        <a routerLink="/portfolio/buy" class="action-card buy">
+          <div class="icon-circle"><i class="fas fa-plus"></i></div>
+          <div class="action-text">
+            <h3>Acheter</h3>
+            <p>Nouvelle position</p>
+          </div>
+        </a>
+        <a routerLink="/portfolio/sell" class="action-card sell">
+          <div class="icon-circle"><i class="fas fa-minus"></i></div>
+          <div class="action-text">
+            <h3>Vendre</h3>
+            <p>Réaliser des gains</p>
+          </div>
+        </a>
+        <a class="action-card analytics" title="Bientôt disponible" style="cursor: not-allowed; opacity: 0.6;">
+          <div class="icon-circle"><i class="fas fa-chart-bar"></i></div>
+          <div class="action-text">
+            <h3>Analyses</h3>
+            <p>Rapports détaillés (Bientôt)</p>
+          </div>
+        </a>
+        <a routerLink="/portfolio/history" class="action-card history">
+          <div class="icon-circle"><i class="fas fa-history"></i></div>
+          <div class="action-text">
+            <h3>Historique</h3>
+            <p>Vos transactions</p>
+          </div>
+        </a>
+      </section>
+
+    </div>
+  </div>

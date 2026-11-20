@@ -1,0 +1,7 @@
+<button (click)="toggleTheme()" class="theme-toggle-btn"
+  [attr.aria-label]="themeService.isDarkMode() ? 'Activer le mode clair' : 'Activer le mode sombre'" type="button">
+  <i class="fas fa-sun theme-icon sun-icon" [class.active]="!themeService.isDarkMode()"></i>
+  <i class="fas fa-moon theme-icon moon-icon" [class.active]="themeService.isDarkMode()"></i>
+
+  <span class="theme-label">{{ themeService.isDarkMode() ? 'Mode Clair' : 'Mode Sombre' }}</span>
+</button>

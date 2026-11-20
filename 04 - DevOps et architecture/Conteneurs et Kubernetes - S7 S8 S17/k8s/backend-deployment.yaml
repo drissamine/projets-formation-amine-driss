@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mon-app-deployment
+  labels:
+    app: calculatrice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: calculatrice
+  template:
+    metadata:
+      labels:
+        app: calculatrice
+    spec:
+      containers:
+        - name: mon-app-js
+          image: mon-app-js:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: FEATURE_HEAVY
+              value: "true"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10

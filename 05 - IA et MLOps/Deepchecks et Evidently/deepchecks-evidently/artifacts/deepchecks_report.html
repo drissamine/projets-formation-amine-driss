@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deepchecks — Rapport Global</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: rgba(17, 24, 39, 0.7);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.15);
+      --success: #10b981;
+      --info: #0ea5e9;
+      --warning: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.2s ease; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 3rem 2rem;
+      background-image: radial-gradient(circle at 50% 10%, rgba(99, 102, 241, 0.04) 0%, transparent 50%);
+    }
+    .container { max-width: 1100px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 2.5rem; }
+    header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 40%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+    }
+    header p { color: var(--text-muted); font-size: 0.95rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 250px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; }
+    .card:nth-child(1)::before { background: var(--success); }
+    .card:nth-child(2)::before { background: var(--info); }
+    .card:nth-child(3)::before { background: var(--warning); }
+    
+    .card:nth-child(1):hover { border-color: rgba(16, 185, 129, 0.3); box-shadow: 0 8px 24px rgba(16, 185, 129, 0.08); }
+    .card:nth-child(2):hover { border-color: rgba(14, 165, 233, 0.3); box-shadow: 0 8px 24px rgba(14, 165, 233, 0.08); }
+    .card:nth-child(3):hover { border-color: rgba(245, 158, 11, 0.3); box-shadow: 0 8px 24px rgba(245, 158, 11, 0.08); }
+    
+    .card-title { font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #ffffff; margin-bottom: 0.5rem; }
+    .card-desc { color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; }
+    
+    .btn-link {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      margin-top: 1.5rem;
+      width: fit-content;
+    }
+    .btn-link:hover {
+      background: #ffffff;
+      color: var(--bg);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+    }
+    .notice {
+      background: rgba(245, 158, 11, 0.05);
+      border: 1px solid rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      padding: 1rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      line-height: 1.4;
+    }
+    footer { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Deepchecks — Suite Globale de Tests</h1>
+      <p>Rapports détaillés de validation de l'intégrité, de la dérive et des performances du modèle.</p>
+    </header>
+
+    <div class="notice">
+      <span>💡</span>
+      <span><strong>Accès Direct Activé :</strong> Les rapports ci-dessous s'ouvrent directement dans votre navigateur. Aucun serveur web local n'est requis pour visualiser ces fichiers.</span>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div>
+          <div class="card-title">Intégrité des données (Référence)</div>
+          <div class="card-desc">Vérifie les anomalies de structure, les doublons, les types erronés et la conformité globale du jeu de données de référence.</div>
+        </div>
+        <a href="_integrity.html" target="_blank" class="btn-link">
+          Consulter le rapport
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <div class="card">
+        <div>
+          <div class="card-title">Validation Train-Test (Référence vs Current)</div>
+          <div class="card-desc">Compare le jeu d'entraînement (référence) et le jeu courant pour identifier la fuite de données et le glissement de caractéristiques.</div>
+        </div>
+        <a href="_ttv.html" target="_blank" class="btn-link">
+          Consulter le rapport
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <div class="card">
+        <div>
+          <div class="card-title">Évaluation du modèle (sur Current)</div>
+          <div class="card-desc">Évalue les métriques clés de performance du classifieur de fraude et détaille la distribution des erreurs de prédictions.</div>
+        </div>
+        <a href="_model.html" target="_blank" class="btn-link">
+          Consulter le rapport
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <footer>
+      Suite de Validation Tabulaire Deepchecks
+    </footer>
+  </div>
+</body>
+</html>

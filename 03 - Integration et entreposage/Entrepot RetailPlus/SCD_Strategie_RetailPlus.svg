@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 485" width="2080" height="970" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto">
+      <path d="M0,0 L6.5,3 L0,6 Z" fill="#5a5a5a"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1040" height="485" fill="#ffffff"/>
+
+  <!-- TITRE -->
+  <text x="520" y="32" text-anchor="middle" font-size="19" font-weight="700" fill="#1B2A4A">Gestion des dimensions à évolution lente (SCD) — RetailPlus</text>
+
+  <!-- ================= BLOC 1 : LES 4 CAS ================= -->
+  <text x="40" y="70" font-size="13.5" font-weight="700" fill="#6C8EBF">① Les 4 cas → stratégie SCD</text>
+
+  <!-- arrows -->
+  <g stroke="#5a5a5a" stroke-width="1.5" marker-end="url(#ar)">
+    <line x1="330" y1="112" x2="360" y2="112"/>
+    <line x1="330" y1="162" x2="360" y2="162"/>
+    <line x1="330" y1="212" x2="360" y2="212"/>
+    <line x1="330" y1="262" x2="360" y2="262"/>
+  </g>
+
+  <!-- change boxes -->
+  <g>
+    <rect x="40" y="92" width="290" height="40" rx="6" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <text x="185" y="117" text-anchor="middle" font-size="11.5" fill="#22364f">Données historiques (multi-pays, 5 ans)</text>
+    <rect x="40" y="142" width="290" height="40" rx="6" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <text x="185" y="167" text-anchor="middle" font-size="11.5" fill="#22364f">Changement d'adresse client</text>
+    <rect x="40" y="192" width="290" height="40" rx="6" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <text x="185" y="217" text-anchor="middle" font-size="11.5" fill="#22364f">Changement de prix</text>
+    <rect x="40" y="242" width="290" height="40" rx="6" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.4"/>
+    <text x="185" y="267" text-anchor="middle" font-size="11.5" fill="#22364f">Changement de catégorie produit</text>
+  </g>
+
+  <!-- type badges -->
+  <g>
+    <rect x="360" y="92" width="130" height="40" rx="6" fill="#D5E8D4" stroke="#82B366" stroke-width="1.4"/>
+    <text x="425" y="117" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2e5020">SCD Type 2</text>
+    <rect x="360" y="142" width="130" height="40" rx="6" fill="#D5E8D4" stroke="#82B366" stroke-width="1.4"/>
+    <text x="425" y="167" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2e5020">SCD Type 2</text>
+    <rect x="360" y="192" width="130" height="40" rx="6" fill="#D5E8D4" stroke="#82B366" stroke-width="1.4"/>
+    <text x="425" y="217" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2e5020">SCD Type 2</text>
+    <rect x="360" y="242" width="130" height="40" rx="6" fill="#FFE6CC" stroke="#D79B00" stroke-width="1.4"/>
+    <text x="425" y="267" text-anchor="middle" font-size="12" font-weight="700" fill="#9a6f00">Type 1 ou 2</text>
+  </g>
+
+  <!-- ================= BLOC 2 : MÉCANISME TYPE 2 ================= -->
+  <text x="540" y="70" font-size="13.5" font-weight="700" fill="#9673A6">② Mécanisme SCD Type 2 — exemple DimClient</text>
+
+  <!-- table header -->
+  <g font-size="9.8">
+    <rect x="540" y="92" width="60"  height="32" fill="#4A6080" stroke="#34465f"/>
+    <rect x="600" y="92" width="70"  height="32" fill="#4A6080" stroke="#34465f"/>
+    <rect x="670" y="92" width="70"  height="32" fill="#4A6080" stroke="#34465f"/>
+    <rect x="740" y="92" width="90"  height="32" fill="#4A6080" stroke="#34465f"/>
+    <rect x="830" y="92" width="90"  height="32" fill="#4A6080" stroke="#34465f"/>
+    <rect x="920" y="92" width="80"  height="32" fill="#4A6080" stroke="#34465f"/>
+    <g fill="#ffffff" font-weight="700" text-anchor="middle">
+      <text x="570" y="112">ClientKey</text>
+      <text x="635" y="112">ClientID</text>
+      <text x="705" y="112">Adresse</text>
+      <text x="785" y="112">Date_début</text>
+      <text x="875" y="112">Date_fin</text>
+      <text x="960" y="112">Courant</text>
+    </g>
+  </g>
+
+  <!-- row 1 : historique (fermé) -->
+  <g font-size="9.8" text-anchor="middle" fill="#555">
+    <rect x="540" y="124" width="60" height="32" fill="#F2F2F2" stroke="#cfcfcf"/>
+    <rect x="600" y="124" width="70" height="32" fill="#F2F2F2" stroke="#cfcfcf"/>
+    <rect x="670" y="124" width="70" height="32" fill="#F2F2F2" stroke="#cfcfcf"/>
+    <rect x="740" y="124" width="90" height="32" fill="#F2F2F2" stroke="#cfcfcf"/>
+    <rect x="830" y="124" width="90" height="32" fill="#F2F2F2" stroke="#cfcfcf"/>
+    <rect x="920" y="124" width="80" height="32" fill="#F2F2F2" stroke="#cfcfcf"/>
+    <text x="570" y="144">1001</text>
+    <text x="635" y="144">C001</text>
+    <text x="705" y="144">Paris</text>
+    <text x="785" y="144">2024-01-15</text>
+    <text x="875" y="144">2025-05-31</text>
+    <text x="960" y="144">0 — fermé</text>
+  </g>
+
+  <!-- row 2 : actif -->
+  <g font-size="9.8" text-anchor="middle" fill="#2e5020" font-weight="700">
+    <rect x="540" y="156" width="60" height="32" fill="#D5E8D4" stroke="#82B366"/>
+    <rect x="600" y="156" width="70" height="32" fill="#D5E8D4" stroke="#82B366"/>
+    <rect x="670" y="156" width="70" height="32" fill="#D5E8D4" stroke="#82B366"/>
+    <rect x="740" y="156" width="90" height="32" fill="#D5E8D4" stroke="#82B366"/>
+    <rect x="830" y="156" width="90" height="32" fill="#D5E8D4" stroke="#82B366"/>
+    <rect x="920" y="156" width="80" height="32" fill="#D5E8D4" stroke="#82B366"/>
+    <text x="570" y="176">1002</text>
+    <text x="635" y="176">C001</text>
+    <text x="705" y="176">Lyon</text>
+    <text x="785" y="176">2025-06-01</text>
+    <text x="875" y="176">9999-12-31</text>
+    <text x="960" y="176">1 — actif</text>
+  </g>
+
+  <!-- annotations -->
+  <g font-size="10.3" fill="#444">
+    <text x="540" y="212">① Même <tspan font-weight="700">ClientID</tspan> (C001) = même client réel (clé naturelle).</text>
+    <text x="540" y="231">② <tspan font-weight="700">ClientKey</tspan> distincte (1001, 1002) = une ligne par version (clé de substitution).</text>
+    <text x="540" y="250">③ <tspan font-weight="700">Date_fin = 9999-12-31</tspan> et <tspan font-weight="700">Courant = 1</tspan> → version active.</text>
+    <text x="540" y="269">④ L'ancienne ligne est <tspan font-weight="700">fermée</tspan>, une nouvelle est <tspan font-weight="700">créée</tspan> — aucun écrasement.</text>
+  </g>
+
+  <!-- ================= BLOC 3 : COMPARAISON ================= -->
+  <text x="40" y="322" font-size="13.5" font-weight="700" fill="#B85450">③ Comparaison SCD Type 1 / 2 / 3</text>
+
+  <!-- Type 1 -->
+  <rect x="40" y="335" width="300" height="125" rx="6" fill="#F8CECC" stroke="#B85450" stroke-width="1.4"/>
+  <text x="58" y="360" font-size="13" font-weight="700" fill="#933532">SCD Type 1 — Écrasement</text>
+  <text x="58" y="384" font-size="11" fill="#5a5a5a">La nouvelle valeur remplace l'ancienne.</text>
+  <text x="58" y="404" font-size="11" fill="#933532">✗ Aucun historique conservé.</text>
+  <text x="58" y="424" font-size="11" fill="#5a5a5a">Simple, rapide, volume stable.</text>
+  <text x="58" y="444" font-size="10.5" fill="#777" font-style="italic">Usage : attributs sans intérêt historique.</text>
+
+  <!-- Type 2 (recommandé) -->
+  <rect x="370" y="335" width="300" height="125" rx="8" fill="#D5E8D4" stroke="#5a9c3a" stroke-width="2.6"/>
+  <text x="388" y="360" font-size="13" font-weight="700" fill="#2e5020">SCD Type 2 — Historisation ★</text>
+  <text x="388" y="384" font-size="11" fill="#3c5a2e">Nouvelle ligne + dates de validité + flag.</text>
+  <text x="388" y="404" font-size="11" fill="#2e5020">✓ Historique complet conservé.</text>
+  <text x="388" y="424" font-size="11" fill="#5a5a5a">Inconvénient : croissance du volume.</text>
+  <text x="388" y="444" font-size="10.5" fill="#2e5020" font-weight="700" font-style="italic">Recommandé : Client, Produit, Prix.</text>
+
+  <!-- Type 3 -->
+  <rect x="700" y="335" width="300" height="125" rx="6" fill="#FFF2CC" stroke="#D6B656" stroke-width="1.4"/>
+  <text x="718" y="360" font-size="13" font-weight="700" fill="#8a6d0a">SCD Type 3 — Historique limité</text>
+  <text x="718" y="384" font-size="11" fill="#5a5a5a">Colonne « valeur précédente ».</text>
+  <text x="718" y="404" font-size="11" fill="#8a6d0a">~ Garde uniquement avant / après.</text>
+  <text x="718" y="424" font-size="11" fill="#5a5a5a">Volume stable, historique partiel.</text>
+  <text x="718" y="444" font-size="10.5" fill="#777" font-style="italic">Compromis entre Type 1 et Type 2.</text>
+</svg>

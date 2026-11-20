@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopFlow - Rapport d'Implémentation Monolithe (Phase 2)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --accent: #10b981;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 4rem 2rem; line-height: 1.6; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header { border-bottom: 2px solid var(--primary); padding-bottom: 2rem; margin-bottom: 4rem; }
+        h1 { font-size: 2.5rem; background: linear-gradient(90deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .section { background: var(--card); border-radius: 16px; padding: 2rem; margin-bottom: 3rem; border: 1px solid rgba(255,255,255,0.05); }
+        h2 { color: var(--primary); margin-bottom: 1.5rem; text-transform: uppercase; font-size: 1.2rem; letter-spacing: 2px; }
+        .folder-tree { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px; font-size: 0.9rem; }
+        .endpoint { display: grid; grid-template-columns: 100px 250px 1fr; gap: 10px; margin-bottom: 10px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 6px; }
+        .method { font-weight: 800; padding: 2px 8px; border-radius: 4px; text-align: center; font-size: 0.8rem; }
+        .post { background: #10b981; color: #fff; }
+        .get { background: #3b82f6; color: #fff; }
+        .diagram { background: #fff; border-radius: 12px; padding: 20px; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div>
+                    <p style="color: var(--accent); font-weight: 700; margin-bottom: 5px;">MASTER EXPERT EN SYSTÈMES D’INFORMATIONS ET SÉCURITÉ</p>
+                    <p style="font-size: 0.9rem; color: #94a3b8;">Spécialité : Ingénierie Logiciel et Data</p>
+                </div>
+                <div style="text-align: right; font-size: 0.9rem;">
+                    <p>Créé par : <strong>DRISS Amine</strong></p>
+                    <p>Formatrice : <strong>Mme. Lydia BOUCHLAGHEM</strong></p>
+                </div>
+            </div>
+            <p style="color: var(--primary); font-weight: 700; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">LIVRABLE PHASE 2</p>
+            <h1>Implémentation Monolithe Modulaire</h1>
+            <p>Respect de la structure DDD et architecture en couches hexagonales.</p>
+        </header>
+
+        <section class="section">
+            <h2>1. Structure du Projet (Layered Architecture)</h2>
+            <p>Le code est organisé par domaine (Bounded Context) puis par couche fonctionnelle.</p>
+            <div class="folder-tree">
+                src/modules/<br>
+                └── orders/<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;├── domain/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Invariants, Entities, VOs]<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;├── application/ &nbsp;&nbsp;&nbsp;[Use Cases, OrderService]<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;├── infrastructure/ [Prisma Persistence]<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;└── interfaces/ &nbsp;&nbsp;&nbsp;&nbsp;[Express Controllers/Routes]
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>2. Documentation des API Endpoints</h2>
+            <div class="endpoint"><span class="method post">POST</span> <code>/api/auth/register</code> <span>Inscription client</span></div>
+            <div class="endpoint"><span class="method post">POST</span> <code>/api/auth/login</code> <span>JWT Authentication</span></div>
+            <div class="endpoint"><span class="method get">GET</span> <code>/api/products</code> <span>Catalogue filtrable</span></div>
+            <div class="endpoint"><span class="method post">POST</span> <code>/api/products</code> <span>Ajout produit (Admin Only)</span></div>
+            <div class="endpoint"><span class="method post">POST</span> <code>/api/orders</code> <span>Passage de commande</span></div>
+            <div class="endpoint"><span class="method get">GET</span> <code>/api/orders/:id</code> <span>Suivi de commande</span></div>
+            <div class="endpoint"><span class="method post">POST</span> <code>/api/payments</code> <span>Simulation transaction</span></div>
+        </section>
+
+        <section class="section">
+            <h2>3. Modèle d'Architecture Logique</h2>
+            <div class="diagram">
+                <div class="mermaid">
+                    graph TD
+                        UI[Clients / UI]
+                        subgraph "Monolith Engine"
+                            Routes[Express Router]
+                            Auth[JWT Middleware]
+                            
+                            subgraph "Modular Boundary: Users"
+                                UC_U[Auth Service]
+                                DM_U[User Entity]
+                            end
+                            
+                            subgraph "Modular Boundary: Orders"
+                                UC_O[Order Service]
+                                DM_O[Order Aggregate]
+                            end
+                        end
+                        
+                        DB[(PostgreSQL Prisma)]
+                        
+                        UI --> Routes
+                        Routes --> Auth
+                        Auth --> UC_O
+                        UC_O --> DM_O
+                        UC_O --> DB
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>4. Patterns Techniques Implémentés</h2>
+            <ul>
+                <li><strong>Validation Zod</strong> : Schémas stricts pour chaque entrée utilisateur.</li>
+                <li><strong>Repository Pattern</strong> : Abstraction de Prisma pour permettre un changement de DB sans toucher au Domaine.</li>
+                <li><strong>Security</strong> : Hachage Bcrypt pour les mots de passe et signature HS256 pour les Tokens.</li>
+                <li><strong>Inter-Module</strong> : Communication directe (méthode d'objet) entre services (ex: OrderService appelle ProductService).</li>
+            </ul>
+        </section>
+
+        <footer style="text-align: center; color: #64748b; font-size: 0.8rem;">
+            ShopFlow Architecture - D. Amine - 2026
+        </footer>
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résumé du Cours : Réseaux de Neurones</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #e67e22;
+            padding-bottom: 20px;
+        }
+        h2 {
+            color: #d35400;
+            border-left: 5px solid #e67e22;
+            padding-left: 10px;
+            margin-top: 30px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 0 5px 5px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        h3 {
+            color: #e67e22;
+            margin-top: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .concept-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-top: 3px solid #f39c12;
+        }
+        .formula {
+            background-color: #2d3436;
+            color: #dfe6e9;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.1em;
+        }
+        .params {
+            background-color: #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        strong {
+            color: #c0392b;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #e67e22;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Introduction aux Réseaux de Neurones (Deep Learning)</h1>
+    <p style="text-align: center; color: #7f8c8d;">Résumé du notebook de cours Live Coding</p>
+
+    <!-- 1. ML vs DL -->
+    <h2>1. Machine Learning vs Deep Learning</h2>
+    <div class="concept-box">
+        <h3>Paradigme</h3>
+        <ul>
+            <li><strong>ML Classique :</strong> Extraction manuelle de features (Feature Engineering) → Algorithme (ex: Random Forest).</li>
+            <li><strong>Deep Learning :</strong> Données brutes (pixels, texte) → Le réseau apprend <strong>LUI-MÊME</strong> les features (bords, formes, objets).</li>
+        </ul>
+        <h3>Quand utiliser le DL ?</h3>
+        <p>Pour des données <strong>non-structurées</strong> (images, son, texte) et quand on a <strong>beaucoup de données</strong> (>100k exemples).</p>
+    </div>
+
+    <!-- 2. Perceptron -->
+    <h2>2. Le Perceptron et Fonctions d'Activation</h2>
+    <div class="concept-box">
+        <h3>Le Neurone Artificiel</h3>
+        <div class="formula">z = W.X + b</div>
+        <div class="formula">a = activation(z)</div>
+        <p><strong>Rôle du biais (b) :</strong> Déplacer la frontière de décision (évite qu'elle passe toujours par l'origine).</p>
+        
+        <h3>Fonctions d'Activation</h3>
+        <table class="comparison-table">
+            <tr>
+                <th>Fonction</th>
+                <th>Formule</th>
+                <th>Usage</th>
+                <th>Avantages/Inconvénients</th>
+            </tr>
+            <tr>
+                <td><strong>Sigmoid</strong></td>
+                <td>σ(z) = 1 / (1 + e⁻ᶻ)</td>
+                <td>Sortie (Proba 0-1)</td>
+                <td>⚠️ Vanishing Gradient (dérivée nulle si z grand)</td>
+            </tr>
+            <tr>
+                <td><strong>ReLU</strong></td>
+                <td>max(0, z)</td>
+                <td>Couches Cachées</td>
+                <td>✅ Pas de Vanishing Gradient pour z>0, Calcul rapide</td>
+            </tr>
+            <tr>
+                <td><strong>Tanh</strong></td>
+                <td>(eᶻ - e⁻ᶻ) / (eᶻ + e⁻ᶻ)</td>
+                <td>Cachées (rare)</td>
+                <td>Centrée en 0, mais Vanishing Gradient</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 3. Fully Connected -->
+    <h2>3. Réseaux Fully Connected (Dense)</h2>
+    <div class="concept-box">
+        <p>Chaque neurone d'une couche est connecté à <strong>tous</strong> les neurones de la couche suivante.</p>
+        <h3>Dimensions</h3>
+        <div class="params">
+            Input X: (n₀, m)<br>
+            Poids W: (nₗ, nₗ₋₁)<br>
+            Biais b: (nₗ, 1)<br>
+            Sortie A: (nₗ, m)
+        </div>
+    </div>
+
+    <!-- 4. Propagation -->
+    <h2>4. Forward & Cost Function</h2>
+    <div class="concept-box">
+        <h3>Forward Propagation</h3>
+        <p>Calcul des prédictions couche par couche de gauche à droite.</p>
+        <div class="formula">Z = W.A_prev + b</div>
+        <div class="formula">A = g(Z)</div>
+        
+        <h3>Fonction de Coût (Binary Cross-Entropy)</h3>
+        <p>Mesure l'erreur entre la prédiction et la vraie valeur.</p>
+        <div class="formula">L = -1/m * Σ [y.log(ŷ) + (1-y).log(1-ŷ)]</div>
+    </div>
+
+    <!-- 5. Backpropagation -->
+    <h2>5. Backpropagation (Cœur du DL)</h2>
+    <div class="concept-box">
+        <h3>Principe</h3>
+        <p>Calculer le <strong>gradient</strong> de l'erreur par rapport à chaque poids (∂L/∂W) en remontant de la fin vers le début (Chain Rule).</p>
+        
+        <h3>Algorithme</h3>
+        <ol>
+            <li>Calculer dZ (Erreur à la couche L)</li>
+            <li>Calculer dW, db (Gradients des paramètres)</li>
+            <li>Propager l'erreur à la couche précédente (dA_prev)</li>
+        </ol>
+        <p><strong>But :</strong> Savoir comment modifier W et b pour diminuer l'erreur.</p>
+    </div>
+
+    <!-- 6. Gradient Descent -->
+    <h2>6. Gradient Descent (Optimisation)</h2>
+    <div class="concept-box">
+        <h3>Mise à jour des paramètres</h3>
+        <div class="formula">W = W - α . dW</div>
+        <div class="formula">b = b - α . db</div>
+        <p><strong>Learning Rate (α) :</strong> Contrôle la vitesse d'apprentissage.</p>
+        <ul>
+            <li>Trop grand : Divergence (l'erreur augmente)</li>
+            <li>Trop petit : Convergence très lente</li>
+        </ul>
+    </div>
+
+    <!-- 7. Initialisation -->
+    <h2>7. Initialisation des Paramètres</h2>
+    <div class="concept-box">
+        <p>⚠️ <strong>Ne jamais initialiser à ZÉRO !</strong> (Sinon tous les neurones apprennent la même chose = Symétrie).</p>
+        <ul>
+            <li><strong>He Initialization :</strong> Optimisée pour ReLU (random * sqrt(2/n)).</li>
+            <li><strong>Xavier Initialization :</strong> Optimisée pour Sigmoid/Tanh.</li>
+        </ul>
+    </div>
+
+    <footer style="text-align: center; margin-top: 40px; color: #7f8c8d;">
+        Généré par DRISS Amine pour le cours de Deep Learning
+    </footer>
+
+</body>
+</html>

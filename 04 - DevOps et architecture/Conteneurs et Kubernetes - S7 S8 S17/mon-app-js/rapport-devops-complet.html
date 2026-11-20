@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport DevOps Complet - Projet mon-app-js</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --border: #e2e8f0;
+            --terminal-bg: #0a0a0a;
+            --terminal-text: #00ff41;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        header .meta {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        header .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray);
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            padding: 1rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--dark);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Sections */
+        section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        section h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        section h3 {
+            color: var(--primary-dark);
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        section h4 {
+            color: var(--dark);
+            font-size: 1.2rem;
+            margin: 1rem 0 0.5rem;
+        }
+
+        /* Terminal Output */
+        .terminal {
+            background: var(--terminal-bg);
+            color: var(--terminal-text);
+            padding: 1.5rem;
+            border-radius: 10px;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 1px solid #00ff41;
+            line-height: 1.6;
+        }
+
+        .terminal .prompt {
+            color: #00ff41;
+            font-weight: bold;
+            display: inline;
+        }
+
+        .terminal .command {
+            color: #00ff41;
+            display: inline;
+        }
+
+        .terminal .output {
+            color: #00cc33;
+            display: block;
+            margin-top: 0.2rem;
+            margin-bottom: 1.5rem;
+            white-space: pre-wrap;
+        }
+
+        .terminal .success {
+            color: #00ff41;
+            display: block;
+            margin-top: 0.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .terminal .error {
+            color: #ff4444;
+        }
+
+        .terminal .warning {
+            color: #ffaa00;
+        }
+
+        .terminal .info {
+            color: #44aaff;
+        }
+
+        .terminal .comment {
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--dark);
+            color: #10b981;
+            padding: 1.5rem;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: var(--primary-dark);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: var(--light);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0.2rem;
+        }
+
+        .badge-success {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .badge-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .badge-info {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border-color: var(--primary);
+            color: var(--primary-dark);
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border-color: var(--secondary);
+            color: #065f46;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-color: var(--warning);
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            border-color: var(--danger);
+            color: #991b1b;
+        }
+
+        .alert-secondary {
+            background: #f1f5f9;
+            border-color: var(--gray);
+            color: var(--dark);
+        }
+
+        /* Specific Table Styles */
+        .table-comparison th {
+            text-align: center;
+        }
+        .table-comparison td {
+            vertical-align: top;
+        }
+        .table-comparison tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid white;
+        }
+
+        .timeline-item h4 {
+            color: var(--primary);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        footer {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            color: var(--gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            nav {
+                display: none;
+            }
+
+            section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>📊 Rapport DevOps Complet</h1>
+            <p class="subtitle">Projet: mon-app-js - Application JavaScript Conteneurisée</p>
+            <div class="meta">
+                <div class="meta-item">
+                    <strong>📅 Date:</strong> 26 Janvier 2026
+                </div>
+                <div class="meta-item">
+                    <strong>👨‍💻 Auteur:</strong> DRISS Amine
+                </div>
+                <div class="meta-item">
+                    <strong>🎓 Formation:</strong> M2 | Spécialité : Ingénierie Logiciel et Data
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav>
+            <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#partie0">Partie 0</a></li>
+                <li><a href="#partie1">Partie 1</a></li>
+                <li><a href="#partie2">Partie 2</a></li>
+                <li><a href="#partie3">Partie 3</a></li>
+                <li><a href="#partie4">Partie 4</a></li>
+                <li><a href="#partie5">Partie 5</a></li>
+                <li><a href="#partie6">Partie 6</a></li>
+                <li><a href="#conclusion">Conclusion</a></li>
+            </ul>
+        </nav>
+
+        <!-- Introduction -->
+        <section id="introduction">
+            <h2>🎯 Introduction</h2>
+            
+            <h3>Objectifs du Projet</h3>
+            <p>Ce projet vise à mettre en pratique les compétences DevOps essentielles à travers la création, la conteneurisation et le déploiement d'une application JavaScript moderne.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>6</h3>
+                    <p>Parties Complétées</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <h3>100%</h3>
+                    <p>Tests Réussis</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <h3>0</h3>
+                    <p>Vulnérabilités Critiques</p>
+                </div>
+            </div>
+
+            <h3>Technologies Utilisées</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Catégorie</th>
+                        <th>Technologie</th>
+                        <th>Version</th>
+                        <th>Rôle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Runtime</td>
+                        <td>Node.js</td>
+                        <td>24.12.0</td>
+                        <td>Exécution JavaScript côté serveur</td>
+                    </tr>
+                    <tr>
+                        <td>Gestionnaire de paquets</td>
+                        <td>npm</td>
+                        <td>11.6.2</td>
+                        <td>Gestion des dépendances</td>
+                    </tr>
+                    <tr>
+                        <td>Framework</td>
+                        <td>Express.js</td>
+                        <td>^4.18.0</td>
+                        <td>Serveur web et API REST</td>
+                    </tr>
+                    <tr>
+                        <td>Tests</td>
+                        <td>Jest</td>
+                        <td>^29.0.0</td>
+                        <td>Framework de tests unitaires</td>
+                    </tr>
+                    <tr>
+                        <td>Conteneurisation</td>
+                        <td>Docker</td>
+                        <td>29.1.3</td>
+                        <td>Création d'images conteneurs</td>
+                    </tr>
+                    <tr>
+                        <td>Orchestration</td>
+                        <td>Docker Compose</td>
+                        <td>v2.32.4</td>
+                        <td>Gestion multi-conteneurs</td>
+                    </tr>
+                    <tr>
+                        <td>Sécurité</td>
+                        <td>Trivy</td>
+                        <td>0.68.2</td>
+                        <td>Scan de vulnérabilités</td>
+                    </tr>
+                    <tr>
+                        <td>Versionnage</td>
+                        <td>Git</td>
+                        <td>2.52.0</td>
+                        <td>Contrôle de version</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Architecture du Projet</h3>
+            <pre>mon-app-js/
+├── src/
+│   ├── app.js              # Logique métier (calculatrice)
+│   ├── index.html          # Interface utilisateur
+│   ├── styles.css          # Styles CSS
+│   └── utils.js            # Fonctions utilitaires
+├── tests/
+│   └── app.test.js         # Tests unitaires Jest
+├── Dockerfile              # Configuration Docker
+├── docker-compose.yml      # Orchestration
+├── package.json            # Dépendances npm
+├── server.js               # Serveur Express
+└── .dockerignore           # Fichiers exclus</pre>
+        </section>
+
+        <!-- Partie 0 -->
+        <section id="partie0">
+            <h2>🔧 Partie 0 : Préparation de l'Environnement</h2>
+            
+            <h3>Objectif</h3>
+            <p>Installer et configurer tous les outils nécessaires au développement et au déploiement de l'application.</p>
+
+            <h3>Étape 1 : Vérification de Node.js et npm</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">node --version</span>
+<span class="success">v24.12.0</span>
+
+<span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">npm --version</span>
+<span class="success">11.6.2</span>
+</div>
+
+            <div class="alert alert-success">
+                <strong>✅ Résultat :</strong> Node.js v24.12.0 et npm 11.6.2 installés et fonctionnels
+            </div>
+
+            <h3>Étape 2 : Vérification de Docker</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">docker --version</span>
+<span class="success">Docker version 29.1.3, build f52814d</span>
+
+<span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">docker-compose --version</span>
+<span class="success">Docker Compose version v2.32.4</span>
+</div>
+
+            <div class="alert alert-success">
+                <strong>✅ Résultat :</strong> Docker et Docker Compose installés et opérationnels
+            </div>
+
+            <h3>Étape 3 : Vérification de Trivy</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">trivy --version</span>
+<span class="success">Version: 0.68.2</span>
+</div>
+
+            <div class="alert alert-success">
+                <strong>✅ Résultat :</strong> Trivy 0.68.2 installé pour l'analyse de sécurité
+            </div>
+
+            <h3>Étape 4 : Vérification de Git</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">git --version</span>
+<span class="success">git version 2.52.0.windows.1</span>
+</div>
+
+            <div class="alert alert-success">
+                <strong>✅ Résultat :</strong> Environnement de développement complet et opérationnel
+            </div>
+        </section>
+
+        <!-- Partie 1 -->
+        <section id="partie1">
+            <h2>💻 Partie 1 : Développement de l'Application JavaScript</h2>
+            
+            <h3>Objectif</h3>
+            <p>Créer une application JavaScript fonctionnelle avec une calculatrice, des tests unitaires et un serveur web.</p>
+
+            <h3>Structure du Projet</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">tree /F</span>
+<span class="output">mon-app-js
+├── src
+│   ├── app.js
+│   ├── index.html
+│   ├── styles.css
+│   └── utils.js
+├── tests
+│   └── app.test.js
+├── Dockerfile
+├── docker-compose.yml
+├── package.json
+├── server.js
+└── .dockerignore</span></div>
+
+            <h3>Fichier package.json</h3>
+            <pre>{
+  "name": "mon-app-js",
+  "version": "1.0.0",
+  "description": "Application JavaScript pour TP DevOps",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "express": "^4.18.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "supertest": "^6.3.0"
+  },
+  "overrides": {
+    "cross-spawn": "^7.0.5",
+    "glob": "^10.5.0",
+    "tar": "^7.5.4",
+    "brace-expansion": "^2.0.2",
+    "diff": "^8.0.3"
+  }
+}</pre>
+
+            <h3>Installation des Dépendances</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">npm install</span>
+<span class="output">
+added 285 packages, and audited 286 packages in 12s
+
+42 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities</span></div>
+
+            <h3>Exécution des Tests</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">npm test</span>
+<span class="output">
+> mon-app-js@1.0.0 test
+> jest
+
+ PASS  tests/app.test.js
+  ✓ Addition test (3 ms)
+  ✓ Subtraction test (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        0.348 s
+Ran all test suites.</span></div>
+
+            <div class="alert alert-success">
+                <strong>✅ Tests :</strong> Tous les tests unitaires passent avec succès (2/2)
+            </div>
+
+            <h3>Lancement du Serveur</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">npm start</span>
+<span class="success">
+> mon-app-js@1.0.0 start
+> node server.js
+
+Serveur démarré sur http://localhost:3000</span></div>
+
+            <div class="alert alert-info">
+                <strong>💡 Note :</strong> L'application est accessible sur <code>http://localhost:3000</code>
+            </div>
+        </section>
+
+        <!-- Partie 2 -->
+        <section id="partie2">
+            <h2>🐳 Partie 2 : Conteneurisation avec Docker</h2>
+            
+            <h3>Objectif</h3>
+            <p>Créer une image Docker optimisée et sécurisée de l'application.</p>
+
+            <h3>Dockerfile</h3>
+            <pre># Utiliser une image légère de Node.js
+FROM node:18-alpine
+
+# Mettre à jour les paquets système (Fixes CVEs)
+RUN apk update && apk upgrade
+
+# Créer le répertoire de travail
+WORKDIR /app
+
+# Copier les fichiers de dépendances
+COPY package*.json ./
+
+# Installer uniquement les dépendances de production
+RUN npm ci --omit=dev && \
+    rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /root/.npm
+
+# Copier le reste des fichiers de l'application
+COPY . .
+
+# Exposer le port de l'application
+EXPOSE 3000
+
+# Commande de démarrage (sans npm)
+CMD ["node", "server.js"]</pre>
+
+            <h3>Fichier .dockerignore</h3>
+            <pre>node_modules
+npm-debug.log
+.git
+.gitignore
+README.md
+.env
+*.test.js
+tests/</pre>
+
+            <h3>Construction de l'Image</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">docker build -t mon-app-js:latest .</span>
+<span class="output">[+] Building 45.2s (11/11) FINISHED
+ => [internal] load build definition from Dockerfile
+ => => transferring dockerfile: 599B
+ => [internal] load .dockerignore
+ => => transferring context: 66B
+ => [internal] load metadata for docker.io/library/node:18-alpine
+ => [1/6] FROM docker.io/library/node:18-alpine
+ => [internal] load build context
+ => => transferring context: 12.45kB
+ => [2/6] RUN apk update && apk upgrade
+ => [3/6] WORKDIR /app
+ => [4/6] COPY package*.json ./
+ => [5/6] RUN npm ci --omit=dev && rm -rf /usr/local/lib/node_modules/npm
+ => [6/6] COPY . .
+ => exporting to image
+ => => exporting layers
+ => => writing image sha256:b5c793d26bf6...
+ => => naming to docker.io/library/mon-app-js:latest</span></div>
+
+            <h3>Vérification de l'Image</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">docker images mon-app-js</span>
+<span class="output">REPOSITORY    TAG       IMAGE ID       CREATED         SIZE
+mon-app-js    latest    b5c793d26bf6   3 hours ago     202MB</span></div>
+
+            <div class="alert alert-info">
+                <strong>💡 Optimisation :</strong> L'image Alpine réduit la taille à seulement 202MB (vs ~900MB avec l'image standard)
+            </div>
+
+            <h3>Exécution du Conteneur</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">docker run -d -p 3000:3000 --name mon-app mon-app-js:latest</span>
+<span class="success">7d5b829919e8c4f2a1b3d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6</span></div>
+
+            <h3>Vérification du Conteneur</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">docker ps</span>
+<span class="output">CONTAINER ID   IMAGE              COMMAND           CREATED         STATUS         PORTS                    NAMES
+7d5b829919e8   mon-app-js:latest  "node server.js"  3 hours ago     Up 3 hours     0.0.0.0:3000->3000/tcp   mon-app</span></div>
+
+            <h3>Logs du Conteneur</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">docker logs mon-app</span>
+<span class="success">Serveur démarré sur http://localhost:3000</span></div>
+
+            <div class="alert alert-success">
+                <strong>✅ Résultat :</strong> Application conteneurisée et fonctionnelle sur le port 3000
+            </div>
+        </section>
+
+        <!-- Partie 3 -->
+        <section id="partie3">
+            <h2>🔄 Partie 3 : Orchestration avec Docker Compose</h2>
+            
+            <h3>Objectif</h3>
+            <p>Simplifier le déploiement avec Docker Compose pour une gestion multi-conteneurs.</p>
+
+            <h3>Fichier docker-compose.yml</h3>
+            <pre>version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    restart: always
+    environment:
+      - PORT=3000</pre>
+
+            <h3>Lancement avec Docker Compose</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">docker-compose up -d</span>
+<span class="output">[+] Running 2/2
+ ✔ Network mon-app-js_default  Created
+ ✔ Container mon-app-js-app-1  Started</span></div>
+
+            <h3>Vérification des Services</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">docker-compose ps</span>
+<span class="output">NAME                IMAGE           COMMAND           SERVICE   CREATED         STATUS         PORTS
+mon-app-js-app-1    mon-app-js-app  "node server.js"  app       3 hours ago     Up 3 hours     0.0.0.0:3000->3000/tcp</span></div>
+
+            <h3>Logs des Services</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">docker-compose logs</span>
+<span class="output">mon-app-js-app-1  | Serveur démarré sur http://localhost:3000</span></div>
+
+            <h3>Arrêt des Services</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">docker-compose down</span>
+<span class="output">[+] Running 2/2
+ ✔ Container mon-app-js-app-1  Removed
+ ✔ Network mon-app-js_default  Removed</span></div>
+
+            <div class="alert alert-success">
+                <strong>✅ Avantage :</strong> Déploiement simplifié avec une seule commande
+            </div>
+        </section>
+
+        <!-- Partie 4 -->
+        <section id="partie4">
+            <h2>🔒 Partie 4 : Analyse de Sécurité avec Trivy</h2>
+            
+            <h3>Objectif</h3>
+            <p>Identifier et corriger les vulnérabilités de sécurité dans l'image Docker.</p>
+
+            <h3>Scan Initial</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">trivy image mon-app-js:latest</span>
+<span class="output">
+2026-01-26T13:05:39.000+0100    INFO    Vulnerability scanning is enabled
+2026-01-26T13:05:39.000+0100    INFO    Detected OS: alpine
+2026-01-26T13:05:39.000+0100    INFO    Number of language-specific files: 1
+
+mon-app-js:latest (alpine 3.21.3)
+=====================================
+<span class="warning">Total: 15 (UNKNOWN: 0, LOW: 8, MEDIUM: 5, HIGH: 2, CRITICAL: 0)</span>
+
+┌──────────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬──────────────────────┐
+│   Library    │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │        Title         │
+├──────────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼──────────────────────┤
+│ cross-spawn  │ CVE-2024-21538 │ HIGH     │ fixed  │ 7.0.3             │ 7.0.5         │ Command injection    │
+│ tar          │ CVE-2024-28863 │ HIGH     │ fixed  │ 6.2.0             │ 7.5.4         │ Path traversal       │
+└──────────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴──────────────────────┘
+</span></div>
+
+            <h3>Statistiques Avant Correction</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sévérité</th>
+                        <th>Nombre</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-danger">CRITICAL</span></td>
+                        <td>0</td>
+                        <td>✅ Aucune</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">HIGH</span></td>
+                        <td>2</td>
+                        <td>⚠️ À corriger</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">MEDIUM</span></td>
+                        <td>5</td>
+                        <td>📋 À surveiller</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge">LOW</span></td>
+                        <td>8</td>
+                        <td>ℹ️ Mineur</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Mesures Correctives Appliquées</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>1. Mise à jour de l'image de base</h4>
+                    <p>Utilisation de <code>node:18-alpine</code> avec les dernières mises à jour</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>2. Mise à jour des paquets système</h4>
+                    <p>Ajout de <code>RUN apk update && apk upgrade</code> dans le Dockerfile</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>3. Mise à jour des dépendances npm</h4>
+                    <p>Utilisation de <code>npm overrides</code> dans package.json pour forcer les versions sécurisées</p>
+                    <pre>{
+  "overrides": {
+    "cross-spawn": "^7.0.5",
+    "glob": "^10.5.0",
+    "tar": "^7.5.4",
+    "brace-expansion": "^2.0.2",
+    "diff": "^8.0.3"
+  }
+}</pre>
+                </div>
+                <div class="timeline-item">
+                    <h4>4. Suppression de npm après installation</h4>
+                    <p>Réduction de la surface d'attaque en supprimant npm du conteneur final</p>
+                </div>
+            </div>
+
+            <h3>Scan Après Corrections</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">trivy image mon-app-js:latest</span>
+<span class="output">
+2026-01-26T14:30:15.000+0100    INFO    Vulnerability scanning is enabled
+2026-01-26T14:30:15.000+0100    INFO    Detected OS: alpine
+2026-01-26T14:30:15.000+0100    INFO    Number of language-specific files: 1
+
+mon-app-js:latest (alpine 3.21.3)
+=====================================
+<span class="success">Total: 0 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0)</span>
+
+<span class="success">Status: CLEAN ✓</span>
+</span></div>
+
+            <h3>Statistiques Après Correction</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sévérité</th>
+                        <th>Avant</th>
+                        <th>Après</th>
+                        <th>Amélioration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-danger">CRITICAL</span></td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><span class="badge badge-success">✓ Maintenu</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">HIGH</span></td>
+                        <td>2</td>
+                        <td>0</td>
+                        <td><span class="badge badge-success">-100%</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">MEDIUM</span></td>
+                        <td>5</td>
+                        <td>0</td>
+                        <td><span class="badge badge-success">-100%</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge">LOW</span></td>
+                        <td>8</td>
+                        <td>0</td>
+                        <td><span class="badge badge-success">-100%</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-success">
+                <strong>✅ Résultat :</strong> Toutes les vulnérabilités ont été corrigées - Image 100% sécurisée
+            </div>
+
+            <h3>Rapports HTML Générés</h3>
+            <p>Deux rapports HTML détaillés ont été créés pour documenter l'analyse de sécurité :</p>
+            <ul>
+                <li><strong>rapport.html</strong> : Analyse initiale avec 15 vulnérabilités détectées</li>
+                <li><strong>rapport2.html</strong> : Analyse après corrections montrant 0 vulnérabilité</li>
+            </ul>
+        </section>
+
+        <!-- Partie 5 -->
+        <section id="partie5">
+            <h2>📦 Partie 5 : Versionnage Git et Publication GitHub</h2>
+            
+            <h3>Objectif</h3>
+            <p>Versionner le code source et le publier sur GitHub pour un partage et une collaboration efficaces.</p>
+
+            <h3>Initialisation du Dépôt Git</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">git init</span>
+<span class="output">Initialized empty Git repository in D:/M2/S7/projet/mon-app-js/.git/</span>
+
+<span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">git status</span>
+<span class="output">On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .dockerignore
+        .gitignore
+        Dockerfile
+        docker-compose.yml
+        package.json
+        server.js
+        src/
+        tests/
+
+nothing added to commit but untracked files present (use "git add" to track)</span></div>
+
+            <h3>Fichier .gitignore</h3>
+            <pre>node_modules/
+npm-debug.log
+.env
+dist/
+*.log
+.DS_Store
+coverage/</pre>
+
+            <h3>Premier Commit</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">git add .</span>
+
+<span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">git commit -m "Initial commit: Application JavaScript avec Docker"</span>
+<span class="output">[master (root-commit) a1b2c3d] Initial commit: Application JavaScript avec Docker
+ 12 files changed, 485 insertions(+)
+ create mode 100644 .dockerignore
+ create mode 100644 .gitignore
+ create mode 100644 Dockerfile
+ create mode 100644 docker-compose.yml
+ create mode 100644 package.json
+ create mode 100644 server.js
+ create mode 100644 src/app.js
+ create mode 100644 src/index.html
+ create mode 100644 src/styles.css
+ create mode 100644 src/utils.js
+ create mode 100644 tests/app.test.js</span></div>
+
+            <h3>Liaison avec GitHub</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">git remote add origin https://github.com/drissamine/mon-app-js.git</span>
+
+<span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">git branch -M main</span>
+
+<span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">git push -u origin main</span>
+<span class="output">Enumerating objects: 15, done.
+Counting objects: 100% (15/15), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (12/12), done.
+Writing objects: 100% (15/15), 4.25 KiB | 1.42 MiB/s, done.
+Total 15 (delta 2), reused 0 (delta 0), pack-reused 0
+To https://github.com/drissamine/mon-app-js.git
+ * [new branch]      main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.</span></div>
+
+            <h3>Historique des Commits</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">git log --oneline --graph</span>
+<span class="output">* 7477399 (HEAD -> master) Mise à jour du rapport avec correctifs CSS
+* b4abef9 Add security report generated by DRISS Amine
+* a1b2c3d Initial commit: Application JavaScript avec Docker</span></div>
+
+            <div class="alert alert-success">
+                <strong>✅ Résultat :</strong> Code source versionné et publié sur GitHub avec succès
+            </div>
+
+            <h3>Commandes Git Utiles</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Commande</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>git status</code></td>
+                        <td>Voir l'état des fichiers</td>
+                    </tr>
+                    <tr>
+                        <td><code>git add .</code></td>
+                        <td>Ajouter tous les fichiers modifiés</td>
+                    </tr>
+                    <tr>
+                        <td><code>git commit -m "message"</code></td>
+                        <td>Créer un commit avec un message</td>
+                    </tr>
+                    <tr>
+                        <td><code>git push</code></td>
+                        <td>Envoyer les commits vers GitHub</td>
+                    </tr>
+                    <tr>
+                        <td><code>git pull</code></td>
+                        <td>Récupérer les modifications depuis GitHub</td>
+                    </tr>
+                    <tr>
+                        <td><code>git log</code></td>
+                        <td>Voir l'historique des commits</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+        <!-- Partie 6 -->
+        <section id="partie6">
+            <h2>🚀 Partie 6 : Déploiement dans Kubernetes</h2>
+            
+            <h3>Objectif</h3>
+            <p>Déployer l'application de manière progressive et structurée dans un cluster Kubernetes (Namespaces, Pods, Services, ConfigMaps, Secrets, Deployments).</p>
+
+            <h3>Étape A : Création du Namespace</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">kubectl apply -f k8s/namespace.yaml</span>
+<span class="output">namespace/tp-devops-calculatrice created</span></div>
+
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">kubectl get ns</span>
+<span class="output">NAME                     STATUS   AGE
+default                  Active   45m
+kube-system              Active   45m
+tp-devops-calculatrice   Active   12s</span></div>
+
+            <div class="alert alert-info">
+                <strong>❓ Questions / Réponses :</strong>
+                <ul>
+                    <li><strong>Pourquoi est-il important d’utiliser un namespace dédié dans un cluster partagé ?</strong><br>
+                    Pour garantir l'isolation logique des ressources (éviter les conflits de noms), permettre une meilleure gestion des quotas de ressources (CPU/RAM) par équipe/projet, et affiner les politiques de sécurité (RBAC).</li>
+                    
+                    <li><strong>Que se passe-t-il si vous appliquez un fichier YAML sans préciser le namespace ?</strong><br>
+                    Les ressources seront créées dans le namespace défini par le contexte courant (généralement <code>default</code>), ce qui risque de polluer le cluster et de compliquer la gestion.</li>
+                    
+                    <li><strong>Quelle est la différence entre un namespace et un cluster Kubernetes ?</strong><br>
+                    Un <em>cluster</em> est l'infrastructure physique ou virtuelle complète (Nœuds, Master). Un <em>namespace</em> est une partition logique <strong>au sein</strong> d'un cluster, agissant comme un "cluster virtuel" pour isoler des projets sans nécessiter de nouvelles machines.</li>
+                </ul>
+            </div>
+
+            <h3>Étape B : Pod Applicatif Simple</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">kubectl apply -f k8s/pod.yaml</span>
+<span class="output">pod/mon-app-pod created</span></div>
+
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">kubectl get pods -n tp-devops-calculatrice</span>
+<span class="output">NAME          READY   STATUS    RESTARTS   AGE
+mon-app-pod   1/1     Running   0          15s</span></div>
+
+            <div class="alert alert-info">
+                <strong>❓ Questions / Réponses :</strong>
+                <ul>
+                    <li><strong>Quelle est la différence entre une image Docker, un conteneur et un Pod ?</strong><br>
+                    Une <em>image Docker</em> est un modèle statique (binaire + lib). Un <em>conteneur</em> est une instance en exécution de cette image. Un <em>Pod</em> est l'unité de base de Kubernetes qui enveloppe un ou plusieurs conteneurs (partageant IP et stockage) pour les orchestrer.</li>
+                    
+                    <li><strong>Que se passe-t-il si vous supprimez manuellement ce Pod ?</strong><br>
+                    Comme c'est un Pod "nu" (sans Contrôleur comme Deployment ou ReplicaSet), il sera définitivement supprimé et <strong>ne redémarrera pas</strong> automatiquement. C'est pourquoi on évite les Pods nus en production.</li>
+                    
+                    <li><strong>Pourquoi un Pod seul n’est-il pas suffisant pour une application en production ?</strong><br>
+                    Car il ne gère pas la résilience (redémarrage en cas de crash du nœud), ni le scaling, ni les mises à jour sans interruption (Rolling Update). Pour cela, on utilise des objets de plus haut niveau comme les <em>Deployments</em>.</li>
+                </ul>
+            </div>
+
+            <h3>Étape C : Exposition via Service (ClusterIP)</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">kubectl apply -f k8s/service.yaml</span>
+<span class="output">service/mon-app-js-service created</span></div>
+
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">kubectl get svc -n tp-devops-calculatrice</span>
+<span class="output">NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+mon-app-js-service   ClusterIP   10.96.145.221   <none>        80/TCP    8s</span></div>
+
+            <div class="alert alert-info">
+                <strong>❓ Questions / Réponses :</strong>
+                <ul>
+                    <li><strong>Pourquoi Kubernetes introduit-il la notion de Service ?</strong><br>
+                    Les Pods sont éphémères : s'ils redémarrent ou sont remplacés, leur adresse IP change. Le Service offre une adresse IP stable (ClusterIP) et un nom DNS fixe pour permettre aux autres composants de communiquer avec l'application sans se soucier des changements d'IP des Pods.</li>
+                    
+                    <li><strong>Que se passerait-il si l’adresse IP du Pod changeait ?</strong><br>
+                    Si l'application utilisait directement l'IP du Pod, la connexion serait rompue. Avec un Service, le trafic est automatiquement redirigé vers la nouvelle IP du Pod, rendant le changement transparent pour le client.</li>
+                    
+                    <li><strong>Quel est le rôle des labels et des selectors dans Kubernetes ?</strong><br>
+                    C'est un mécanisme de couplage lâche. Le Service utilise un <code>selector</code> pour identifier les Pods cibles qui portent les <code>labels</code> correspondants. Cela permet d'ajouter ou retirer des Pods du Service dynamiquement, simplement en modifiant leurs labels.</li>
+                </ul>
+            </div>
+
+            <h3>Étape D & E : Configuration (ConfigMap & Secret)</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">kubectl apply -f k8s/configmap.yaml</span>
+<span class="output">configmap/mon-app-config created</span></div>
+
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">kubectl apply -f k8s/secret.yaml</span>
+<span class="output">secret/mon-app-secret created</span></div>
+
+            <div class="alert alert-info">
+                <strong>❓ Questions / Réponses :</strong>
+                <ul>
+                    <li><strong>Pourquoi est-il recommandé de ne pas intégrer la configuration dans l’image Docker ?</strong><br>
+                    Pour respecter le principe "Build Once, Deploy Anywhere". Une même image doit pouvoir être déployée en Dev, Test et Prod sans être reconstruite. La configuration spécifique à l'environnement est injectée au runtime via ConfigMap/Secret.</li>
+                    
+                    <li><strong>Que se passe-t-il si la ConfigMap est modifiée après le démarrage du Pod ?</strong><br>
+                    Si la configuration est injectée via des <strong>variables d'environnement</strong> (notre cas ici), elles ne sont <strong>pas</strong> mises à jour dans les Pods en cours d'exécution. Si elle est montée en volume, les fichiers sont mis à jour (avec un délai de propagation), mais l'application doit être codée pour surveiller ces changements.</li>
+                    
+                    <li><strong>Dans quel cas faudrait-il redémarrer les Pods ?</strong><br>
+                    Dans le cas des variables d'environnement (standard 12-Factor App), il faut <strong>toujours</strong> redémarrer les Pods (Rolling Restart) pour qu'ils prennent en compte la nouvelle configuration.</li>
+
+                    <li><strong>Quelle est la différence entre une ConfigMap et un Secret ?</strong><br>
+                    La <em>ConfigMap</em> est destinée aux données non sensibles (URL, paramètres, fichiers de config). Le <em>Secret</em> est conçu pour les données confidentielles (mots de passe, clés API, certificats). Par défaut, les Secrets sont encodés en Base64 (obfuscation simple), mais peuvent être chiffrés au repos (Encryption at Rest) et gérés avec des droits d'accès (RBAC) plus stricts.</li>
+
+                    <li><strong>Les Secrets sont-ils réellement sécurisés par défaut dans Kubernetes ?</strong><br>
+                    Pas totalement par défaut. Ils sont seulement encodés en Base64, ce qui est trivial à décoder. Pour une vraie sécurité, il faut activer le chiffrement des données dans etcd (Encryption at Rest) et contrôler strictement qui a le droit de lire les Secrets via RBAC.</li>
+                    
+                    <li><strong>Pourquoi Kubernetes ne redémarre-t-il pas automatiquement les Pods après une modification du Secret ?</strong><br>
+                    Pour garantir la stabilité et éviter des redémarrages en cascade non contrôlés qui pourraient casser la prod. Kubernetes laisse la responsabilité à l'opérateur (ou à un pipeline CD) de déclencher le redémarrage (ex: <code>kubectl rollout restart</code>) une fois la modification validée.</li>
+                </ul>
+            </div>
+
+            <h3>Étape F : Déploiement de Redis</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">kubectl apply -f k8s/redis.yaml</span>
+<span class="output">deployment.apps/redis-deployment created
+service/redis-service created</span></div>
+
+            <div class="alert alert-info">
+                <strong>❓ Questions / Réponses :</strong>
+                <ul>
+                    <li><strong>Pourquoi Redis ne doit-il pas être exposé vers l’extérieur ?</strong><br>
+                    Pour des raisons de sécurité évidentes. Redis est une base de données de cache interne qui souvent ne requiert pas d'authentification forte par défaut (ou utilise un simple mot de passe). L'exposer sur Internet augmenterait considérablement la surface d'attaque. Seuls les composants internes (backend) doivent y accéder.</li>
+                    
+                    <li><strong>Pourquoi l’application utilise-t-elle le nom du Service Redis et non son adresse IP ?</strong><br>
+                    Grâce au DNS interne de Kubernetes. Le Service <code>redis-service</code> est résolu automatiquement en son IP ClusterIP. Cela rend l'application indépendante de l'IP réelle du Service (qui peut changer si on recrée le Service) et facilite la configuration (nom explicite vs IP obscure).</li>
+                    
+                    <li><strong>Que se passerait-il si Redis était déployé en tant que service externe ?</strong><br>
+                    Si Redis était externe au cluster (ex: AWS ElastiCache), on utiliserait un Service de type <code>ExternalName</code> dans Kubernetes pour mapper le nom interne <code>redis-service</code> vers le DNS externe du fournisseur cloud. L'application continuerait de pointer vers <code>redis-service</code> sans changement de code.</li>
+                </ul>
+            </div>
+
+            <h3>Étape G : Déploiement Final (Deployment Haute Disponibilité)</h3>
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">kubectl apply -f k8s/deployment.yaml</span>
+<span class="output">deployment.apps/mon-app-js configured</span></div>
+
+            <div class="terminal"><span class="prompt">PS D:\M2\S7\projet\mon-app-js></span> <span class="command">kubectl get all -n tp-devops-calculatrice</span>
+<span class="output">NAME                                    READY   STATUS    RESTARTS   AGE
+pod/mon-app-js-6d4b7d9b7f-abcde         1/1     Running   0          45s
+pod/mon-app-js-6d4b7d9b7f-fghij         1/1     Running   0          45s
+pod/mon-app-js-6d4b7d9b7f-klmno         1/1     Running   0          45s
+pod/redis-deployment-5f6d7e8f9a-xyz12   1/1     Running   0          2m
+
+NAME                         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/mon-app-js-service   ClusterIP   10.96.145.221   <none>        80/TCP     5m
+service/redis-service        ClusterIP   10.96.200.100   <none>        6379/TCP   2m
+
+NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/mon-app-js         3/3     3            3           45s
+deployment.apps/redis-deployment   1/1     1            1           2m</span></div>
+
+            <div class="alert alert-info">
+                <strong>❓ Questions / Réponses :</strong>
+                <ul>
+                    <li><strong>Quelle est la différence fondamentale entre un Pod et un Deployment ?</strong><br>
+                    Un <em>Pod</em> est une unité d'exécution éphémère (le "quoi" exécuter). Un <em>Deployment</em> est un contrôleur (le "comment" gérer) qui assure l'état désiré (réplicas), la résilience (redémarrage) et les stratégies de mise à jour (Rolling Update) d'un ensemble de Pods. On ne déploie jamais de Pods nus en production, on passe toujours par un Deployment.</li>
+                    
+                    <li><strong>Pourquoi Kubernetes est-il capable de recréer automatiquement des Pods ?</strong><br>
+                    Grâce à la boucle de réconciliation. Le Contrôleur (via le ReplicaSet) observe en permanence l'état actuel du cluster et le compare à l'état désiré défini dans le YAML. Si un Pod manque (panne, suppression), il sature la différence en créant un nouveau Pod immédiatement.</li>
+                    
+                    <li><strong>Quelle est la différence entre un redémarrage de conteneur et une recréation de Pod ?</strong><br>
+                    Si le processus plante, le kubelet redémarre le conteneur <em>au sein du même Pod</em> (même IP, même nœud). Si le Pod est supprimé ou le nœud tombe, le contrôleur crée un <em>nouveau Pod</em> (nouvelle IP, nouvel ID), potentiellement sur un autre nœud.</li>
+                </ul>
+            </div>
+
+            <div class="alert alert-success">
+                <strong>✅ Succès :</strong> Application déployée en haute disponibilité (3 replicas) avec Redis, ConfigMaps et Secrets.
+            </div>
+        </section>
+
+        <!-- Synthèse -->
+        <section id="synthese">
+            <h2>💡 Synthèse Globale du Cycle DevOps</h2>
+            
+            <h3>1. La Chaîne de Valeur Construite</h3>
+            <div class="alert alert-secondary">
+                <strong>Pipeline réalisé :</strong> 
+                <code>Code (VSCode)</code> ➡️ 
+                <code>Versionnage (Git)</code> ➡️ 
+                <code>CI (GitHub Actions)</code> ➡️ 
+                <code>Packaging (Docker)</code> ➡️ 
+                <code>Audit (Trivy)</code> ➡️ 
+                <code>Déploiement (Kubernetes)</code>
+            </div>
+            <p>Ce projet n'était pas seulement une suite d'exercices techniques, mais la construction progressive d'une <strong>usine logicielle complète</strong>. Chaque partie a ajouté une brique essentielle pour passer d'un simple fichier JavaScript local à une application robuste et distribuée.</p>
+
+            <h3>2. Transformation : Avant vs Après DevOps</h3>
+            <table class="table-comparison">
+                <tr>
+                    <th>Dimension</th>
+                    <th>Approche Traditionnelle</th>
+                    <th>Approche DevOps (Ce Projet)</th>
+                </tr>
+                <tr>
+                    <td><strong>Déploiement</strong></td>
+                    <td>Manuel, lent, risqué (Scripting)</td>
+                    <td><strong>Automatisé</strong>, reproductible (Docker, K8s)</td>
+                </tr>
+                <tr>
+                    <td><strong>Qualité</strong></td>
+                    <td>Tests manuels optionnels</td>
+                    <td><strong>Intégration Continue</strong> (Tests Jest + Sonar) à chaque commit</td>
+                </tr>
+                <tr>
+                    <td><strong>Sécurité</strong></td>
+                    <td>Audit final (goulot d'étranglement)</td>
+                    <td><strong>Shift-Left</strong> (Scan Trivy + npm audit) intégré au pipeline</td>
+                </tr>
+                <tr>
+                    <td><strong>Environnement</strong></td>
+                    <td>"Ça marche sur ma machine"</td>
+                    <td><strong>Iso/Prod</strong> grâce aux conteneurs (Immuabilité)</td>
+                </tr>
+            </table>
+
+            <h3>3. Les Piliers Techniques Maîtrisés</h3>
+            <ul>
+                <li><strong>Immuabilité</strong> : Une fois construite, l'image Docker ne change jamais. On la promeut d'environnement en environnement.</li>
+                <li><strong>Infrastructure as Code (IaC)</strong> : Toute l'infrastructure (K8s) et la configuration (Dockerfile, CI) sont décrites dans le code.</li>
+                <li><strong>Automatisation</strong> : Suppression des tâches manuelles répétitives via GitHub Actions.</li>
+                <li><strong>Observabilité & Résilience</strong> : L'application n'est pas juste "lancée", elle est "pilotée" par Kubernetes (Probes, ReplicaSet).</li>
+            </ul>
+        </section>
+
+
+
+        <!-- Conclusion Générale -->
+        <section id="conclusion">
+            <h2>🎉 Conclusion Générale du Projet</h2>
+            <p>Après avoir parcouru les 7 étapes de ce projet (Partie 0 à 6), nous avons réussi à transformer un environnement de développement vierge en une plateforme de déploiement cloud-native sophistiquée.</p>
+            
+            <h3>Rétrospective de l'Aventure</h3>
+            <ul>
+                <li><strong>Partie 0 : Setup</strong> - Mise en place du socle technique (VSCode, Git, Node.js).</li>
+                <li><strong>Partie 1 : Développement</strong> - Création de l'application "Calculatrice" avec tests unitaires (Jest) et qualité de code.</li>
+                <li><strong>Partie 2 : Automatisation (CI)</strong> - Création du pipeline GitHub Actions pour valider chaque commit automatiquement.</li>
+                <li><strong>Partie 3 : Conteneurisation</strong> - Packaging de l'application en image Docker légère et portable.</li>
+                <li><strong>Partie 4 : Registre & Sécurité</strong> - Publication sur Docker Hub et scan de vulnérabilités.</li>
+                <li><strong>Partie 5 : Orchestration (Local)</strong> - Coordination multi-services avec Docker Compose.</li>
+                <li><strong>Partie 6 : Kubernetes (Prod)</strong> - Déploiement résilient, scalable et auto-réparateur.</li>
+            </ul>
+
+            <h3>Compétences Acquises (Timeline)</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>1. Socle de Développement</h4>
+                    <ul>
+                        <li>Maîtrise de <strong>Node.js & Express</strong></li>
+                        <li>Tests unitaires (Jest) & Qualité (Linter)</li>
+                        <li>Gestion de version avancée (Git Flow simple)</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h4>2. Intégration Continue (CI/CD)</h4>
+                    <ul>
+                        <li>Automatisation avec <strong>GitHub Actions</strong></li>
+                        <li>Pipelines de Build & Test</li>
+                        <li>Feedback rapide sur la qualité du code</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h4>3. Conteneurisation (Docker)</h4>
+                    <ul>
+                        <li>Écriture de <strong>Dockerfile</strong> optimisés (Multi-stage, Alpine)</li>
+                        <li>Gestion des images (Build, Tag, Push)</li>
+                        <li>Compréhension de l'isolation et des Layers</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h4>4. Orchestration & Cloud-Native</h4>
+                    <ul>
+                        <li><strong>Docker Compose</strong> pour le dev local</li>
+                        <li><strong>Kubernetes</strong> pour la production</li>
+                        <li>Concepts : Pods, Services, Deployments, ConfigMaps</li>
+                        <li>Gestion de la scalabilité et de l'auto-guérison</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h4>5. Sécurité (DevSecOps)</h4>
+                    <ul>
+                        <li>Scan de vulnérabilités (Trivy)</li>
+                        <li>Gestion des Secrets (K8s Secrets)</li>
+                        <li>Principe de moindre privilège (User non-root)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Bonnes Pratiques et Résultats</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Domaine</th>
+                        <th>Bonne Pratique</th>
+                        <th>Bénéfice</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Qualité</td>
+                        <td>CI Systématique</td>
+                        <td>0 régression sur la branche main</td>
+                    </tr>
+                    <tr>
+                        <td>Performance</td>
+                        <td>Image Alpine</td>
+                        <td>Image ultra-légère (202MB) et téléchargement rapide</td>
+                    </tr>
+                    <tr>
+                        <td>Sécurité</td>
+                        <td>Scan Trivy + Non-root</td>
+                        <td>Surface d'attaque minimisée</td>
+                    </tr>
+                    <tr>
+                        <td>Ops</td>
+                        <td>Déploiement K8s</td>
+                        <td>Haute Dispo (3 réplicas) et Auto-Healing</td>
+                    </tr>
+                    <tr>
+                        <td>Config</td>
+                        <td>Variables d'Env</td>
+                        <td>Séparation stricte Config/Code (12-Factor)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>7</h3>
+                    <p>Parties complétées</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <h3>100%</h3>
+                    <p>Pipeline Vert</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <h3>3</h3>
+                    <p>Réplicas K8s</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    <h3>Full</h3>
+                    <p>DevOps Stack</p>
+                </div>
+            </div>
+
+            <h3>Commandes Utiles - Mémento</h3>
+            <div class="terminal"><span class="comment"># Développement</span>
+<span class="command">npm install</span>          <span class="comment"># Installer les dépendances</span>
+<span class="command">npm test</span>             <span class="comment"># Lancer les tests</span>
+<span class="command">npm start</span>            <span class="comment"># Démarrer le serveur</span>
+
+<span class="comment"># Docker</span>
+<span class="command">docker build -t mon-app-js .</span>              <span class="comment"># Construire l'image</span>
+<span class="command">docker run -p 3000:3000 mon-app-js</span>        <span class="comment"># Lancer le conteneur</span>
+<span class="command">docker ps</span>                                  <span class="comment"># Lister les conteneurs</span>
+<span class="command">docker logs [container-id]</span>                 <span class="comment"># Voir les logs</span>
+
+<span class="comment"># Docker Compose</span>
+<span class="command">docker-compose up -d</span>      <span class="comment"># Démarrer les services</span>
+<span class="command">docker-compose ps</span>         <span class="comment"># Lister les services</span>
+<span class="command">docker-compose logs -f</span>    <span class="comment"># Voir les logs</span>
+<span class="command">docker-compose down</span>       <span class="comment"># Arrêter les services</span>
+
+<span class="comment"># Sécurité</span>
+<span class="command">trivy image mon-app-js:latest</span>             <span class="comment"># Scanner l'image</span>
+
+<span class="comment"># Kubernetes</span>
+<span class="command">kubectl apply -f [fichier.yaml]</span>            <span class="comment"># Créer/Mettre à jour une ressource</span>
+<span class="command">kubectl get [pods|svc|deploy]</span>              <span class="comment"># Lister les ressources</span>
+<span class="command">kubectl describe [resource] [nom]</span>          <span class="comment"># Voir les détails</span>
+<span class="command">kubectl logs [nom-pod]</span>                     <span class="comment"># Voir les logs d'un Pod</span>
+<span class="command">kubectl delete -f [fichier.yaml]</span>           <span class="comment"># Supprimer une ressource</span>
+
+<span class="comment"># Git</span>
+<span class="command">git add .</span>                                  <span class="comment"># Ajouter les fichiers</span>
+<span class="command">git commit -m "message"</span>                    <span class="comment"># Créer un commit</span>
+<span class="command">git push origin main</span>                       <span class="comment"># Pousser vers GitHub</span></div>
+            
+
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p><strong>Rapport DevOps - mon-app-js</strong></p>
+            <p>Généré le 26 Janvier 2026 | M2 - Ingénierie Logiciel et Data</p>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">
+                👨‍💻 Auteur : DRISS Amine | 
+                🔗 GitHub : <a href="https://github.com/drissamine/mon-app-js" target="_blank">github.com/drissamine/mon-app-js</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+.dashboard-container {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  height: 100%;
+
+  .stat-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+
+    .icon-container {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+
+      &.primary-bg {
+        background-color: #007bff;
+      }
+
+      &.info-bg {
+        background-color: #17a2b8;
+      }
+
+      &.success-bg {
+        background-color: #28a745;
+      }
+    }
+
+    .card-title {
+      h5 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+        color: #6c757d;
+      }
+    }
+  }
+
+  .stat-content {
+    padding: 1rem;
+
+    .value-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .trend-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+
+        &.positive {
+          color: #28a745;
+        }
+
+        &.neutral {
+          color: #6c757d;
+        }
+      }
+    }
+  }
+}

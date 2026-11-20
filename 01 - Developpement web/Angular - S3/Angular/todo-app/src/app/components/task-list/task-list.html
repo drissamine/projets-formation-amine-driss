@@ -1,0 +1,104 @@
+<header>
+    <h2>Tâches à faire : {{ remainingTasks() }}</h2>
+</header>
+
+<!-- Message d'erreur -->
+@if (errorMessage()) {
+<div class="error-message" role="alert" aria-live="polite">
+    {{ errorMessage() }}
+</div>
+}
+
+<div class="input-section">
+    <div class="input-group">
+        <input [(ngModel)]="newTaskTitle" placeholder="Nouvelle tâche..." (keyup.enter)="addTask()"
+            aria-label="Ajouter une nouvelle tâche" maxlength="100" #taskInput />
+        <button class="add-btn" (click)="addTask()" [disabled]="!newTaskTitle.trim()" aria-label="Ajouter la tâche">
+            Ajouter
+        </button>
+    </div>
+
+    <!-- Raccourcis clavier -->
+    <div class="keyboard-shortcuts" role="note" aria-label="Raccourcis clavier">
+        <details>
+            <summary>⌨️ Raccourcis clavier</summary>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>N</kbd>
+                    <span>Nouvelle tâche</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>A</kbd>
+                    <span>Tout sélectionner</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>Suppr</kbd>
+                    <span>Effacer terminées</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>1</kbd>, <kbd>2</kbd>, <kbd>3</kbd>
+                    <span>Filtres rapides</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Entrée</kbd>
+                    <span>Éditer/Valider tâche</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Échap</kbd>
+                    <span>Annuler édition</span>
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <!-- Filtres et actions en masse -->
+    <div class="actions-section">
+        <div class="filter-buttons" role="tablist" aria-label="Filtrer les tâches">
+            <button (click)="setFilter('all')" [class.active]="filterStatus() === 'all'" role="tab"
+                aria-selected="{{filterStatus() === 'all'}}" aria-controls="task-list">
+                Toutes ({{ tasks().length }})
+            </button>
+            <button (click)="setFilter('active')" [class.active]="filterStatus() === 'active'" role="tab"
+                aria-selected="{{filterStatus() === 'active'}}" aria-controls="task-list">
+                Actives ({{ remainingTasks() }})
+            </button>
+            <button (click)="setFilter('completed')" [class.active]="filterStatus() === 'completed'" role="tab"
+                aria-selected="{{filterStatus() === 'completed'}}" aria-controls="task-list">
+                Terminées ({{ tasks().length - remainingTasks() }})
+            </button>
+        </div>
+
+        <div class="bulk-actions">
+            @if (tasks().length > 0) {
+            <button (click)="toggleAllTasks()" class="toggle-all-btn" aria-label="Tout sélectionner/désélectionner">
+                {{ allCompleted() ? 'Tout désélectionner' : 'Tout sélectionner' }}
+            </button>
+            }
+            @if (tasks().length - remainingTasks() > 0) {
+            <button (click)="clearCompletedTasks()" class="clear-completed-btn"
+                aria-label="Supprimer toutes les tâches terminées">
+                Effacer les terminées
+            </button>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- État vide -->
+@if (filteredTasks().length === 0) {
+<div class="empty-state" role="status" aria-live="polite">
+    @if (tasks().length === 0) {
+    <p>Aucune tâche créée. Ajoutez votre première tâche ci-dessus !</p>
+    } @else {
+    <p>Aucune tâche dans cette catégorie.</p>
+    }
+</div>
+} @else {
+<!-- Liste des tâches -->
+<ul class="task-list" id="task-list" role="tabpanel" aria-labelledby="task-list-heading">
+    @for (task of filteredTasks(); track task.id) {
+    <app-task-item @fade [task]="task" (remove)="deleteTask(task)" (toggle)="toggleTask(task)" (edit)="editTask($event)"
+        [attr.aria-label]="'Tâche: ' + task.title" />
+    }
+</ul>
+}

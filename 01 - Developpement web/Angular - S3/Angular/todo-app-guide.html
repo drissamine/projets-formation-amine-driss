@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Création Todo App Angular</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        angular: {
+                            DEFAULT: '#DD0031',
+                            dark: '#C3002F',
+                            light: '#F44336'
+                        },
+                        typescript: '#3178C6',
+                        tailwind: '#06B6D4',
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b'
+                    }
+                }
+            }
+        }
+
+        function showSuccess(btn) {
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-green-400"><path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" /></svg>`;
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+            }, 2000);
+        }
+
+        function copyToClipboard(btn) {
+            const container = btn.parentElement;
+            const codeBlock = container.querySelector('.code-block');
+            const text = codeBlock.innerText;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showSuccess(btn);
+            }).catch(err => {
+                console.error('Failed to copy!', err);
+            });
+        }
+
+        function copyLine(btn) {
+            const line = btn.parentElement.querySelector('span').innerText;
+            navigator.clipboard.writeText(line).then(() => {
+                showSuccess(btn);
+            }).catch(err => {
+                console.error('Failed to copy!', err);
+            });
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .code-block {
+            background-color: #0d1117;
+            color: #e6edf3;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 1rem 0;
+            border: 1px solid #30363d;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        .keyword {
+            color: #ff7b72;
+        }
+
+        .string {
+            color: #a5d6ff;
+        }
+
+        .function {
+            color: #d2a8ff;
+        }
+
+        .comment {
+            color: #8b949e;
+            font-style: italic;
+        }
+
+        .tag {
+            color: #7ee787;
+        }
+
+        .attr {
+            color: #79c0ff;
+        }
+    </style>
+</head>
+
+<body class="bg-darkbg text-slate-300 antialiased selection:bg-angular selection:text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-darkbg/90 backdrop-blur-md border-b border-slate-700 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <svg class="h-8 w-8 text-angular" viewBox="0 0 250 250" fill="currentColor">
+                        <path
+                            d="M125 30L31.9 63.2l14.2 123.1L125 230l78.9-43.7 14.2-123.1L125 30zm0 142.9l-37.1-17.6-6-46.1h86.2l-6 46.1L125 172.9z">
+                        </path>
+                    </svg>
+                    <span class="text-xl font-bold text-white tracking-tight">Todo<span
+                            class="text-angular">App</span></span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#setup"
+                            class="hover:text-angular transition-colors px-3 py-2 rounded-md font-medium">1. Setup</a>
+                        <a href="#structure"
+                            class="hover:text-typescript transition-colors px-3 py-2 rounded-md font-medium">2.
+                            Structure</a>
+                        <a href="#logic"
+                            class="hover:text-orange-400 transition-colors px-3 py-2 rounded-md font-medium">3. Logique
+                            & Services</a>
+                        <a href="#template"
+                            class="hover:text-pink-400 transition-colors px-3 py-2 rounded-md font-medium">4.
+                            Template</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="relative pt-32 pb-20 sm:pt-40 sm:pb-24 overflow-hidden">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-8">
+                Créez une <span class="text-transparent bg-clip-text bg-gradient-to-r from-angular to-orange-500">Todo
+                    App</span> Moderne
+            </h1>
+            <p class="mt-4 max-w-2xl mx-auto text-xl text-slate-400">
+                Guide étape par étape : des Signaux Angular, Services, au nouveau flux de contrôle @for.
+            </p>
+            <div class="mt-10 flex justify-center gap-4">
+                <a href="#setup"
+                    class="px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-angular hover:bg-angular-dark md:text-lg md:px-10 transition-all shadow-lg hover:shadow-angular/50">
+                    Commencer
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
+
+        <!-- Section 1: Setup -->
+        <section id="setup" class="scroll-mt-24">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="text-4xl font-bold text-angular">01</div>
+                <h2 class="text-3xl font-bold text-white">Initialisation du Projet</h2>
+            </div>
+
+            <div class="bg-cardbg rounded-2xl p-8 border border-slate-700 shadow-xl space-y-6">
+                <p>Création d'un nouveau projet Angular. Le CLI vous posera plusieurs questions :</p>
+
+                <div class="space-y-4">
+                    <div class="border-l-2 border-slate-600 pl-4 space-y-2">
+                        <div class="text-sm text-slate-400">1. Stylesheet Format</div>
+                        <div class="text-white font-mono">Select <span class="text-tailwind font-bold">Tailwind
+                                CSS</span></div>
+                    </div>
+                    <div class="border-l-2 border-slate-600 pl-4 space-y-2">
+                        <div class="text-sm text-slate-400">2. Server-Side Rendering (SSR)</div>
+                        <div class="text-white font-mono">Select <span class="text-red-400 font-bold">No</span></div>
+                    </div>
+                    <div class="border-l-2 border-slate-600 pl-4 space-y-2">
+                        <div class="text-sm text-slate-400">3. AI Tools</div>
+                        <div class="text-white font-mono">Select <span class="text-red-400 font-bold">None</span> (or
+                            skip)</div>
+                    </div>
+                </div>
+
+                <div class="code-block flex flex-col gap-2 whitespace-nowrap">
+                    <div class="flex items-center justify-between group/line">
+                        <span class="font-mono text-sm text-blue-300">ng new todo-app</span>
+                        <button onclick="copyLine(this)"
+                            class="p-1.5 bg-slate-700/50 hover:bg-slate-700 rounded text-slate-400 hover:text-white opacity-100 z-10 transition-all"
+                            title="Copier la ligne">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between group/line">
+                        <span class="font-mono text-sm text-blue-300">cd todo-app</span>
+                        <button onclick="copyLine(this)"
+                            class="p-1.5 bg-slate-700/50 hover:bg-slate-700 rounded text-slate-400 hover:text-white opacity-100 z-10 transition-all"
+                            title="Copier la ligne">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Git Issue Helper -->
+                <div class="mt-4 p-4 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
+                    <div class="flex items-start gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-6 h-6 text-yellow-500 flex-shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                        <div class="space-y-2">
+                            <h4 class="font-bold text-yellow-500 text-sm">Erreur Git détectée ?</h4>
+                            <p class="text-xs text-slate-400">Si vous voyez
+                                <code>fatal: unable to auto-detect email address</code>, configurez votre identité Git :
+                            </p>
+                            <div class="code-block flex flex-col gap-2 whitespace-nowrap !my-0 !bg-yellow-900/40">
+                                <div class="flex items-center justify-between group/line">
+                                    <span class="font-mono text-xs text-yellow-200">git config --global user.email
+                                        "votremail@example.com"</span>
+                                    <button onclick="copyLine(this)"
+                                        class="p-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-400 hover:text-white opacity-100 z-10 transition-all"
+                                        title="Copier">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="w-3 h-3">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-sm text-slate-400 pt-2">Pour lancer le serveur de développement : <code
+                        class="bg-slate-800 px-1 py-0.5 rounded text-slate-200">npm start</code> ou <code
+                        class="bg-slate-800 px-1 py-0.5 rounded text-slate-200">ng serve</code>.</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Structure -->
+        <section id="structure" class="scroll-mt-24">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="text-4xl font-bold text-typescript">02</div>
+                <h2 class="text-3xl font-bold text-white">Structure & Modèle</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Data Model -->
+                <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                    <h3 class="text-xl font-semibold text-white mb-4">Le Modèle de Données (Interface)</h3>
+                    <p class="mb-4">On définit la forme de nos tâches. Créez <code
+                            class="text-angular">src/app/models/task.model.ts</code>.</p>
+                    <div class="relative group">
+                        <button onclick="copyToClipboard(this)"
+                            class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-100 z-10"
+                            title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg></button>
+                        <div class="code-block"><span class="keyword">export interface</span> <span
+                                class="function">Task</span> {
+                            id: <span class="keyword">number</span>;
+                            title: <span class="keyword">string</span>;
+                            completed: <span class="keyword">boolean</span>;
+                            createdAt: <span class="keyword">number</span>;
+                            }</div>
+                    </div>
+                </div>
+
+                <!-- Components -->
+                <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                    <h3 class="text-xl font-semibold text-white mb-4">Génération des Composants</h3>
+                    <div class="code-block flex flex-col gap-2 whitespace-nowrap">
+                        <div class="flex items-center justify-between group/line">
+                            <span class="font-mono text-sm text-blue-300">ng generate component
+                                components/task-list</span>
+                            <button onclick="copyLine(this)"
+                                class="p-1.5 bg-slate-700/50 hover:bg-slate-700 rounded text-slate-400 hover:text-white opacity-100 z-10 transition-all"
+                                title="Copier la ligne">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between group/line">
+                            <span class="font-mono text-sm text-blue-300">ng generate component
+                                components/task-item</span>
+                            <button onclick="copyLine(this)"
+                                class="p-1.5 bg-slate-700/50 hover:bg-slate-700 rounded text-slate-400 hover:text-white opacity-100 z-10 transition-all"
+                                title="Copier la ligne">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Logic (Service + Signals) -->
+        <section id="logic" class="scroll-mt-24">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="text-4xl font-bold text-orange-500">03</div>
+                <h2 class="text-3xl font-bold text-white">Logique & Services</h2>
+            </div>
+
+            <div class="bg-cardbg rounded-2xl p-8 border border-slate-700 space-y-6">
+                <h3 class="text-xl font-semibold text-white">Le Service (Gestion d'État)</h3>
+                <p>On utilise les <span class="text-angular font-bold">Signals</span> pour une réactivité fine. Créez
+                    <code class="text-angular">src/app/services/task.service.ts</code>.
+                </p>
+
+                <div class="relative group">
+                    <button onclick="copyToClipboard(this)"
+                        class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-100 z-10"
+                        title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                        </svg></button>
+                    <div class="code-block"><span class="keyword">import</span> { Injectable, signal, computed } <span
+                            class="keyword">from</span> <span class="string">'@angular/core'</span>;
+                        <span class="keyword">import</span> { Task } <span class="keyword">from</span> <span
+                            class="string">'../models/task.model'</span>;
+
+                        <span class="keyword">@Injectable</span>({ providedIn: <span class="string">'root'</span> })
+                        <span class="keyword">export class</span> <span class="function">TaskService</span> {
+                        <span class="comment">// 1. État principal avec un Signal</span>
+                        <span class="keyword">private</span> tasksSignal = <span
+                            class="function">signal</span>&lt;Task[]&gt;([]);
+
+                        <span class="comment">// 2. Lecture seule publique</span>
+                        tasks = <span class="this">this</span>.tasksSignal.asReadonly();
+
+                        <span class="comment">// 3. Valeurs dérivées (Computed)</span>
+                        remainingTasks = <span class="function">computed</span>(() => <span
+                            class="this">this</span>.tasks().filter(t => !t.completed).length);
+
+                        <span class="function">addTask</span>(title: <span class="keyword">string</span>) {
+                        <span class="keyword">const</span> newTask: Task = {
+                        id: Date.now(),
+                        title,
+                        completed: <span class="keyword">false</span>,
+                        createdAt: Date.now()
+                        };
+                        <span class="comment">// Mise à jour immutable du signal</span>
+                        <span class="this">this</span>.tasksSignal.<span class="function">update</span>(tasks =>
+                        [newTask,
+                        ...tasks]);
+                        }
+
+                        <span class="function">toggleTask</span>(id: <span class="keyword">number</span>) {
+                        <span class="this">this</span>.tasksSignal.<span class="function">update</span>(tasks =>
+                        tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t)
+                        );
+                        }
+                        }
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Template Controls -->
+        <section id="template" class="scroll-mt-24">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="text-4xl font-bold text-pink-500">04</div>
+                <h2 class="text-3xl font-bold text-white">Templates Modernes</h2>
+            </div>
+
+            <div class="grid gap-8">
+
+                <!-- @for -->
+                <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-white">Le bloc @for</h3>
+                        <span
+                            class="bg-green-900/40 text-green-300 text-xs px-2 py-1 rounded border border-green-700/50">Recommandé</span>
+                    </div>
+
+                    <ul class="space-y-2 mb-6 text-slate-300 text-sm">
+                        <li class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span><strong>Perfomance :</strong> Nouvel algorithme de réconciliation jusqu'à 90% plus
+                                rapide.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span><strong>Syntaxe :</strong> Plus intuitif que <code>*ngFor</code>, plus besoin
+                                d'imports (CommonModule).</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span><strong>@empty :</strong> Gestion native des listes vides.</span>
+                        </li>
+                    </ul>
+
+                    <p class="mb-2 text-sm text-slate-400">Fichier : <code
+                            class="text-angular">src/app/components/task-list/task-list.component.html</code></p>
+                    <div class="relative group">
+                        <button onclick="copyToClipboard(this)"
+                            class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-100 z-10"
+                            title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg></button>
+                        <div class="code-block"><span class="tag">&lt;ul&gt;</span>
+                            <span class="keyword">@for</span> (task of tasks(); track task.id) {
+                            <span class="tag">&lt;li&gt;</span>
+                            <span class="tag">&lt;app-task-item</span>
+                            <span class="attr">[task]</span>=<span class="string">"task"</span>
+                            <span class="tag">/&gt;</span>
+                            <span class="tag">&lt;/li&gt;</span>
+                            } <span class="keyword">@empty</span> {
+                            <span class="tag">&lt;li&gt;</span>Aucune tâche pour le moment !<span
+                                class="tag">&lt;/li&gt;</span>
+                            }
+                            <span class="tag">&lt;/ul&gt;</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-4 bg-orange-900/20 border-l-4 border-orange-500 text-orange-200 text-sm">
+                        <strong>Important :</strong> <code>track</code> est OBLIGATOIRE. Utilisez une propriété unique
+                        (id) pour aider Angular à optimiser le rendu.
+                    </div>
+                </div>
+
+                <!-- @if -->
+                <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                    <h3 class="text-xl font-semibold text-white mb-4">Le bloc @if</h3>
+                    <p class="mb-4 text-slate-300">Supporte enfin naturellement <code
+                            class="text-pink-400">old else</code> et <code class="text-pink-400">else if</code> sans
+                        recourir aux <code>ng-template</code> complexes.</p>
+
+                    <p class="mb-2 text-sm text-slate-400">Fichier : <code
+                            class="text-angular">src/app/components/task-list/task-list.component.html</code></p>
+                    <div class="relative group">
+                        <button onclick="copyToClipboard(this)"
+                            class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-100 z-10"
+                            title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg></button>
+                        <div class="code-block"><span class="keyword">@if</span> (loading()) {
+                            <span class="tag">&lt;loader /&gt;</span>
+                            } <span class="keyword">@else if</span> (error()) {
+                            <span class="tag">&lt;error-msg /&gt;</span>
+                            } <span class="keyword">@else</span> {
+                            <span class="tag">&lt;content /&gt;</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- @switch -->
+                <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                    <h3 class="text-xl font-semibold text-white mb-4">Le bloc @switch (Bonus)</h3>
+                    <p class="mb-4 text-slate-300">Remplace <code>ngSwitch</code> avec une syntaxe type JavaScript, plus
+                        lisible et avec vérification de type.</p>
+
+                    <p class="mb-2 text-sm text-slate-400">Exemple d'utilisation (dans n'importe quel template) :</p>
+                    <div class="relative group">
+                        <button onclick="copyToClipboard(this)"
+                            class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-100 z-10"
+                            title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg></button>
+                        <div class="code-block"><span class="keyword">@switch</span> (status()) {
+                            <span class="keyword">@case</span> (<span class="string">'DRAFT'</span>) { <span
+                                class="tag">&lt;span&gt;</span>Brouillon<span class="tag">&lt;/span&gt;</span> }
+                            <span class="keyword">@case</span> (<span class="string">'PUBLISHED'</span>) { <span
+                                class="tag">&lt;span&gt;</span>Publié<span class="tag">&lt;/span&gt;</span> }
+                            <span class="keyword">@default</span> { <span class="tag">&lt;span&gt;</span>Inconnu<span
+                                class="tag">&lt;/span&gt;</span> }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Section 5: Routing & Pages -->
+    <section id="routing" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 scroll-mt-24">
+        <div class="flex items-center gap-4 mb-8">
+            <div class="text-4xl font-bold text-teal-400">05</div>
+            <h2 class="text-3xl font-bold text-white">Routage & Pages</h2>
+        </div>
+
+        <div class="space-y-8">
+
+            <!-- Generate Pages -->
+            <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                <h3 class="text-xl font-semibold text-white mb-4">1. Création des Pages</h3>
+                <p class="mb-4 text-slate-300">Organisons l'application avec des composants dédiés à chaque page.</p>
+
+                <div class="code-block flex flex-col gap-2 whitespace-nowrap">
+                    <div class="flex items-center justify-between group/line">
+                        <span class="font-mono text-sm text-teal-300">ng generate component pages/home</span>
+                        <button onclick="copyLine(this)"
+                            class="p-1.5 bg-slate-700/50 hover:bg-slate-700 rounded text-slate-400 hover:text-white opacity-100 z-10 transition-all"
+                            title="Copier la ligne">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between group/line">
+                        <span class="font-mono text-sm text-teal-300">ng generate component pages/about</span>
+                        <button onclick="copyLine(this)"
+                            class="p-1.5 bg-slate-700/50 hover:bg-slate-700 rounded text-slate-400 hover:text-white opacity-100 z-10 transition-all"
+                            title="Copier la ligne">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration -->
+            <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                <h3 class="text-xl font-semibold text-white mb-4">2. Configuration des Routes</h3>
+                <p class="mb-2 text-sm text-slate-400">Fichier : <code class="text-angular">src/app/app.routes.ts</code>
+                </p>
+                <div class="relative group">
+                    <button onclick="copyToClipboard(this)"
+                        class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-100 z-10"
+                        title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                        </svg></button>
+                    <div class="code-block"><span class="keyword">import</span> { Routes } <span
+                            class="keyword">from</span> <span class="string">'@angular/router'</span>;
+                        <span class="keyword">import</span> { HomeComponent } <span class="keyword">from</span> <span
+                            class="string">'./pages/home/home.component'</span>;
+                        <span class="keyword">import</span> { AboutComponent } <span class="keyword">from</span> <span
+                            class="string">'./pages/about/about.component'</span>;
+
+                        <span class="keyword">export const</span> routes: Routes = [
+                        { path: <span class="string">''</span>, component: HomeComponent },
+                        { path: <span class="string">'about'</span>, component: AboutComponent },
+                        { path: <span class="string">'**'</span>, redirectTo: <span class="string">''</span> } <span
+                            class="comment">// Redirection 404</span>
+                        ];
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integration -->
+            <div class="bg-cardbg rounded-2xl p-8 border border-slate-700">
+                <h3 class="text-xl font-semibold text-white mb-4">3. Place de rendu (Outlet)</h3>
+                <p class="mb-4 text-slate-300">Modifiez le composant principal pour inclure la navigation et la sortie
+                    du routeur.</p>
+                <p class="mb-2 text-sm text-slate-400">Fichier : <code
+                        class="text-angular">src/app/app.component.html</code></p>
+
+                <div class="relative group">
+                    <button onclick="copyToClipboard(this)"
+                        class="absolute top-2 right-2 p-2 bg-slate-700/50 hover:bg-slate-700 rounded-md text-slate-400 hover:text-white transition-all opacity-100 z-10"
+                        title="Copier"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                        </svg></button>
+                    <div class="code-block"><span class="tag">&lt;nav&gt;</span>
+                        <span class="tag">&lt;a</span> <span class="attr">routerLink</span>=<span
+                            class="string">"/"</span> <span class="attr">routerLinkActive</span>=<span
+                            class="string">"active"</span><span class="tag">&gt;</span>Accueil<span
+                            class="tag">&lt;/a&gt;</span> |
+                        <span class="tag">&lt;a</span> <span class="attr">routerLink</span>=<span
+                            class="string">"/about"</span> <span class="attr">routerLinkActive</span>=<span
+                            class="string">"active"</span><span class="tag">&gt;</span>À Propos<span
+                            class="tag">&lt;/a&gt;</span>
+                        <span class="tag">&lt;/nav&gt;</span>
+
+                        <span class="comment">&lt;!-- C'est ici que les pages s'afficheront --&gt;</span>
+                        <span class="tag">&lt;router-outlet /&gt;</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-500">Créé pour vous aider à maîtriser Angular Moderne.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartographie des Modèles de Langue (LLM) - M2 ESIS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #06b6d4;
+            --accent: #f43f5e;
+            --dark: #0f172a;
+            --dark-secondary: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-2: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            --gradient-3: linear-gradient(135deg, #f43f5e 0%, #f97316 100%);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(244, 63, 94, 0.1) 0%, transparent 40%);
+            animation: bgMove 20s ease-in-out infinite;
+        }
+
+        @keyframes bgMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-5%, -5%) rotate(5deg); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--light);
+        }
+
+        /* Table of Contents */
+        .toc {
+            position: fixed;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: none;
+        }
+
+        @media (min-width: 1200px) {
+            .toc {
+                display: block;
+            }
+        }
+
+        .toc-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--gray);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .toc-item:hover,
+        .toc-item.active {
+            color: var(--light);
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .toc-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray);
+            transition: all 0.3s ease;
+        }
+
+        .toc-item:hover .toc-dot,
+        .toc-item.active .toc-dot {
+            background: var(--primary);
+            transform: scale(1.5);
+        }
+
+        /* Sections */
+        section {
+            min-height: 100vh;
+            padding: 6rem 2rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        section:nth-child(1) { animation-delay: 0.1s; }
+        section:nth-child(2) { animation-delay: 0.2s; }
+        section:nth-child(3) { animation-delay: 0.3s; }
+        section:nth-child(4) { animation-delay: 0.4s; }
+        section:nth-child(5) { animation-delay: 0.5s; }
+        section:nth-child(6) { animation-delay: 0.6s; }
+        section:nth-child(7) { animation-delay: 0.7s; }
+        section:nth-child(8) { animation-delay: 0.8s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--gray);
+            margin-bottom: 3rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 100vh;
+            padding-top: 4rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            color: var(--primary-light);
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 50%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-title span {
+            display: block;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--gray);
+            font-size: 1rem;
+        }
+
+        .hero-info-item svg {
+            width: 20px;
+            height: 20px;
+            color: var(--primary);
+        }
+
+        .hero-description {
+            max-width: 600px;
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--dark-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .card-icon.gradient-1 { background: var(--gradient-1); }
+        .card-icon.gradient-2 { background: var(--gradient-2); }
+        .card-icon.gradient-3 { background: var(--gradient-3); }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-text {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(10px);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -3rem;
+            top: 0.25rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--dark);
+        }
+
+        .timeline-year {
+            font-size: 0.875rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-desc {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        /* Benchmark Table */
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+
+        .benchmark-table th,
+        .benchmark-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .benchmark-table th {
+            background: var(--dark-secondary);
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .benchmark-table tr:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .score {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .score.high {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .score.medium {
+            background: rgba(234, 179, 8, 0.2);
+            color: #eab308;
+        }
+
+        /* Images */
+        .figure-container {
+            margin: 2rem 0;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: var(--dark-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .figure-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .figure-caption {
+            padding: 1rem;
+            color: var(--gray);
+            font-size: 0.875rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Poster Section */
+        .poster-preview {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 2px solid var(--primary);
+        }
+
+        .poster-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .poster-column h3 {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .poster-column ul {
+            list-style: none;
+            color: var(--gray);
+        }
+
+        .poster-column li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* References */
+        .reference-list {
+            list-style: none;
+        }
+
+        .reference-item {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: var(--dark-secondary);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--gray);
+            border-left: 3px solid var(--primary);
+        }
+
+        .reference-item span {
+            color: var(--light);
+            font-weight: 500;
+        }
+
+        /* Conclusion */
+        .conclusion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .conclusion-card {
+            background: linear-gradient(135deg, var(--dark-secondary) 0%, rgba(99, 102, 241, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .conclusion-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .conclusion-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .conclusion-desc {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray);
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .scroll-indicator.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-indicator:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            section {
+                padding: 4rem 1rem 2rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .poster-content {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                padding-left: 2rem;
+            }
+
+            .timeline-dot {
+                left: -2rem;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hover-lift {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Animation -->
+    <div class="bg-animation"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-content">
+            <div class="nav-logo">LLM Cartography</div>
+            <ul class="nav-links">
+                <li><a href="#accueil">Accueil</a></li>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#progres">Progrès Tech</a></li>
+                <li><a href="#architectures">Architectures</a></li>
+                <li><a href="#architecture">Mécanismes</a></li>
+                <li><a href="#timeline">Timeline</a></li>
+                <li><a href="#benchmarks">Benchmarks</a></li>
+                <li><a href="#tendances">Tendances</a></li>
+                <li><a href="#conclusion">Conclusion</a></li>
+                <li><a href="#references">Références</a></li>
+                <li><a href="#poster">Poster</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Table of Contents (Desktop) -->
+    <aside class="toc">
+        <ul class="toc-list">
+            <li class="toc-item active" data-section="accueil">
+                <span class="toc-dot"></span>
+                Accueil
+            </li>
+            <li class="toc-item" data-section="introduction">
+                <span class="toc-dot"></span>
+                Introduction
+            </li>
+            <li class="toc-item" data-section="progres">
+                <span class="toc-dot"></span>
+                Progrès Tech
+            </li>
+            <li class="toc-item" data-section="architectures">
+                <span class="toc-dot"></span>
+                Architectures
+            </li>
+            <li class="toc-item" data-section="architecture">
+                <span class="toc-dot"></span>
+                Mécanismes
+            </li>
+            <li class="toc-item" data-section="timeline">
+                <span class="toc-dot"></span>
+                Timeline
+            </li>
+            <li class="toc-item" data-section="benchmarks">
+                <span class="toc-dot"></span>
+                Benchmarks
+            </li>
+            <li class="toc-item" data-section="tendances">
+                <span class="toc-dot"></span>
+                Tendances
+            </li>
+            <li class="toc-item" data-section="conclusion">
+                <span class="toc-dot"></span>
+                Conclusion
+            </li>
+            <li class="toc-item" data-section="references">
+                <span class="toc-dot"></span>
+                Références
+            </li>
+            <li class="toc-item" data-section="poster">
+                <span class="toc-dot"></span>
+                Poster
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Hero Section -->
+    <section id="accueil" class="hero">
+        <div class="hero-badge">
+            <span>🎓</span> M2 ESIS
+        </div>
+        <h1 class="hero-title">
+            Cartographie du Domaine
+            <span>Modèles de Langue (LLM)</span>
+        </h1>
+        <div class="hero-info">
+            <div class="hero-info-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                DRISS Amine
+            </div>
+            <div class="hero-info-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+                Master 2 ESIS - Promotion 2025-2026
+            </div>
+            <div class="hero-info-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Période d'étude: 2017-2024
+            </div>
+        </div>
+        <p class="hero-description">
+            Une analyse approfondie de l'évolution des Grands Modèles de Langue, 
+            des architectures fondatrices aux modèles multimodaux actuels.
+        </p>
+        <div class="hero-stats">
+            <div class="stat-item">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">Modèles documentés</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Ruptures majeures</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">Benchmarks analysés</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="introduction">
+        <h2 class="section-title">Introduction</h2>
+        <p class="section-subtitle">Objectifs et contexte de l'étude</p>
+        
+        <div class="card-grid">
+            <div class="card hover-lift">
+                <div class="card-icon gradient-1">🎯</div>
+                <h3 class="card-title">Objectifs</h3>
+                <p class="card-text">
+                    Cartographier l'évolution des modèles de langue de 2017 à 2024, 
+                    identifier les innovations majeures et analyser les tendances futures.
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-2">📚</div>
+                <h3 class="card-title">Méthodologie</h3>
+                <p class="card-text">
+                    Recherche documentaire sur Papers With Code, Semantic Scholar et arXiv.
+                    Analyse en deux passes: modèles puis mécanismes.
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-3">🔬</div>
+                <h3 class="card-title">Période</h3>
+                <p class="card-text">
+                    Étude couvrant 7 années d'innovation intense: du Transformer (2017) 
+                    aux modèles multimodaux (2024).
+                </p>
+            </div>
+        </div>
+
+        <div class="card fade-in" style="margin-top: 2rem;">
+            <h3 class="card-title">Contexte: Qu'est-ce que le NLP?</h3>
+            <p class="card-text">
+                Le <strong>Traitement du Langage Naturel (NLP)</strong> est un domaine de l'IA qui se concentre sur 
+                l'interaction entre les ordinateurs et le langage humain. Les <strong>Grands Modèles de Langue (LLM)</strong> 
+                ont révolutionné ce domaine depuis 2017.
+            </p>
+        </div>
+    </section>
+
+    <!-- Progrès Technologiques Section -->
+    <section id="progres">
+        <h2 class="section-title">5 Progrès Technologiques Majeurs</h2>
+        <p class="section-subtitle">Changements de paradigme, percées de précision, nouveaux usages</p>
+
+        <div class="card-grid">
+            <div class="card hover-lift">
+                <div class="card-icon gradient-1">1</div>
+                <h3 class="card-title">Transformer (2017)</h3>
+                <p class="card-text">
+                    <strong>Changement de Paradigme:</strong> Traitement parallèle O(1) vs séquentiel O(n)<br><br>
+                    <strong>Percée de Précision:</strong> WMT 2014 EN-DE: 28.4 BLEU (+12%)<br>
+                    WMT 2014 EN-FR: 41.8 BLEU (+7%)<br><br>
+                    <strong>Nouveaux Usages:</strong> Traduction automatique temps réel, résumé de documents longs
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-2">2</div>
+                <h3 class="card-title">BERT (2018)</h3>
+                <p class="card-text">
+                    <strong>Changement de Paradigme:</strong> Pré-entraînement + Fine-tuning, modèle multi-tâches<br><br>
+                    <strong>Percée de Précision:</strong> GLUE: 78.3% (+14%), SQuAD 2.0: 83.1% (+6%)<br>
+                    11 tâches SOTA simultanément<br><br>
+                    <strong>Nouveaux Usages:</strong> Classification texte, NER, question answering
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-3">3</div>
+                <h3 class="card-title">GPT-3 (2020)</h3>
+                <p class="card-text">
+                    <strong>Changement de Paradigme:</strong> Few-shot/Zero-shot learning, capacités émergentes<br><br>
+                    <strong>Percée de Précision:</strong> TriviaQA: 64.3% (+34%), LAMBADA: 76.2% (+15%)<br>
+                    175B paramètres, émergence de capacités non entraînées<br><br>
+                    <strong>Nouveaux Usages:</strong> Chatbots, génération code basique, traductions zero-shot
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-1">4</div>
+                <h3 class="card-title">InstructGPT (2022)</h3>
+                <p class="card-text">
+                    <strong>Changement de Paradigme:</strong> RLHF pour alignement avec préférences humaines<br><br>
+                    <strong>Percée de Précision:</strong> Préférences humaines: 70% (+133%), Toxicité: -50%<br>
+                    Qualité instructions: +40%<br><br>
+                    <strong>Nouveaux Usages:</strong> ChatGPT (100M utilisateurs en 2 mois), assistants virtuels
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-2">5</div>
+                <h3 class="card-title">LLaMA (2023)</h3>
+                <p class="card-text">
+                    <strong>Changement de Paradigme:</strong> Open-source + efficacité, transparence<br><br>
+                    <strong>Percée de Précision:</strong> LLaMA-70B: 72% MMLU (équivalent GPT-3.5)<br>
+                    60% moins de paramètres que GPT-3<br><br>
+                    <strong>Nouveaux Usages:</strong> Fine-tuning local, LoRA/QLoRA, Mistral/Qwen
+                </p>
+            </div>
+        </div>
+
+        <div class="figure-container" style="margin-top: 2rem;">
+            <table class="benchmark-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Progrès</th>
+                        <th>Année</th>
+                        <th>Innovation Clé</th>
+                        <th>Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Transformer</td>
+                        <td>2017</td>
+                        <td>Self-Attention</td>
+                        <td><span class="score high">Parallélisation</span></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>BERT</td>
+                        <td>2018</td>
+                        <td>MLM Bidirectionnel</td>
+                        <td><span class="score high">Transfer Learning</span></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>GPT-3</td>
+                        <td>2020</td>
+                        <td>Few-shot Émergence</td>
+                        <td><span class="score high">Échelle</span></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>InstructGPT</td>
+                        <td>2022</td>
+                        <td>RLHF</td>
+                        <td><span class="score high">Alignement</span></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>LLaMA</td>
+                        <td>2023</td>
+                        <td>Open-source Efficient</td>
+                        <td><span class="score high">Démocratisation</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="figure-caption">
+                Tableau récapitulatif des 5 ruptures technologiques majeures
+            </div>
+        </div>
+    </section>
+
+    <!-- Architectures Section -->
+    <section id="architectures">
+        <h2 class="section-title">Architectures des Transformers</h2>
+        <p class="section-subtitle">Encoder-only, Decoder-only, Encoder-Decoder</p>
+
+        <div class="card-grid">
+            <div class="card hover-lift">
+                <div class="card-icon gradient-1">🔄</div>
+                <h3 class="card-title">Encoder-Only (BERT)</h3>
+                <p class="card-text">
+                    <strong>Contexte:</strong> Bidirectionnel<br>
+                    <strong>Usage:</strong> Classification, NER, QA<br>
+                    <strong>Exemples:</strong> BERT, RoBERTa, ALBERT<br><br>
+                    Traite le texte dans les deux directions pour une compréhension complète.
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-2">➡️</div>
+                <h3 class="card-title">Decoder-Only (GPT)</h3>
+                <p class="card-text">
+                    <strong>Contexte:</strong> Unidirectionnel (gauche)<br>
+                    <strong>Usage:</strong> Génération texte, code<br>
+                    <strong>Exemples:</strong> GPT, GPT-2, GPT-3, GPT-4<br><br>
+                    Prédit le mot suivant en ne regardant que le contexte gauche.
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-3">🔄➡️</div>
+                <h3 class="card-title">Encoder-Decoder (T5)</h3>
+                <p class="card-text">
+                    <strong>Contexte:</strong> Séparé (source→cible)<br>
+                    <strong>Usage:</strong> Traduction, résumé<br>
+                    <strong>Exemples:</strong> T5, BART, mBART<br><br>
+                    L'encodeur traite l'entrée, le décodeur génère la sortie.
+                </p>
+            </div>
+        </div>
+
+        <div class="figure-container" style="margin-top: 2rem;">
+            <table class="benchmark-table">
+                <thead>
+                    <tr>
+                        <th>Architecture</th>
+                        <th>Contexte</th>
+                        <th>Direction</th>
+                        <th>Usage Principal</th>
+                        <th>Modèles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Encoder-only</td>
+                        <td>Bidirectionnel</td>
+                        <td>Gauche+Droite</td>
+                        <td>Compréhension</td>
+                        <td>BERT, RoBERTa</td>
+                    </tr>
+                    <tr>
+                        <td>Decoder-only</td>
+                        <td>Unidirectionnel</td>
+                        <td>Gauche seule</td>
+                        <td>Génération</td>
+                        <td>GPT-1 à GPT-4</td>
+                    </tr>
+                    <tr>
+                        <td>Encoder-Decoder</td>
+                        <td>Séparé</td>
+                        <td>Bidirectionnel+Uni</td>
+                        <td>Transformation</td>
+                        <td>T5, BART</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="figure-caption">
+                Tableau comparatif des architectures Transformer
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture">
+        <h2 class="section-title">Architecture des LLM</h2>
+        <p class="section-subtitle">Les fondations technologiques</p>
+
+        <div class="figure-container">
+            <img src="figure_architecture.png" alt="Architecture du Transformer" />
+            <div class="figure-caption">
+                Figure 1: Architecture du Transformer - Encoder-Decoder avec Self-Attention
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <div class="card hover-lift">
+                <h3 class="card-title">Self-Attention</h3>
+                <p class="card-text">
+                    <code>Attention(Q,K,V) = softmax(QK^T / √d_k)V</code><br><br>
+                    Permet de capturer les dépendances à longue distance en parallèle.
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <h3 class="card-title">Multi-Head Attention</h3>
+                <p class="card-text">
+                    Multiple heads en parallèle apprennent différentes relations sémantiques.
+                    h=8 heads, d_k=64 par head dans BERT-base.
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <h3 class="card-title">MLM (BERT)</h3>
+                <p class="card-text">
+                    Masked Language Modeling: 15% des tokens masqués → prédire.
+                    Permet l'apprentissage bidirectionnel.
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <h3 class="card-title">RLHF (InstructGPT)</h3>
+                <p class="card-text">
+                    Reinforcement Learning from Human Feedback:
+                    Alignement du modèle avec les préférences humaines.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section id="timeline">
+        <h2 class="section-title">Timeline des Innovations</h2>
+        <p class="section-subtitle">Évolution des modèles de 2017 à 2024</p>
+
+        <div class="figure-container">
+            <img src="figure_timeline.png" alt="Timeline des modèles LLM" />
+            <div class="figure-caption">
+                Figure 2: Évolution des paramètres des modèles LLM (2017-2024)
+            </div>
+        </div>
+
+        <div class="timeline" style="margin-top: 2rem;">
+            <div class="timeline-item fade-in">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">Juin 2017</div>
+                <h3 class="timeline-title">Transformer</h3>
+                <p class="timeline-desc">Vaswani et al. (NeurIPS) - Self-Attention, WMT 28.4 BLEU, 65-213M params</p>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">Oct 2018</div>
+                <h3 class="timeline-title">BERT</h3>
+                <p class="timeline-desc">Devlin et al. (NAACL) - MLM bidirectionnel, GLUE 78.3%, 110-340M</p>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">Fév 2019</div>
+                <h3 class="timeline-title">GPT-2</h3>
+                <p class="timeline-desc">Radford et al. - Zero-shot learning, 1.5B paramètres</p>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">Oct 2019</div>
+                <h3 class="timeline-title">T5</h3>
+                <p class="timeline-desc">Raffel et al. - Text-to-Text, Encoder-Decoder, 770M-11B</p>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">Mai 2020</div>
+                <h3 class="timeline-title">GPT-3</h3>
+                <p class="timeline-desc">Brown et al. - Few-shot emergence, 175B paramètres, LAMBADA 76.2%</p>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">Mars 2022</div>
+                <h3 class="timeline-title">InstructGPT</h3>
+                <p class="timeline-desc">Ouyang et al. - RLHF, 70% préférences humaines, ChatGPT</p>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">Fév 2023</div>
+                <h3 class="timeline-title">LLaMA</h3>
+                <p class="timeline-desc">Touvron et al. - Open-source efficient, 7-65B, MMLU 68.2%</p>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">Juil 2023</div>
+                <h3 class="timeline-title">LLaMA 2</h3>
+                <p class="timeline-desc">Meta AI - Open commercial, 7-70B, MMLU 69.4%</p>
+            </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">Mars 2023</div>
+                <h3 class="timeline-title">GPT-4</h3>
+                <p class="timeline-desc">OpenAI - Multimodal, ~1.7T params, MMLU 86.4%</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benchmarks Section -->
+    <section id="benchmarks">
+        <h2 class="section-title">Benchmarks d'Évaluation</h2>
+        <p class="section-subtitle">Métriques de performance</p>
+
+        <div class="figure-container">
+            <img src="figure_benchmarks.png" alt="Performance des benchmarks" />
+            <div class="figure-caption">
+                Figure 3: Évolution des performances sur MMLU et HumanEval
+            </div>
+        </div>
+
+        <table class="benchmark-table fade-in">
+            <thead>
+                <tr>
+                    <th>Benchmark</th>
+                    <th>Domaine</th>
+                    <th>Métrique</th>
+                    <th>GPT-4</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>GLUE</td>
+                    <td>Compréhension</td>
+                    <td>Moyenne</td>
+                    <td><span class="score high">100+</span></td>
+                </tr>
+                <tr>
+                    <td>MMLU</td>
+                    <td>Multitâche</td>
+                    <td>Accuracy</td>
+                    <td><span class="score high">86.4%</span></td>
+                </tr>
+                <tr>
+                    <td>HumanEval</td>
+                    <td>Code</td>
+                    <td>Pass@1</td>
+                    <td><span class="score high">67%</span></td>
+                </tr>
+                <tr>
+                    <td>BIG-Bench</td>
+                    <td>Raisonnement</td>
+                    <td>Average</td>
+                    <td><span class="score high">83.1%</span></td>
+                </tr>
+                <tr>
+                    <td>GSM8K</td>
+                    <td>Mathématiques</td>
+                    <td>Accuracy</td>
+                    <td><span class="score high">92%</span></td>
+                </tr>
+                <tr>
+                    <td>TriviaQA</td>
+                    <td>QA</td>
+                    <td>Exact Match</td>
+                    <td><span class="score medium">70%</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="figure-container" style="margin-top: 2rem;">
+            <img src="figure_innovations.png" alt="Impact des innovations" />
+            <div class="figure-caption">
+                Figure 4: Impact des innovations par modèle (échelle 1-10)
+            </div>
+        </div>
+    </section>
+
+    <!-- Trends Section -->
+    <section id="tendances">
+        <h2 class="section-title">Tendances & Perspectives</h2>
+        <p class="section-subtitle">Directions actuelles (2022-2026), questions ouvertes, limitations, recherches prometteuses</p>
+
+        <div class="card-grid">
+            <div class="card hover-lift">
+                <div class="card-icon gradient-1">🌐</div>
+                <h3 class="card-title">Multimodalité Native</h3>
+                <p class="card-text">
+                    GPT-4V, Gemini traitent texte + image + audio + vidéo.
+                    Convergence des modalités.
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-2">📏</div>
+                <h3 class="card-title">Contexte Long</h3>
+                <p class="card-text">
+                    Gemini 1.5: 1M tokens.
+                    Claude 3: 200K tokens.
+                    Vers des millions de tokens.
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-3">🤖</div>
+                <h3 class="card-title">Agents Autonomes</h3>
+                <p class="card-text">
+                    AutoGPT, Claude Code, Project Astra.
+                    Capacité de raisonnement autonome.
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-1">⚡</div>
+                <h3 class="card-title">Efficiency</h3>
+                <p class="card-text">
+                    LoRA, QLoRA, quantization.
+                    Fine-tuning accessible.
+                </p>
+            </div>
+        </div>
+
+        <!-- Questions Ouvertes & Limitations -->
+        <h3 style="margin-top: 3rem; color: var(--primary-light);">Questions Ouvertes & Limitations</h3>
+        <div class="card-grid" style="margin-top: 1rem;">
+            <div class="card hover-lift">
+                <div class="card-icon gradient-3">❓</div>
+                <h3 class="card-title">Questions Fondamentales</h3>
+                <p class="card-text">
+                    • Les LLM comprennent-ils vraiment ?<br>
+                    • Peut-on parler de "vrai" raisonnement ?<br>
+                    • Comment expliquer l'émergence ?<br>
+                    • Vers une AGI possible ?
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-1">⚠️</div>
+                <h3 class="card-title">Limitations Connues</h3>
+                <p class="card-text">
+                    • Hallucinations: génération de faits faux<br>
+                    • Biais: reproduction de préjugés<br>
+                    • Coût énergétique: ~1000 tonnes CO2 (GPT-4)<br>
+                    • Contexte fini: maximum tokens
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-2">🔬</div>
+                <h3 class="card-title">Recherches Prometteuses</h3>
+                <p class="card-text">
+                    • State Space Models (Mamba)<br>
+                    • Reasoning autonome (CoT, Tool use)<br>
+                    • Edge deployment
+                    • Alignement: DPO, Constitutional AI
+                </p>
+            </div>
+            <div class="card hover-lift">
+                <div class="card-icon gradient-3">🛡️</div>
+                <h3 class="card-title">Sécurité & Risques</h3>
+                <p class="card-text">
+                    • Désinformation: génération de faux contenus<br>
+                    • Cyberattaques: code malveillant<br>
+                    • Régulation: EU AI Act, US Executive Order
+                </p>
+            </div>
+        </div>
+
+        <div class="figure-container" style="margin-top: 2rem;">
+            <img src="figure_scaling.png" alt="Scaling Laws" />
+            <div class="figure-caption">
+                Figure 5: Scaling Laws - Performance vs Paramètres
+            </div>
+        </div>
+    </section>
+
+    <!-- Conclusion Section -->
+    <section id="conclusion">
+        <h2 class="section-title">Conclusion</h2>
+        <p class="section-subtitle">5 points clés à retenir</p>
+
+        <div class="conclusion-grid">
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-number">01</div>
+                <h3 class="conclusion-title">Transformer (2017)</h3>
+                <p class="conclusion-desc">Architecture fondatrice permettant la parallélisation complète</p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-number">02</div>
+                <h3 class="conclusion-title">BERT (2018)</h3>
+                <p class="conclusion-desc">Transfer Learning démocratisé via MLM bidirectionnel</p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-number">03</div>
+                <h3 class="conclusion-title">GPT-3 (2020)</h3>
+                <p class="conclusion-desc">Émergence de capacités à grande échelle (few-shot)</p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-number">04</div>
+                <h3 class="conclusion-title">InstructGPT (2022)</h3>
+                <p class="conclusion-desc">Alignement via RLHF - ChatGPT: 100M utilisateurs</p>
+            </div>
+            <div class="conclusion-card fade-in">
+                <div class="conclusion-number">05</div>
+                <h3 class="conclusion-title">LLaMA (2023)</h3>
+                <p class="conclusion-desc">Démocratisation open-source - Écosystème florissant</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- References Section -->
+    <section id="references">
+        <h2 class="section-title">Références Bibliographiques</h2>
+        <p class="section-subtitle">Format IEEE - 20 références</p>
+
+        <ul class="reference-list fade-in">
+            <li class="reference-item">
+                [1] A. Vaswani, et al., "Attention Is All You Need," in <em>NeurIPS</em>, Dec 2017, pp. 5998-6008. doi:10.5555/3295222.3295349
+            </li>
+            <li class="reference-item">
+                [2] J. Devlin, et al., "BERT: Pre-training of Deep Bidirectional Transformers," in <em>NAACL-HLT</em>, Jun 2019, pp. 4171-4186. doi:10.18653/v1/N19-1423
+            </li>
+            <li class="reference-item">
+                [3] A. Radford, et al., "Improving Language Understanding by Generative Pre-Training," <em>OpenAI Tech. Rep.</em>, Jun 2018.
+            </li>
+            <li class="reference-item">
+                [4] A. Radford, et al., "Language Models are Unsupervised Multitask Learners," <em>OpenAI Tech. Rep.</em>, Feb 2019.
+            </li>
+            <li class="reference-item">
+                [5] C. Raffel, et al., "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer," <em>J. Mach. Learn. Res.</em>, vol. 21, no. 140, 2020.
+            </li>
+            <li class="reference-item">
+                [6] T. B. Brown, et al., "Language Models are Few-Shot Learners," in <em>NeurIPS</em>, Dec 2020, pp. 1877-1901.
+            </li>
+            <li class="reference-item">
+                [7] L. Ouyang, et al., "Training Language Models to Follow Instructions with Human Feedback," in <em>NeurIPS</em>, Dec 2022.
+            </li>
+            <li class="reference-item">
+                [8] H. Touvron, et al., "LLaMA: Open and Efficient Foundation Language Models," <em>arXiv:2302.13971</em>, Feb 2023.
+            </li>
+            <li class="reference-item">
+                [9] H. Touvron, et al., "Llama 2: Open Foundation and Chat Models," <em>arXiv:2307.01394</em>, Jul 2023.
+            </li>
+            <li class="reference-item">
+                [10] OpenAI, "GPT-4 Technical Report," <em>arXiv:2303.08774</em>, Mar 2023.
+            </li>
+            <li class="reference-item">
+                [11] R. Bommasani, et al., "On the Opportunities and Risks of Foundation Models," <em>arXiv:2108.07258</em>, Aug 2021.
+            </li>
+            <li class="reference-item">
+                [12] E. M. Bender, et al., "On the Dangers of Stochastic Parrots," in <em>FAccT</em>, Mar 2021, pp. 610-623. doi:10.1145/3442188.3445922
+            </li>
+            <li class="reference-item">
+                [13] Y. LeCun, Y. Bengio, and G. Hinton, "Deep Learning," <em>Nature</em>, vol. 521, no. 7553, May 2015, pp. 436-444.
+            </li>
+            <li class="reference-item">
+                [14] D. Amodei, et al., "Deep Speech 2: End-to-End Speech Recognition," in <em>ICML</em>, Jun 2016, pp. 173-182.
+            </li>
+            <li class="reference-item">
+                [15] A. Dosovitskiy, et al., "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale," in <em>ICLR</em>, May 2021.
+            </li>
+            <li class="reference-item">
+                [16] Hugging Face, "Transformers Documentation," 2024. [Online]. Available: https://huggingface.co/docs/transformers/
+            </li>
+            <li class="reference-item">
+                [17] Papers With Code, "Language Modeling," 2024. [Online]. Available: https://paperswithcode.com/area/computational-linguistics/language-modelling
+            </li>
+            <li class="reference-item">
+                [18] GLUE Benchmark, 2024. [Online]. Available: https://gluebenchmark.com/
+            </li>
+            <li class="reference-item">
+                [19] BIG-Bench, "Beyond the Imitation Game Benchmark," 2024. [Online]. Available: https://github.com/google/BIG-Bench
+            </li>
+            <li class="reference-item">
+                [20] EleutherAI, "LM Evaluation Harness," 2024. [Online]. Available: https://github.com/EleutherAI/lm-evaluation-harness
+            </li>
+        </ul>
+    </section>
+
+    <!-- Poster Section -->
+    <section id="poster">
+        <h2 class="section-title">Poster A3</h2>
+        <p class="section-subtitle">Version visuelle intégrée</p>
+
+        <div class="poster-preview">
+            <div class="poster-content">
+                <div class="poster-column">
+                    <h3>Introduction</h3>
+                    <ul>
+                        <li>Sous-domaine: N1 - LLM</li>
+                        <li>Période: 2017-2024</li>
+                        <li>Objectif: Cartographier l'évolution</li>
+                    </ul>
+                    <h3 style="margin-top: 1.5rem;">Timeline</h3>
+                    <ul>
+                        <li>2017: Transformer</li>
+                        <li>2018: BERT</li>
+                        <li>2019: GPT-2</li>
+                        <li>2020: GPT-3</li>
+                        <li>2022: InstructGPT</li>
+                        <li>2023: LLaMA, GPT-4</li>
+                    </ul>
+                </div>
+                <div class="poster-column">
+                    <h3>5 Ruptures</h3>
+                    <ul>
+                        <li>1. Transformer - Self-Attention</li>
+                        <li>2. BERT - MLM bidirectionnel</li>
+                        <li>3. GPT-3 - Few-shot emergence</li>
+                        <li>4. InstructGPT - RLHF</li>
+                        <li>5. LLaMA - Open-source</li>
+                    </ul>
+                    <h3 style="margin-top: 1.5rem;">Benchmarks</h3>
+                    <ul>
+                        <li>MMLU: 86.4%</li>
+                        <li>HumanEval: 67%</li>
+                        <li>GSM8K: 92%</li>
+                    </ul>
+                    <h3 style="margin-top: 1.5rem;">Conclusion</h3>
+                    <ul>
+                        <li>Transformer: Architecture fondatrice</li>
+                        <li>Transfer Learning: Démocratisation</li>
+                        <li>Échelle: Capacités émergentes</li>
+                        <li>Alignement: Sécurité</li>
+                        <li>Open-source: Accessibilité</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>Projet de Cartographie - M2 ESIS | DRISS Amine | 2025-2026</p>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-indicator" id="scrollBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // TOC navigation
+        document.querySelectorAll('.toc-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const section = this.getAttribute('data-section');
+                document.getElementById(section).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Update active TOC item on scroll
+        const sections = document.querySelectorAll('section');
+        const tocItems = document.querySelectorAll('.toc-item');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-section') === current) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Show/hide scroll button
+            const scrollBtn = document.getElementById('scrollBtn');
+            if (scrollY > 500) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+        });
+
+        // Scroll to top
+        document.getElementById('scrollBtn').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Fade in animation on scroll
+        const fadeElements = document.querySelectorAll('.fade-in');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        fadeElements.forEach(el => observer.observe(el));
+
+        // Smooth section transitions
+        sections.forEach(section => {
+            section.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        });
+    </script>
+</body>
+</html>

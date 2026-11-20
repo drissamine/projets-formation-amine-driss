@@ -1,0 +1,29 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="Schema etoile - RetailPlus" id="star-retailplus">
+    <mxGraphModel dx="900" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Schéma en étoile (Star Schema) — RetailPlus" style="text;html=1;align=center;fontSize=18;fontStyle=1;fontColor=#1B2A4A;" vertex="1" parent="1"><mxGeometry x="280" y="12" width="480" height="30" as="geometry" /></mxCell>
+
+        <mxCell id="fact" value="&lt;b&gt;FactVente&lt;/b&gt;&lt;br&gt;FK → Temps, Produit, Magasin,&lt;br&gt;Client, Canal, Promotion&lt;br&gt;&lt;b&gt;CA · Bénéfice · Quantité · Remise&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="440" y="200" width="180" height="100" as="geometry" /></mxCell>
+
+        <mxCell id="dt" value="&lt;b&gt;DimTemps&lt;/b&gt;&lt;br&gt;DateKey (PK)&lt;br&gt;Jour · Mois · Trimestre · Année" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="170" y="55" width="170" height="65" as="geometry" /></mxCell>
+        <mxCell id="dcl" value="&lt;b&gt;DimClient&lt;/b&gt;&lt;br&gt;ClientKey (PK)&lt;br&gt;Nom · Ville · Catégorie" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="710" y="55" width="170" height="65" as="geometry" /></mxCell>
+        <mxCell id="dp" value="&lt;b&gt;DimProduit&lt;/b&gt;&lt;br&gt;ProduitKey (PK)&lt;br&gt;Nom · Catégorie · Marque" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="50" y="215" width="170" height="65" as="geometry" /></mxCell>
+        <mxCell id="dca" value="&lt;b&gt;DimCanal&lt;/b&gt;&lt;br&gt;CanalKey (PK)&lt;br&gt;Type (Magasin/Web/App)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="840" y="215" width="170" height="65" as="geometry" /></mxCell>
+        <mxCell id="dm" value="&lt;b&gt;DimMagasin&lt;/b&gt;&lt;br&gt;MagasinKey (PK)&lt;br&gt;Ville · Région · Pays" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="170" y="375" width="170" height="65" as="geometry" /></mxCell>
+        <mxCell id="dpr" value="&lt;b&gt;DimPromotion&lt;/b&gt;&lt;br&gt;PromoKey (PK)&lt;br&gt;Type (Solde/Cashback/Bundle)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="710" y="375" width="170" height="65" as="geometry" /></mxCell>
+
+        <mxCell id="e1" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="dt" target="fact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="dcl" target="fact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="dp" target="fact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="dca" target="fact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="dm" target="fact"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" style="endArrow=none;html=1;strokeColor=#6C8EBF;" edge="1" parent="1" source="dpr" target="fact"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="cap" value="Dimensions dénormalisées (1 table par dimension) — 1 seule jointure par dimension, requêtes rapides." style="text;html=1;align=center;fontSize=11;fontStyle=2;fontColor=#777777;" vertex="1" parent="1"><mxGeometry x="230" y="450" width="580" height="20" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

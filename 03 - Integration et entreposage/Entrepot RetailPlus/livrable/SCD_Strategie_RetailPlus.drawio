@@ -1,0 +1,66 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="Strategie SCD - RetailPlus" id="scd-retailplus">
+    <mxGraphModel dx="900" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="540" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Gestion des dimensions à évolution lente (SCD) — RetailPlus" style="text;html=1;align=center;fontSize=18;fontStyle=1;fontColor=#1B2A4A;" vertex="1" parent="1"><mxGeometry x="220" y="12" width="600" height="30" as="geometry" /></mxCell>
+
+        <!-- BLOC 1 -->
+        <mxCell id="h1" value="① Les 4 cas → stratégie SCD" style="text;html=1;align=left;fontStyle=1;fontSize=13;fontColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="40" y="55" width="300" height="22" as="geometry" /></mxCell>
+
+        <mxCell id="c1" value="Données historiques (multi-pays, 5 ans)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="40" y="92" width="290" height="40" as="geometry" /></mxCell>
+        <mxCell id="c2" value="Changement d'adresse client" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="40" y="142" width="290" height="40" as="geometry" /></mxCell>
+        <mxCell id="c3" value="Changement de prix" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="40" y="192" width="290" height="40" as="geometry" /></mxCell>
+        <mxCell id="c4" value="Changement de catégorie produit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;" vertex="1" parent="1"><mxGeometry x="40" y="242" width="290" height="40" as="geometry" /></mxCell>
+
+        <mxCell id="b1" value="SCD Type 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="360" y="92" width="130" height="40" as="geometry" /></mxCell>
+        <mxCell id="b2" value="SCD Type 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="360" y="142" width="130" height="40" as="geometry" /></mxCell>
+        <mxCell id="b3" value="SCD Type 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="360" y="192" width="130" height="40" as="geometry" /></mxCell>
+        <mxCell id="b4" value="Type 1 ou 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="360" y="242" width="130" height="40" as="geometry" /></mxCell>
+
+        <mxCell id="a1" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#5a5a5a;" edge="1" parent="1" source="c1" target="b1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a2" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#5a5a5a;" edge="1" parent="1" source="c2" target="b2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a3" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#5a5a5a;" edge="1" parent="1" source="c3" target="b3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a4" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#5a5a5a;" edge="1" parent="1" source="c4" target="b4"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- BLOC 2 : table DimClient -->
+        <mxCell id="h2" value="② Mécanisme SCD Type 2 — exemple DimClient" style="text;html=1;align=left;fontStyle=1;fontSize=13;fontColor=#9673A6;" vertex="1" parent="1"><mxGeometry x="540" y="55" width="420" height="22" as="geometry" /></mxCell>
+
+        <mxCell id="th" value="ClientKey&#10;ClientID&#10;Adresse&#10;Date_début&#10;Date_fin&#10;Courant" style="text;html=1;fontColor=#fff;fontStyle=1;align=center;" vertex="1" parent="1"><mxGeometry x="540" y="92" width="0" height="0" as="geometry" /></mxCell>
+        <!-- header cells -->
+        <mxCell id="hk" value="ClientKey" style="text;html=1;fillColor=#4A6080;fontColor=#fff;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#34465f;" vertex="1" parent="1"><mxGeometry x="540" y="92" width="60" height="32" as="geometry" /></mxCell>
+        <mxCell id="hi" value="ClientID" style="text;html=1;fillColor=#4A6080;fontColor=#fff;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#34465f;" vertex="1" parent="1"><mxGeometry x="600" y="92" width="70" height="32" as="geometry" /></mxCell>
+        <mxCell id="ha" value="Adresse" style="text;html=1;fillColor=#4A6080;fontColor=#fff;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#34465f;" vertex="1" parent="1"><mxGeometry x="670" y="92" width="70" height="32" as="geometry" /></mxCell>
+        <mxCell id="hd" value="Date_début" style="text;html=1;fillColor=#4A6080;fontColor=#fff;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#34465f;" vertex="1" parent="1"><mxGeometry x="740" y="92" width="90" height="32" as="geometry" /></mxCell>
+        <mxCell id="hf" value="Date_fin" style="text;html=1;fillColor=#4A6080;fontColor=#fff;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#34465f;" vertex="1" parent="1"><mxGeometry x="830" y="92" width="90" height="32" as="geometry" /></mxCell>
+        <mxCell id="hc" value="Courant" style="text;html=1;fillColor=#4A6080;fontColor=#fff;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#34465f;" vertex="1" parent="1"><mxGeometry x="920" y="92" width="80" height="32" as="geometry" /></mxCell>
+        <!-- row 1 -->
+        <mxCell id="r1k" value="1001" style="text;html=1;fillColor=#F2F2F2;fontColor=#555;align=center;verticalAlign=middle;strokeColor=#cfcfcf;" vertex="1" parent="1"><mxGeometry x="540" y="124" width="60" height="32" as="geometry" /></mxCell>
+        <mxCell id="r1i" value="C001" style="text;html=1;fillColor=#F2F2F2;fontColor=#555;align=center;verticalAlign=middle;strokeColor=#cfcfcf;" vertex="1" parent="1"><mxGeometry x="600" y="124" width="70" height="32" as="geometry" /></mxCell>
+        <mxCell id="r1a" value="Paris" style="text;html=1;fillColor=#F2F2F2;fontColor=#555;align=center;verticalAlign=middle;strokeColor=#cfcfcf;" vertex="1" parent="1"><mxGeometry x="670" y="124" width="70" height="32" as="geometry" /></mxCell>
+        <mxCell id="r1d" value="2024-01-15" style="text;html=1;fillColor=#F2F2F2;fontColor=#555;align=center;verticalAlign=middle;strokeColor=#cfcfcf;" vertex="1" parent="1"><mxGeometry x="740" y="124" width="90" height="32" as="geometry" /></mxCell>
+        <mxCell id="r1f" value="2025-05-31" style="text;html=1;fillColor=#F2F2F2;fontColor=#555;align=center;verticalAlign=middle;strokeColor=#cfcfcf;" vertex="1" parent="1"><mxGeometry x="830" y="124" width="90" height="32" as="geometry" /></mxCell>
+        <mxCell id="r1c" value="0 — fermé" style="text;html=1;fillColor=#F2F2F2;fontColor=#555;align=center;verticalAlign=middle;strokeColor=#cfcfcf;" vertex="1" parent="1"><mxGeometry x="920" y="124" width="80" height="32" as="geometry" /></mxCell>
+        <!-- row 2 -->
+        <mxCell id="r2k" value="1002" style="text;html=1;fillColor=#D5E8D4;fontColor=#2e5020;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="540" y="156" width="60" height="32" as="geometry" /></mxCell>
+        <mxCell id="r2i" value="C001" style="text;html=1;fillColor=#D5E8D4;fontColor=#2e5020;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="600" y="156" width="70" height="32" as="geometry" /></mxCell>
+        <mxCell id="r2a" value="Lyon" style="text;html=1;fillColor=#D5E8D4;fontColor=#2e5020;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="670" y="156" width="70" height="32" as="geometry" /></mxCell>
+        <mxCell id="r2d" value="2025-06-01" style="text;html=1;fillColor=#D5E8D4;fontColor=#2e5020;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="740" y="156" width="90" height="32" as="geometry" /></mxCell>
+        <mxCell id="r2f" value="9999-12-31" style="text;html=1;fillColor=#D5E8D4;fontColor=#2e5020;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="830" y="156" width="90" height="32" as="geometry" /></mxCell>
+        <mxCell id="r2c" value="1 — actif" style="text;html=1;fillColor=#D5E8D4;fontColor=#2e5020;fontStyle=1;align=center;verticalAlign=middle;strokeColor=#82B366;" vertex="1" parent="1"><mxGeometry x="920" y="156" width="80" height="32" as="geometry" /></mxCell>
+
+        <mxCell id="ann" value="① Même ClientID (C001) = même client réel (clé naturelle).&#10;② ClientKey distincte (1001, 1002) = une ligne par version (clé de substitution).&#10;③ Date_fin = 9999-12-31 et Courant = 1 → version active.&#10;④ L'ancienne ligne est fermée, une nouvelle est créée — aucun écrasement." style="text;html=1;align=left;verticalAlign=top;fontSize=10.5;fontColor=#444;spacing=2;" vertex="1" parent="1"><mxGeometry x="540" y="196" width="460" height="86" as="geometry" /></mxCell>
+
+        <!-- BLOC 3 : comparaison -->
+        <mxCell id="h3" value="③ Comparaison SCD Type 1 / 2 / 3" style="text;html=1;align=left;fontStyle=1;fontSize=13;fontColor=#B85450;" vertex="1" parent="1"><mxGeometry x="40" y="305" width="400" height="22" as="geometry" /></mxCell>
+
+        <mxCell id="t1" value="&lt;b&gt;SCD Type 1 — Écrasement&lt;/b&gt;&lt;br&gt;La nouvelle valeur remplace l'ancienne.&lt;br&gt;✗ Aucun historique conservé.&lt;br&gt;Simple, rapide, volume stable.&lt;br&gt;&lt;i&gt;Usage : attributs sans intérêt historique.&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;align=left;verticalAlign=top;spacingLeft=6;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="40" y="335" width="300" height="125" as="geometry" /></mxCell>
+        <mxCell id="t2" value="&lt;b&gt;SCD Type 2 — Historisation ★&lt;/b&gt;&lt;br&gt;Nouvelle ligne + dates de validité + flag.&lt;br&gt;✓ Historique complet conservé.&lt;br&gt;Inconvénient : croissance du volume.&lt;br&gt;&lt;b&gt;&lt;i&gt;Recommandé : Client, Produit, Prix.&lt;/i&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#5a9c3a;strokeWidth=2.6;align=left;verticalAlign=top;spacingLeft=6;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="370" y="335" width="300" height="125" as="geometry" /></mxCell>
+        <mxCell id="t3" value="&lt;b&gt;SCD Type 3 — Historique limité&lt;/b&gt;&lt;br&gt;Colonne « valeur précédente ».&lt;br&gt;~ Garde uniquement avant / après.&lt;br&gt;Volume stable, historique partiel.&lt;br&gt;&lt;i&gt;Compromis entre Type 1 et Type 2.&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;align=left;verticalAlign=top;spacingLeft=6;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="700" y="335" width="300" height="125" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

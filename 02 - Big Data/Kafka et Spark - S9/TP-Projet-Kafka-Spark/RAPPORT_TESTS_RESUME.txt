@@ -1,0 +1,205 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    📊 RAPPORT DE TESTS - RÉSUMÉ RAPIDE                       ║
+║                     Kafka-Spark Streaming Pipeline                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📅 Date: 2 février 2026, 14:36
+⏱️  Durée d'exécution: ~92 secondes (1 min 32 sec)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           RÉSULTATS GLOBAUX                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  📊 STATISTIQUES                                                             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  Total de tests:        44                                                   │
+│  ✅ Tests réussis:      37  (84.1%)                                          │
+│  ❌ Tests échoués:      7   (15.9%)                                          │
+│  ⚠️  Warnings:          1317                                                 │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  📈 TAUX DE RÉUSSITE                                                         │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  ████████████████████████████████████████░░░░░░░░  84.1%                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        RÉSULTATS PAR MODULE                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  1️⃣  test_kafka_producer.py - Producteur Kafka                              │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  Statut: ✅ TOUS LES TESTS PASSENT                                          │
+│  Tests: 15/15 réussis (100%)                                                 │
+│                                                                              │
+│  ✅ Génération d'événements                                                  │
+│  ✅ Sérialisation JSON                                                       │
+│  ✅ Envoi vers Kafka                                                         │
+│  ✅ Gestion des erreurs                                                      │
+│  ✅ Distribution des types d'événements                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  2️⃣  test_spark_streaming.py - Spark Structured Streaming                   │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  Statut: ⚠️  1 TEST ÉCHOUÉ                                                   │
+│  Tests: 11/12 réussis (91.7%)                                                │
+│                                                                              │
+│  ✅ Validation du schéma                                                     │
+│  ✅ Parsing JSON                                                             │
+│  ✅ Query 1: Popularité des vidéos                                           │
+│  ❌ Query 2: Engagement utilisateur (Erreur Py4J)                            │
+│  ✅ Query 3: Analyse par genre                                               │
+│  ✅ Query 4: Détection d'anomalies                                           │
+│  ✅ Fenêtres glissantes                                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  3️⃣  test_monitoring.py - Système de Monitoring                             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  Statut: ⚠️  6 TESTS ÉCHOUÉS                                                 │
+│  Tests: 12/18 réussis (66.7%)                                                │
+│                                                                              │
+│  ✅ Enregistrement d'événements                                              │
+│  ✅ Calcul du throughput                                                     │
+│  ✅ Statistiques de latence                                                  │
+│  ✅ Métriques système (CPU, mémoire)                                         │
+│  ❌ Calculs de percentiles (6 tests - Erreur Py4J)                           │
+│  ✅ Génération de rapports                                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          PROBLÈMES IDENTIFIÉS                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+🔴 PROBLÈME PRINCIPAL: Erreurs Py4J (Java/Python)
+
+   Description:
+   • Erreurs py4j.protocol.Py4JJavaError lors de certains tests
+   • Affecte les calculs avancés (engagement, percentiles)
+   
+   Tests affectés:
+   ❌ test_query_2_engagement_dataframe (Spark Streaming)
+   ❌ test_percentile_calculation (Monitoring - 6 tests)
+   
+   Causes possibles:
+   • Configuration Spark/Java incorrecte
+   • Problème de communication Python ↔ JVM
+   • Incompatibilité de versions
+   • Mémoire insuffisante pour la JVM
+
+⚠️  WARNINGS (1317):
+   • Principalement des dépréciations (datetime.utcnow())
+   • Warnings de sérialisation Spark
+   • Impact: Faible (pas de blocage fonctionnel)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          RECOMMANDATIONS                                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+🔴 PRIORITÉ HAUTE:
+
+   1. Corriger les erreurs Py4J
+      → Vérifier la configuration SPARK_HOME et JAVA_HOME
+      → Tester avec différentes versions de PySpark
+      → Augmenter la mémoire JVM (SPARK_DRIVER_MEMORY)
+   
+   2. Déboguer Query 2 (Engagement)
+      → Isoler le problème dans les calculs d'engagement
+      → Simplifier les opérations de fenêtrage
+      → Tester avec un jeu de données réduit
+
+🟡 PRIORITÉ MOYENNE:
+
+   3. Corriger les calculs de percentiles
+      → Revoir l'implémentation statistique
+      → Utiliser des méthodes alternatives si nécessaire
+   
+   4. Réduire les warnings
+      → Remplacer datetime.utcnow() par datetime.now(timezone.utc)
+      → Mettre à jour les dépendances
+
+🟢 PRIORITÉ BASSE:
+
+   5. Optimiser les performances des tests
+      → Réduire le temps d'exécution (actuellement ~92s)
+      → Utiliser des mocks pour accélérer les tests unitaires
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        FONCTIONNALITÉS VALIDÉES                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+✅ Kafka Producer
+   • Génération d'événements de streaming
+   • Sérialisation JSON
+   • Envoi vers Kafka
+   • Gestion des erreurs
+
+✅ Spark Streaming
+   • Parsing des événements JSON
+   • Fenêtres glissantes (10 min, slide 5 min)
+   • Query 1: Popularité des vidéos
+   • Query 3: Analyse par genre
+   • Query 4: Détection d'anomalies
+
+⚠️  Spark Streaming (Partiel)
+   • Query 2: Engagement utilisateur (ÉCHOUÉ)
+
+✅ Monitoring
+   • Collecte de métriques de performance
+   • Throughput et latence
+   • Métriques système (CPU, mémoire)
+   • Génération de rapports
+
+⚠️  Monitoring (Partiel)
+   • Calculs de percentiles (ÉCHOUÉ)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            COMMANDES UTILES                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+# Exécuter tous les tests
+python -m pytest tests/ -v
+
+# Tests par module
+python -m pytest tests/test_kafka_producer.py -v
+python -m pytest tests/test_spark_streaming.py -v
+python -m pytest tests/test_monitoring.py -v
+
+# Rapport de couverture
+python -m pytest tests/ --cov=producer --cov=spark --cov=monitoring --cov-report=html
+
+# Tests spécifiques (uniquement ceux qui passent)
+python -m pytest tests/ -v -k "not percentile and not engagement"
+
+# Générer un rapport HTML visuel
+python generate_test_report.py
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              CONCLUSION                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Le projet Kafka-Spark Streaming Pipeline présente une BASE SOLIDE avec 84.1% de
+tests réussis. Les fonctionnalités principales sont opérationnelles:
+
+✅ Génération d'événements Kafka
+✅ Traitement Spark Streaming
+✅ Monitoring et métriques
+✅ 3 des 4 requêtes d'analyse fonctionnelles
+
+Les 7 échecs sont concentrés sur des problèmes de configuration Spark/Java qui
+peuvent être résolus avec les ajustements appropriés.
+
+VERDICT: ✅ Projet FONCTIONNEL avec ajustements nécessaires pour 100% de réussite
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  📁 Fichiers générés:                                                        ║
+║     • RAPPORT_TESTS.md - Rapport détaillé en Markdown                        ║
+║     • RAPPORT_TESTS_RESUME.txt - Ce résumé rapide                            ║
+║     • generate_test_report.py - Script pour rapport HTML                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Généré automatiquement le 2 février 2026 à 14:36

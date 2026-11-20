@@ -1,0 +1,120 @@
+{
+	"info": {
+		"_postman_id": "shopflow-master-suite",
+		"name": "ShopFlow Master Test Suite",
+		"description": "Validation automatisée complète de ShopFlow (Phase 4).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "E2E Success Flow",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful registration (201)\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"User ID returned\", function () {",
+									"    pm.expect(pm.response.json().id || pm.response.json().userId).to.be.ok;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test_{{$timestamp}}@flow.com\",\n  \"password\": \"pass123\",\n  \"name\": \"Flow User\"\n}",
+							"options": { "simple": { "language": "json" } }
+						},
+						"url": "{{baseUrl}}/auth/register"
+					}
+				},
+				{
+					"name": "Login & Auto-Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Login success (200)\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Token extraction\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.token).to.be.ok;",
+									"    pm.environment.set(\"token\", jsonData.token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test_{{$timestamp}}@flow.com\",\n  \"password\": \"pass123\"\n}",
+							"options": { "simple": { "language": "json" } }
+						},
+						"url": "{{baseUrl}}/auth/login"
+					}
+				}
+			]
+		},
+		{
+			"name": "Error Cases",
+			"item": [
+				{
+					"name": "401 Unauthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": "{{baseUrl}}/products"
+					}
+				},
+				{
+					"name": "404 Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/orders/invalid-id-here"
+					}
+				}
+			]
+		}
+	]
+}

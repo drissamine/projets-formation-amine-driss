@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  app:
+    image: mon-app-js:1.0
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      APP_MESSAGE: "Application lancee avec Docker Compose"
+      LOG_LEVEL: info
+      FEATURE_HEAVY: "false"

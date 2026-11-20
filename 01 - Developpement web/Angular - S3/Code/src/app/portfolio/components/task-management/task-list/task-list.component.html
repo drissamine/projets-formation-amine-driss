@@ -1,0 +1,87 @@
+<div class="task-list-container">
+  <p-card class="task-list-card">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <div class="header-content">
+          <h2>
+            <i class="pi pi-list"></i>
+            Gestion des Tâches
+          </h2>
+          <p-button
+            label="Nouvelle Tâche"
+            icon="pi pi-plus"
+            (onClick)="createTask()"
+            styleClass="p-button-primary">
+          </p-button>
+        </div>
+      </div>
+    </ng-template>
+
+    <p-table [value]="(tasks$ | async) || []" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Titre</th>
+          <th>Description</th>
+          <th>Statut</th>
+          <th>Priorité</th>
+          <th>Créée le</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-task>
+        <tr>
+          <td>
+            <strong>{{ task.title }}</strong>
+          </td>
+          <td>{{ task.description }}</td>
+          <td>
+            <p-tag
+              [value]="getStatusLabel(task.status)"
+              [severity]="getStatusSeverity(task.status)">
+            </p-tag>
+          </td>
+          <td>
+            <p-tag
+              [value]="getPriorityLabel(task.priority)"
+              [severity]="getPrioritySeverity(task.priority)">
+            </p-tag>
+          </td>
+          <td>{{ task.createdAt | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <div class="action-buttons">
+              <p-button
+                icon="pi pi-eye"
+                styleClass="p-button-text p-button-info"
+                pTooltip="Voir"
+                tooltipPosition="top"
+                (onClick)="viewTask(task.id)">
+              </p-button>
+              <p-button
+                icon="pi pi-pencil"
+                styleClass="p-button-text p-button-warning"
+                pTooltip="Modifier"
+                tooltipPosition="top"
+                (onClick)="editTask(task.id)">
+              </p-button>
+              <p-button
+                icon="pi pi-trash"
+                styleClass="p-button-text p-button-danger"
+                pTooltip="Supprimer"
+                tooltipPosition="top"
+                (onClick)="deleteTask(task.id)">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center p-4">
+            <i class="pi pi-info-circle"></i>
+            Aucune tâche trouvée
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
